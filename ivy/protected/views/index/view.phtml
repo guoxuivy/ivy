@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+    <?php  Ivy::app()->widget('index/header'); ?>
+    <body>
+
+        <div id='container'>
+            <div id='left'>
+                
+            </div><!-- end left -->
+            <div id='right'>
+				<?php if(!empty($article)):?>
+	               
+                    <h2><?php echo $article['title'];?></h2>
+					<div id='message_info'><?php echo $article['content'];?></div>
+	
+	               
+                <?php else:?>
+                	<div id='message_info'>暂无内容！</div>
+				<?php endif?>
+            </div><!-- end right -->
+
+            <div id='footer'>
+                <?php Ivy::app()->widget('admin/index/index'); ?>
+            </div>
+        </div><!-- end container -->
+
+    </body>
+</html>

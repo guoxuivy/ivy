@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+    <?php  Ivy::app()->widget('index/header'); ?>
+    <body>
+
+        <div id='container'>
+            <div id='left'>
+                
+            </div><!-- end left -->
+            <div id='right'>
+				<?php if(!empty($article['data'])):?>
+	                <?php foreach ($article['data'] as $v):?>
+	                <div class='blog'>
+	                    <h3 class='blog_title'><a href="<?php echo $this->url("index/view",array("id"=>$v['id'],"name"=>"大")) ?>"><?php echo $v['title']?><span>(<?php echo $v['author']?>)</span></a></h3>
+	                    <div class='publish_time'><?php echo date('Y/m/d',$v['add_time']);?></div>
+	                </div>
+	                <?php endforeach;?>
+	
+	                <!-- 翻页器 -->
+	                <div id='pagener'>
+	                	<a class='long_button' href="javascript:;" data-num='<?php echo $article['currentpage'] - 1 > 0 ? $this->article['currentpage']-1 : 1?>'>上一页</a>
+	                	<?php foreach ($article['pagener'] as $val):?>
+	                		<?php if($val == $article['currentpage']):?>
+	                			<a href="javascript:;" data-num='<?php echo $val?>' class='page_active'><?php echo $val?></a>
+	                		<?php else:?>
+	                			<a href="javascript:;" data-num='<?php echo $val?>'><?php echo $val?></a>
+	                		<?php endif?>
+	                	<?php endforeach;?>
+	                	<a class='long_button' href="javascript:;" data-num='<?php echo $article['currentpage'] + 1 <= $article['pageNums'] ? $article['currentpage']+1 : $article['pageNums']?>'>下一页</a>
+	                </div>
+                <?php else:?>
+                	<div id='message_info'>暂无相关文章！</div>
+				<?php endif?>
+            </div><!-- end right -->
+
+            <div id='footer'>
+                <?php Ivy::app()->widget('admin/index/index'); ?>
+            </div>
+        </div><!-- end container -->
+
+    </body>
+</html>
