@@ -29,7 +29,7 @@ abstract class AbsoluteDB {
 		}
 		$sql .= ' from `' . $tableName . '` ';
 	
-		if ($condition instanceof where) {
+		if ($condition instanceof Where) {
 			if(trim($condition->getCond ()) != ''){
 				$sql .= 'where ' . $condition->getCond ();
 			}
@@ -99,7 +99,7 @@ abstract class AbsoluteDB {
 			$count++;
 		}
 		
-		if($Condition instanceof where && trim($Condition->getCond ()) != ''){
+		if($Condition instanceof Where && trim($Condition->getCond ()) != ''){
 			$sql .= ' where '.$Condition->getCond();
 		}else{
 			throw new CException('无效的条件');
@@ -116,7 +116,7 @@ abstract class AbsoluteDB {
 			throw new CException ( '无效的表查询' );
 		}
 		$sql = 'delete from `'.$tableName.'` ';
-		if($Condition instanceof where && trim($Condition->getCond ()) != ''){
+		if($Condition instanceof Where && trim($Condition->getCond ()) != ''){
 			$sql .= ' where '.$Condition->getCond();
 		}else{
 			throw new CException('无效的条件');

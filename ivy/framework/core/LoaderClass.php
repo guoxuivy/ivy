@@ -25,6 +25,10 @@ class LoaderClass{
 	static public function loadFile($className){
         //自动加载框架文件
         //Ivy 命名空间自动截取
+        if( strtolower($className)=='basecontroller'){
+            $className="Ivy\core\BaseController";
+        }
+        
         if("Ivy\\"===substr($className,0,4)){
             $className=substr($className,4);
             //加载框架文件

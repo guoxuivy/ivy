@@ -9,7 +9,6 @@
 namespace admin; 
 use Ivy\core\BaseController;
 class IndexController extends BaseController {
-    
     /**
 	 * 显示模版实例示例
 	 */

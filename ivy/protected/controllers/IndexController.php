@@ -6,9 +6,8 @@
  * @package framework
  * @since 1.0
  */
-use Ivy\core as C;
-use Ivy\db as D;
-class IndexController extends C\BaseController {
+use Ivy\core\BaseController,Ivy\db\Where;
+class IndexController extends BaseController {
 	
 	/**
 	 * 显示模版实例示例
@@ -17,8 +16,7 @@ class IndexController extends C\BaseController {
 		$typeList = $this->db->getData ( 'type' ); // 获取类型
 		$article = $this->db->getPagener('article',$order = array('add_time' => 'DESC'),10,1);
 
-        $this->view->assign('article',$article)
-					 ->display();
+        $this->view->assign('article',$article)->display();
 	}
     
    	/**
@@ -36,7 +34,7 @@ class IndexController extends C\BaseController {
 	 * 点击访问单条article
 	 */
 	public function viewAction(){
-		$where = new D\where;
+		$where = new Where;
 		$where->eqTo('id', $_GET['id']);
 		$article = $this->db->getDataOne('article',$where);
 		$this->view->assign ( 'article', $article )->display();

@@ -10,6 +10,4 @@ use Ivy\db as D;
 class IndexModel extends D\CModel
 {
 	
-	
-	
 }

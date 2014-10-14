@@ -8,8 +8,8 @@
  * @comment 生成sql条件
  */
 namespace Ivy\db;
-use Ivy\core;
-class where {
+use Ivy\core\CException;
+class Where {
 	
 	public $condition = NULL;
 	
