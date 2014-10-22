@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-    <?php  Ivy::app()->widget('index/header'); ?>
+    <?php Ivy::app()->widget('index/header'); ?>
     <body>
 
         <div id='container'>
@@ -20,7 +20,7 @@
             </div><!-- end right -->
 
             <div id='footer'>
-                <?php Ivy::app()->widget('admin/index/index'); ?>
+                <?php Ivy::app()->widget('admin/index/index',array('name'=>"我被覆盖了")); ?>
             </div>
         </div><!-- end container -->
 

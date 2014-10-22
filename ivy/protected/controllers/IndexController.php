@@ -6,14 +6,14 @@
  * @package framework
  * @since 1.0
  */
-use Ivy\core\BaseController,Ivy\db\Where;
-class IndexController extends BaseController {
+class IndexController extends \CController {
 	
 	/**
 	 * 显示模版实例示例
 	 */
 	public function indexAction() {
-		$typeList = $this->db->getData ( 'type' ); // 获取类型
+	    $r = ArticleModel::model()->findByPk(2);
+		$typeList = $this->db->find( 'type' ); // 获取类型
 		$article = $this->db->getPagener('article',$order = array('add_time' => 'DESC'),10,1);
 
         $this->view->assign('article',$article)->display();
@@ -34,10 +34,7 @@ class IndexController extends BaseController {
 	 * 点击访问单条article
 	 */
 	public function viewAction(){
-		$where = new Where;
-		$where->eqTo('id', $_GET['id']);
-		$article = $this->db->getDataOne('article',$where);
-		$this->view->assign ( 'article', $article )->display();
+		$this->view->assign ( 'article', ArticleModel::model()->findByPk($_GET['id']))->display();
 	}
     
 	

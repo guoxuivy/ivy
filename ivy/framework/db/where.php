@@ -16,34 +16,41 @@ class Where {
 	public function lessThen($key,$val){
 		$this->checkCon($key, $val);
 		$this->condition .= '`'.$key.'` < '."'".$val."'"; 
+        return $this;
 	}
 	
 	public function lessOrEqThen($key,$val){
 		$this->checkCon($key, $val);
 		$this->condition .= '`'.$key.'` <= '."'".$val."'"; 
+        return $this;
 	}
 	
 	public function moreThen($key,$val){
 		$this->checkCon($key, $val);
 		$this->condition .= '`'.$key.'` > '."'".$val."'"; 
+        return $this;
 	}
 	
 	public function moreOrEqThen($key,$val){
 		$this->checkCon($key, $val);
 		$this->condition .= '`'.$key.'` >= '."'".$val."'"; 
+        return $this;
 	}
 	
 	public function eqTo($key,$val){
 		$this->checkCon($key, $val);
 		$this->condition .= '`'.$key.'` = '."'".$val."'"; 
+        return $this;
 	}
 	
 	public function _and(){
 		$this->condition .= ' and ';
+        return $this;
 	}
 	
 	public function _or(){
 		$this->condition .= ' or ';
+        return $this;
 	}
 	
 	private function checkCon($key,$val){

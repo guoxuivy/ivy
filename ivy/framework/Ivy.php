@@ -12,10 +12,10 @@
 header('Content-type: text/html; charset=utf-8');
 date_default_timezone_set('Asia/Shanghai');
  
-defined('__ROOT__') or define('__ROOT__', dirname(__DIR__));           //定义网站根目录 D:\wwwroot
-defined('__PROTECTED__') or define('__PROTECTED__',__ROOT__.DIRECTORY_SEPARATOR."protected");           //定义网站根目录 D:\wwwroot
-defined('SITE_URL') or define('SITE_URL', dirname($_SERVER['SCRIPT_NAME']));    //定义访问地址  /ivy
-defined('IVY_PATH') or define('IVY_PATH',dirname(__FILE__));                    //定义框架根目录 D:\wwwroot\ivy\framework
+defined('__ROOT__') or define('__ROOT__', dirname(__DIR__));                                    //定义网站根目录 D:\wwwroot
+defined('__PROTECTED__') or define('__PROTECTED__',__ROOT__.DIRECTORY_SEPARATOR."protected");   //定义项目文件根目录
+defined('SITE_URL') or define('SITE_URL', dirname($_SERVER['SCRIPT_NAME']));                    //定义访问地址  /ivy
+defined('IVY_PATH') or define('IVY_PATH',dirname(__FILE__));                                    //定义框架根目录 D:\wwwroot\ivy\framework
 
 use Ivy\core\Application;
 class Ivy
@@ -39,6 +39,8 @@ class Ivy
 	}
     
 }
+
+
 Ivy::init();
 
 

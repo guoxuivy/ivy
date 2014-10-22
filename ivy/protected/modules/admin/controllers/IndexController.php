@@ -7,13 +7,13 @@
  * @since 1.0
  */
 namespace admin; 
-use Ivy\core\BaseController;
-class IndexController extends BaseController {
+class IndexController extends \CController {
     /**
 	 * 显示模版实例示例
 	 */
 	public function indexAction() {
-        return $this->view->assign('bug1','admin下面的大bug')->render( 'index' );
+	    //var_dump(ArticleModel::model()->findByPk(3));
+        return $this->view->assign('bug1','admin下面的大bug widget 导入测试')->render( 'index' );
 	}
 	
 }

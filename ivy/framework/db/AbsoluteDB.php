@@ -9,7 +9,7 @@
 namespace Ivy\db;
 use Ivy\core;
 abstract class AbsoluteDB {
-	protected $db = NULL;
+	protected $pdo = NULL;
 	/**
 	 * 生成查询sql语句
 	 */

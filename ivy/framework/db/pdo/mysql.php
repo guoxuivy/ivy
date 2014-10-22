@@ -8,14 +8,13 @@
  * @comment PDO数据库操作类
  */
 namespace Ivy\db\pdo;
-
 use Ivy\core;
 use Ivy\db\AbsoluteDB;
 class mysql extends AbsoluteDB {
 	public function __construct($config) {
 		try {
-			$this->db = new \PDO ( $config ['dsn'], $config ['user'], $config ['password'] );
-			$this->db->exec('set names utf8');
+			$this->pdo = new \PDO ( $config ['dsn'], $config ['user'], $config ['password'] );
+			$this->pdo->exec('set names utf8');
 		} catch ( CException $e ) {
 			throw new CException ( $e->getMessage () );
 		}
@@ -27,7 +26,7 @@ class mysql extends AbsoluteDB {
 	 * @return int affectRow;
 	 */
 	public function getAffectRowNum($sql) {
-		return $this->db->exec ( $sql );
+		return $this->pdo->exec( $sql );
 	}
 	
 	/**
@@ -38,8 +37,8 @@ class mysql extends AbsoluteDB {
 	 */
 	public function InsertData($tableName, $data) {
 		$sql = $this->getInsertSql($tableName, $data);
-		$this->db->exec ( $sql );
-		return $this->db->lastInsertId ();
+		$this->pdo->exec( $sql );
+		return $this->pdo->lastInsertId();
 	}
 	
 	/**
@@ -52,12 +51,11 @@ class mysql extends AbsoluteDB {
 	 * @param int $offset
 	 * @return array
 	 */
-	public function getData($tableName, $condition = NULL, $colmnus = array('*'),$order = array() ,$limit = NULL,$offset=NULL) {
-		
+	public function findAll($tableName, $condition = NULL, $colmnus = array('*'),$order = array() ,$limit = NULL,$offset=NULL) {
 		$sql = $this->getSelectSql($tableName, $condition, $colmnus,$order,$limit,$offset);
-		$res = $this->db->query ( $sql );
-		
-		return $res->fetchAll (\PDO::FETCH_ASSOC);
+		$res = $this->pdo->query( $sql );
+		if(!$res) return false;
+		return $res->fetchAll(\PDO::FETCH_ASSOC);
 	}
     /**
 	 * 查询并返回结果集
@@ -69,12 +67,11 @@ class mysql extends AbsoluteDB {
 	 * @param int $offset
 	 * @return array
 	 */
-	public function getDataOne($tableName, $condition = NULL, $colmnus = array('*'),$order = array() ,$limit = NULL,$offset=NULL) {
-		
+	public function find($tableName, $condition = NULL, $colmnus = array('*'),$order = array() ,$limit = NULL,$offset=NULL) {
 		$sql = $this->getSelectSql($tableName, $condition, $colmnus,$order,$limit,$offset);
-		$res = $this->db->query ( $sql );
-		
-		return $res->fetch (\PDO::FETCH_ASSOC);
+		$res = $this->pdo->query( $sql );
+		if(!$res) return false;
+		return $res->fetch(\PDO::FETCH_ASSOC);
 	}
 	
 	/**
@@ -82,10 +79,31 @@ class mysql extends AbsoluteDB {
 	 * @param string $sql;
 	 * @return array;
 	 */
-	public function getDataBySql($sql){
-		$res = $this->db->query($sql);
+	public function findAllBySql($sql){
+		$res = $this->pdo->query($sql);
+        if(!$res) return false;
 		return $res->fetchAll(\PDO::FETCH_ASSOC);
 	}
+    
+    /**
+	 * 执行sql返回结果集
+	 * @param string $sql;
+	 * @return array;
+	 */
+	public function findBySql($sql){
+		$res = $this->pdo->query($sql);
+        if(!$res) return false;
+		return $res->fetch(\PDO::FETCH_ASSOC);
+	}
+    
+    /**
+	 * 执行sql
+	 * @param string $sql;
+	 */
+	public function exec($sql){
+		return $this->pdo->exec( $sql );
+	}
+    
 	
 	/**
 	 * 获取翻页信息
@@ -102,13 +120,13 @@ class mysql extends AbsoluteDB {
 		}else{
 			$sql = 'select count(1) as `count` from `'.$tableName.'`';
 		}
-		$count = $this->getDataBySql($sql);
-		$data['pageNums'] = (int)ceil($count[0]['count']/$limit);
+		$count = $this->findBySql($sql);
+		$data['pageNums'] = (int)ceil($count['count']/$limit);
 		$data['currentpage'] = $page>0 ? $page : 1;
 		$data['currentpage'] = $data['currentpage'] > $data['pageNums'] ? $data['pageNums'] : $data['currentpage'];
 		$offset = ($data['currentpage']-1)*$limit;
-		$data['data'] = $this->getData($tableName, $condition, $colmnus,$order,$limit,$offset);
-		return $this->generatePagener($data);
+		$data['data'] = $this->findAll($tableName, $condition, $colmnus,$order,$limit,$offset);
+        return $this->generatePagener($data);
 	}
 	
 	/**
@@ -119,7 +137,7 @@ class mysql extends AbsoluteDB {
 	 */
 	public function updateDataByCondition($tableName,$Condition,$data){
 		$sql = $this->getUpdataSql($tableName,$Condition,$data);
-		return $this->db->exec ( $sql );
+		return $this->pdo->exec( $sql );
 	}
 	
 	/**
@@ -127,6 +145,6 @@ class mysql extends AbsoluteDB {
 	 */
 	public function deleteDataByCondition($tableName,$Condition){
 		$sql = $this->getDeltetSql($tableName,$Condition);
-		return $this->db->exec ( $sql );
+		return $this->pdo->exec( $sql );
 	}
 }

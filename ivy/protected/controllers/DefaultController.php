@@ -6,8 +6,7 @@
  * @package framework
  * @since 1.0
  */
-use Ivy\core\BaseController;
-class DefaultController extends BaseController {
+class DefaultController extends \CController {
 	
 	/**
 	 * 显示模版实例示例

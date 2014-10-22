@@ -26,20 +26,12 @@ class Route {
 		}
 	}
 	
-	/**
-	 * 路由 处理  
-     * @return 标准路由数组
-	 */
-	public function solve($routerStr=''){
-		return $this->analyzeRoute($routerStr);
-	}
     
     /**
 	 * 路由 处理  
      * @return 标准路由数组
 	 */
-	public function start(){
-        $routerStr=isset($_GET['r'])?$_GET['r']:'';
+	public function start($routerStr=''){
 		return $this->analyzeRoute($routerStr);
 	}
     
