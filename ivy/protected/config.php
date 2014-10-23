@@ -5,9 +5,9 @@
 return array (
 		//pdo数据库配置
 		'db_pdo' => array (
-				'dsn' => 'mysql:dbname=corey;host=127.0.0.1',
+				'dsn' => 'mysql:dbname=ivy;host=127.0.0.1',
 				'user' => 'root',
-				'password' => ''
+				'password' => '123456'
 		),
 		
 		//默认路由
