@@ -13,6 +13,7 @@ class IndexController extends \CController {
 	 */
 	public function indexAction() {
 	    $r = ArticleModel::model()->findByPk(2);
+        
 		$typeList = $this->db->find( 'type' ); // 获取类型
 		$article = $this->db->getPagener('article',$order = array('add_time' => 'DESC'),10,1);
 

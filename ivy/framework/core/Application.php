@@ -9,9 +9,18 @@
 namespace Ivy\core;
 final class Application {
 	static $app = NULL;
+    /**
+	 * 数据库实例句柄
+	 */
     protected $db = NULL;
+    /**
+	 * 全局配置文件
+	 */
 	protected $config = array ();
-    public $router = NULL;
+    /**
+	 * 当前路由副本保存，共loaderClass使用
+	 */
+    public $temp_route=array();
     
 
     /**
@@ -68,10 +77,10 @@ final class Application {
      * @param $param array 自定义参数
 	 */
 	public function widget($routerStr,$param=array()) {
-        $route = new Route($this);
+        $route = new Route();
         if(is_array($routerStr)) $routerStr=implode("/",$routerStr);
-        $this->router=$route->start($routerStr);
-        echo $this->dispatch($this->router,$param);
+        $route->start($routerStr);
+        echo $this->dispatch($route,$param);
         $this->finished();
 	}
     
@@ -80,16 +89,16 @@ final class Application {
 	 * 路由执行
 	 */
 	public function run() {
-		$route = new Route($this);
+		$route = new Route();
         $routerStr=isset($_GET['r'])?$_GET['r']:"";
-        $this->router=$route->start($routerStr);
-        $this->dispatch($this->router);
+        $route->start($routerStr);
+        $this->dispatch($route);
         $this->finished();
 	}
 	
 	/**
 	 * 分发 
-     * @param $router array 路由数组  
+     * @param $routerObj obj 路由对象
      * @param $param array 附带参数数组 
      * @comment 自动适配分组模式 优先适配普通模式的控制器
      * 
@@ -97,8 +106,9 @@ final class Application {
      * 'controller' => 'roder'      //控制器（必须）
      * 'action' => 'index'          //方法（必须）
 	 */
-	public function dispatch($router,$param=array()) {
+	public function dispatch($routerObj,$param=array()) {
         //$this->beforeDispatch();
+        $router=$this->temp_route=$routerObj->getRouter();
         $module=isset($router['module'])?strtolower($router['module']):"";
         $class=ucfirst(strtolower($router['controller']))."Controller";
         $action=strtolower($router['action']).'Action';
@@ -107,8 +117,8 @@ final class Application {
                 $ReflectedClass = new \ReflectionClass($class); // 2级控制器检测 非分组模式
             }catch(CException $e){
                 //试图适配分组模式
-                $this->router=array('module'=>$router['controller'],'controller'=>$router['action'],"action"=>"index");
-                $this->dispatch($this->router);
+                $routerObj->setRouter(array('module'=>$router['controller'],'controller'=>$router['action']));
+                $this->dispatch($routerObj);
                 exit();
             }
         }
@@ -121,10 +131,11 @@ final class Application {
         }
         $hasMethod = $ReflectedClass->hasMethod($action);
         if($hasMethod){
+            //widget的参数用$_REQUEST传递
             if(!empty($param)){
                 $_REQUEST = array_merge($_REQUEST,$param);
             }
-            return $ReflectedClass->newInstanceArgs(array($this))->$action();//实例化
+            return $ReflectedClass->newInstanceArgs(array($this,$routerObj))->$action();//实例化
         }
         throw new CException ( $class . '控制器中没有方法：' . $action );    
      

@@ -34,7 +34,7 @@ abstract class Model implements \IteratorAggregate, \ArrayAccess{
 	}
  
     /**
-     *支持对象的数组用法 ArrayAccess方法实现 
+     *支持对象的数组用法 ArrayAccess IteratorAggregate方法实现 
      **/
     function offsetGet($offset){
         return $this->$offset;
@@ -98,6 +98,9 @@ abstract class Model implements \IteratorAggregate, \ArrayAccess{
         return $modelclass;
     }
 	
+    /**
+    * 更新、插入数据库
+    */
     public function save()
 	{
 	   $pk_field=$this->primaryKey;
@@ -113,23 +116,29 @@ abstract class Model implements \IteratorAggregate, \ArrayAccess{
     
     /**
      *仅仅支持int行主键 
+     * @return object tableModel
      **/
     public function findByPk($pk)
-	{
-	   $pk_field=$this->primaryKey;
-       $pk=(int)$pk;
-	   //$sql="select * from `{$tableName}` where {$this->primaryKey} = {$pk} limit 1 ";
-       $where = $this->where->eqTo($pk_field,$pk);
-	   $res = $this->db->find($this->tableName(),$where);
-       if($res){
+    {
+        $pk_field=$this->primaryKey;
+        $pk=(int)$pk;
+        if(empty($pk_field)||empty($pk)){
+            throw new CException('主键异常！');
+        }
+        $where = $this->where->eqTo($pk_field,$pk);
+        $res = $this->db->find($this->tableName(),$where);
+        if($res){
             $m = new $this->modelClass;
             $m->attributes=$res;
             return $m;
-       }else{
+        }else{
             return null;
-       }
-	}
+        }
+    }
     
+    /**
+     *获取表信息 更类属性
+     **/
     protected function getTableFields()
     {
         $tableName=$this->tableName();
@@ -159,7 +168,7 @@ abstract class Model implements \IteratorAggregate, \ArrayAccess{
     
 
     /**
-	 * @return string the associated database table name
+	 * @return string database table name
 	 */
 	abstract function tableName();
 	

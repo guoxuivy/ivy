@@ -8,15 +8,36 @@
  */
 namespace Ivy\core;
 abstract class Controller {
-    //配置存储
+    //控制器配置存储
 	private $config = array ();
     //变量存储
 	protected $data = array ();
     
-	public function __construct($app) {
-	   //application副本保存（router等参数实时化）
-	   $this->data['app'] = clone $app;
+	public function __construct($app,$route) {
+	   $this->data['app'] = $app;
+       //私有的路由对象
+       $this->data['route'] = $route;
 	}
+    
+    /**
+     * 搜索data和config变量
+     **/
+    public function __get($name) {
+		if (isset ( $this->data[$name] )) {
+			return $this->data[$name];
+		} else if ($name == 'view') {
+			$this->data[$name] = new Template($this);
+			return $this->data[$name];
+		} else if (isset($this->config[$name])) {
+			return $this->config[$name];
+		} else if ($name == 'db') {
+            $this->data[$name] = \Ivy::app()->getDb();
+            return $this->data[$name];
+		} else {
+			throw new CException ( '找不到' . $name );
+		}
+	}
+    
 	protected function ajaxReturn($statusCode, $message, $data = array()) {
 		if (empty ( $data )) {
 			die ( json_encode ( array (
@@ -31,22 +52,7 @@ abstract class Controller {
 			) ) );
 		}
 	}
-	public function __get($name) {
-		if (isset ( $this->data[$name] )) {
-			return $this->data[$name];
-		} else if ($name == 'view') {
-			$this->data [$name] = new Template($this);
-			return $this->data[$name];
-		} else if (isset ( $this->config[$name] )) {
-			return $this->config[$name];
-		} else if ($name == 'db') {
-		     return \Ivy::app()->getDb();
-		} else {
-			throw new CException ( '找不到' . $name );
-		}
-	}
-    
- 
+
 	
 	/**
 	 * 判断是否为ajax请求

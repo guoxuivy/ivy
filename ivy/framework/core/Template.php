@@ -31,13 +31,14 @@ class Template{
 	 */
 	public function template($template){
         $template=rtrim($template);
+        $r = $this->controller->route->getRouter();
         if(''===$template){
-            $template=$this->controller->app->router['controller']."/".$this->controller->app->router['action'];
+            $template=$r['controller']."/".$r['action'];
             
         }else{
             $template_arr = array_filter(explode("/",$template));
             if(count($template_arr)==1){
-                $template=$this->controller->app->router['controller']."/".$template;
+                $template=$r['controller']."/".$template;
             }
         }
         
@@ -60,14 +61,15 @@ class Template{
 	 */
 	public function getViewFile($template,$ext = '.phtml'){
         $template=$this->template($template);
+        $r = $this->controller->route->getRouter();
         //自适应分组模式 模板文件寻路
-        if(3==count($this->controller->app->router)){
-            $template_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.$this->controller->app->router['module'].DIRECTORY_SEPARATOR.self::$view_name.DIRECTORY_SEPARATOR.$template.$ext;
+        if(3==count($r)){
+            $template_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.$r['module'].DIRECTORY_SEPARATOR.self::$view_name.DIRECTORY_SEPARATOR.$template.$ext;
             if(!file_exists($template_path)){
     			throw new CException('分组的模版不存在!');
     		}
         }
-        if(2==count($this->controller->app->router)){
+        if(2==count($r)){
             $template_path=__PROTECTED__.DIRECTORY_SEPARATOR.self::$view_name.DIRECTORY_SEPARATOR.$template.$ext;
             if(!file_exists($template_path)){
     			throw new CException('模版不存在!');

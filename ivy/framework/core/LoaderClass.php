@@ -45,7 +45,6 @@ class LoaderClass{
                 if( (strtolower($className))==strtolower(basename($f,".php")) ){
                     return include_once $f;
                 }
-                
             }
         }
         
@@ -53,29 +52,23 @@ class LoaderClass{
         if("Controller"===substr($className,-10)) $dispatch="controllers";
         if("Model"===substr($className,-5)) $dispatch="models";
         if(isset($dispatch)){
-            
-            if(3==count(\Ivy::app()->router)){
+            if(3==count(\Ivy::app()->temp_route)){
                 $className=explode("\\",$className);
                 $className=$className[1];
-                $file_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.\Ivy::app()->router['module'].DIRECTORY_SEPARATOR.$dispatch.DIRECTORY_SEPARATOR.$className.'.php';
+                $file_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.\Ivy::app()->temp_route['module'].DIRECTORY_SEPARATOR.$dispatch.DIRECTORY_SEPARATOR.$className.'.php';
                 if(is_file($file_path)){
         			return include_once $file_path;
         		}
             }
             //控制器路由 自动载入
-            if(2==count(\Ivy::app()->router)){
+            if(2==count(\Ivy::app()->temp_route)){
                 $file_path=__PROTECTED__.DIRECTORY_SEPARATOR.$dispatch.DIRECTORY_SEPARATOR.$className.'.php';
                 if(is_file($file_path)){
         			return include_once $file_path;
         		}
             }
         }
-        
-        
-        
         throw new CException('找不到'.$className.'类文件');
-        
-        
 	}
     
     

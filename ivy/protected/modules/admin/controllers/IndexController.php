@@ -12,6 +12,7 @@ class IndexController extends \CController {
 	 * 显示模版实例示例
 	 */
 	public function indexAction() {
+	   
 	    //var_dump(ArticleModel::model()->findByPk(3));
         return $this->view->assign('bug1','admin下面的大bug widget 导入测试')->render( 'index' );
 	}
