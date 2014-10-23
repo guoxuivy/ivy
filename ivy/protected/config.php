@@ -7,7 +7,7 @@ return array (
 		'db_pdo' => array (
 				'dsn' => 'mysql:dbname=ivy;host=127.0.0.1',
 				'user' => 'root',
-				'password' => ''
+				'password' => '123456'
 		),
 		
 		//默认路由
