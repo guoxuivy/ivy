@@ -1,42 +1,61 @@
-<!doctype html>
-<html lang="en">
-    <?php  Ivy::app()->widget('index/header'); ?>
-    <body>
-
-        <div id='container'>
-            <div id='left'>
-                
-            </div><!-- end left -->
-            <div id='right'>
-				<?php if(!empty($article['data'])):?>
-	                <?php foreach ($article['data'] as $v):?>
-	                <div class='blog'>
-	                    <h3 class='blog_title'><a href="<?php echo $this->url("index/view",array("id"=>$v['id'],"name"=>"大")) ?>"><?php echo $v['title']?><span>(<?php echo $v['author']?>)</span></a></h3>
-	                    <div class='publish_time'><?php echo date('Y/m/d',$v['add_time']);?></div>
-	                </div>
-	                <?php endforeach;?>
-	
-	                <!-- 翻页器 -->
-	                <div id='pagener'>
-	                	<a class='long_button' href="javascript:;" data-num='<?php echo $article['currentpage'] - 1 > 0 ? $this->article['currentpage']-1 : 1?>'>上一页</a>
-	                	<?php foreach ($article['pagener'] as $val):?>
-	                		<?php if($val == $article['currentpage']):?>
-	                			<a href="javascript:;" data-num='<?php echo $val?>' class='page_active'><?php echo $val?></a>
-	                		<?php else:?>
-	                			<a href="javascript:;" data-num='<?php echo $val?>'><?php echo $val?></a>
-	                		<?php endif?>
-	                	<?php endforeach;?>
-	                	<a class='long_button' href="javascript:;" data-num='<?php echo $article['currentpage'] + 1 <= $article['pageNums'] ? $article['currentpage']+1 : $article['pageNums']?>'>下一页</a>
-	                </div>
-                <?php else:?>
-                	<div id='message_info'>暂无相关文章！</div>
-				<?php endif?>
-            </div><!-- end right -->
-
-            <div id='footer'>
-                <?php Ivy::app()->widget('admin/index/index',array('id'=>1,'name'=>"小明")); ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<?php  Ivy::app()->widget('index/header'); ?>
+<body>
+    <div id='container'>
+        
+    	<?php if(!empty($article['data'])):?>
+            <?php foreach ($article['data'] as $v):?>
+            <div class='blog'>
+                <h3 class='blog_title'><a href="<?php echo $this->url("index/view",array("id"=>$v['id'],"name"=>"大")) ?>"><?php echo $v['title']?><span>(<?php echo $v['author']?>)</span></a></h3>
+                <div class='publish_time'><?php echo date('Y/m/d',$v['add_time']);?></div>
             </div>
-        </div><!-- end container -->
+            <?php endforeach;?>
+    
+            <!-- 翻页器 -->
+            <div id='pagener'>
+            	<a class='long_button' href="javascript:;" data-num='<?php echo $article['currentpage'] - 1 > 0 ? $article['currentpage']-1 : 1?>'>上一页</a>
+            	<?php foreach ($article['pagener'] as $val):?>
+            		<?php if($val == $article['currentpage']):?>
+            			<a href="javascript:;" data-num='<?php echo $val?>' class='page_active'><?php echo $val?></a>
+            		<?php else:?>
+            			<a href="javascript:;" data-num='<?php echo $val?>'><?php echo $val?></a>
+            		<?php endif?>
+            	<?php endforeach;?>
+            	<a class='long_button' href="javascript:;" data-num='<?php echo $article['currentpage'] + 1 <= $article['pageNums'] ? $article['currentpage']+1 : $article['pageNums']?>'>下一页</a>
+            </div>
+        <?php else:?>
+        	<div id='message_info'>暂无相关文章！</div>
+		<?php endif?>
+    
+        <div id='footer'>
+            <?php Ivy::app()->widget('admin/index/index',array('id'=>1,'name'=>"小明")); ?>
+        </div>
+    </div><!-- end container -->
 
-    </body>
+
+    <div id="nav">
+        <a href="<?php echo $this->url('index/view',array("id"=>88));?>">article</a>
+    </div>
+    <div id="loading"><img src="<?php echo $this->basePath('public/img/loading.gif'); ?>" /></div>
+    <div id="container_main"></div>
+
+</body>
 </html>
+<script type="text/javascript">
+
+$("#pagener a").click(function(){
+    location.href='<?php echo $this->url("index") ;?>&p='+$(this).attr('data-num');
+})
+
+$(document).ready(function(){  
+    $('#loading').hide(); //隐藏loading  
+});
+$(document).pjax('a', '#container_main',{scrollTo:false}); //内容替换的容器  
+$(document).on('pjax:send', function() {  
+    $('#loading').show(); //显示loading  
+});  
+$(document).on('pjax:complete', function() {  
+    $('#loading').fadeOut(1000); //隐藏loading效果  
+});
+</script> 

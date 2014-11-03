@@ -12,11 +12,9 @@ class IndexController extends \CController {
 	 * 显示模版实例示例
 	 */
 	public function indexAction() {
-	    $r = ArticleModel::model()->findByPk(2);
-        
 		$typeList = $this->db->find( 'type' ); // 获取类型
-		$article = $this->db->getPagener('article',$order = array('add_time' => 'DESC'),10,1);
-
+        $page=isset($_GET['p'])?(int)$_GET['p']:1;
+		$article = $this->db->getPagener('article',$order = array('add_time' => 'DESC'),10,$page);
         $this->view->assign('article',$article)->display();
 	}
     
@@ -33,11 +31,14 @@ class IndexController extends \CController {
     
     /**
 	 * 点击访问单条article
+	 * pjax测试 
 	 */
 	public function viewAction(){
-		$this->view->assign ( 'article', ArticleModel::model()->findByPk($_GET['id']))->display();
+		if (array_key_exists('HTTP_X_PJAX', $_SERVER) && $_SERVER['HTTP_X_PJAX']) { 
+			echo $this->view->assign( 'article', ArticleModel::model()->findByPk($_GET['id']))->render();
+		}else{
+			$this->view->assign( 'article', ArticleModel::model()->findByPk($_GET['id']))->display();
+		}
 	}
-    
-	
 	
 }
