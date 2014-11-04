@@ -52,14 +52,14 @@
 								<li>
 									<form class="navbar-form navbar-left" role="search">
 										<div class="form-group">
-											<input class="form-control" type="text" /> <button type="submit" class="btn btn-default">Go!</button>
+											<input type="text" placeholder="Search" class="form-control" style="border-bottom-right-radius: 0;border-top-right-radius: 0;" /><button type="submit" class="btn btn-default" style="border-left: none;border-bottom-left-radius: 0;border-top-left-radius: 0;">Go</button>
 										</div>
 									</form>
 								</li>
 								<li class="divider-vertical">
 								</li>
 								<li class="dropdown">
-									 <a data-toggle="dropdown" class="dropdown-toggle" href="#">下拉菜单<strong class="caret"></strong></a>
+                                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">下拉菜单<strong class="caret"></strong></a>
 									<ul class="dropdown-menu">
 										<li>
 											<a href="#">下拉导航1</a>
@@ -219,48 +219,26 @@
             <?php endforeach;?>
             </ol>
             <!-- 翻页器 -->
-            
             <div class="pagination pagination-small pagination-centered" id='pagener'>
 				<ul>
-					<li>
-						<a href="javascript:;" data-num='<?php echo $article['currentpage'] - 1 > 0 ? $article['currentpage']-1 : 1?>'>上一页</a>
-					</li>
+					<li><a href="javascript:;" data-num='<?php echo $article['currentpage'] - 1 > 0 ? $article['currentpage']-1 : 1?>'>上一页</a></li>
                     <?php foreach ($article['pagener'] as $val):?>
                 		<?php if($val == $article['currentpage']):?>
-                			<li><a href="javascript:;" data-num='<?php echo $val?>' class='page_active'><?php echo $val?></a></li>
+                			<li class='active'><a href="javascript:;" data-num='<?php echo $val?>'><?php echo $val?></a></li>
                 		<?php else:?>
                 			<li><a href="javascript:;" data-num='<?php echo $val?>'><?php echo $val?></a></li>
                 		<?php endif?>
                 	<?php endforeach;?>
-                    
-					<li>
-						<a href="#">1</a>
-					</li>
-					<li>
-						<a href="#">2</a>
-					</li>
-					<li>
-						<a href="javascript:;" data-num='<?php echo $article['currentpage'] + 1 <= $article['pageNums'] ? $article['currentpage']+1 : $article['pageNums']?>'>下一页</a>
-					</li>
+                    <li><a href="javascript:;" data-num='<?php echo $article['currentpage'] + 1 <= $article['pageNums'] ? $article['currentpage']+1 : $article['pageNums']?>'>下一页</a></li>
 				</ul>
 			</div>
             
-           
-        
-        <?php else:?>
-        	<div id='message_info'>暂无相关文章！</div>
-		<?php endif?>
-        
-        
-			
+            <?php else:?>
+                <div id='message_info'>暂无相关文章！</div>
+            <?php endif?>
 		</div>
 	</div>
 </div>
-
-
-
-
-
 
 
 <div id='footer'>
