@@ -1,7 +1,6 @@
 ivy
 ===
-
-my PHP framework 
+a PHP micro-framework
 
 闲暇时间写的一款mini框架
 
@@ -10,3 +9,5 @@ my PHP framework
 model类支持简单的持久化，可丰富。
 
 自动适配分组模式。
+
+项目本身就是一个demo，核心框架文件夹为framework文件夹。
