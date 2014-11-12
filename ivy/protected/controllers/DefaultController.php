@@ -11,9 +11,9 @@ class DefaultController extends \CController {
 	/**
 	 * 显示模版实例示例
 	 */
-	public function indexAction() {
-		return $this->view->assign('bug','我是大bug我是大bug我是大bug我是大bug我是大bug')
-					 ->render( 'default/index' );
+	public function indexAction(){
+        $this->view->assign('bug','defaul的我是大bug我是大bug我是大bug我是大bug我是大bug')
+					 ->display( 'default/index' );
 	}
 	
 	

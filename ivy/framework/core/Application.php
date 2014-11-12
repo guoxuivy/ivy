@@ -14,6 +14,10 @@ final class Application {
 	 */
     protected $db = NULL;
     /**
+	 * cache
+	 */
+    protected $cache = NULL;
+    /**
 	 * 全局配置文件
 	 */
 	protected $config = array ();
@@ -55,19 +59,31 @@ final class Application {
     
     
     /**
-	 * 数据库对象
+	 * 缓存句柄对象
+	 */
+	public function getCache() {
+        if($this->cache instanceof Cache){
+        	return $this->cache;
+        }else{
+            $this->cache = new Cache ($this->config['memcache']);
+            return $this->cache;
+        }
+	}
+    
+    /**
+	 * 数据库句柄对象
      * 
      * 变量类名 无法应用命名空间~~~!
 	 */
 	public function getDb() {
-		if ($this->db instanceof AbsoluteDB) {
-			return $this->db;
-		} else {
+        if($this->db instanceof AbsoluteDB){
+        	return $this->db;
+        }else{
             $class_arr=explode(":",$this->config['db_pdo']['dsn']);
             $class="Ivy\\db\\pdo\\".$class_arr[0];
-			$this->db = new $class ($this->config['db_pdo']);
+        	$this->db = new $class ($this->config['db_pdo']);
             return $this->db;
-		}
+        }
 	}
     
     /**
@@ -80,9 +96,11 @@ final class Application {
         $route = new Route();
         if(is_array($routerStr)) $routerStr=implode("/",$routerStr);
         $route->start($routerStr);
-        echo $this->dispatch($route,$param);
-        $this->finished();
+        $this->dispatch($route,$param);
 	}
+    
+    
+
     
 	
 	/**

@@ -12,7 +12,9 @@ class IndexController extends \CController {
 	 * 显示模版实例示例
 	 */
 	public function indexAction() {
-		$typeList = $this->db->find( 'type' ); // 获取类型
+		$typeList = $this->db->find( 'article_cate' ); // 获取类型
+        Ivy::app()->cache->set('guox',$typeList);
+        //var_dump(Ivy::app()->cache->getConfigByKey('aqwewsd2132sed13'));die;
         $page=isset($_GET['p'])?(int)$_GET['p']:1;
 		$article = $this->db->getPagener('article',$order = array('add_time' => 'DESC'),10,$page);
         $this->view->assign('article',$article)->display();
@@ -22,9 +24,8 @@ class IndexController extends \CController {
 	 * widget 方式输出模板
 	 */
 	public function headerAction() {
-		return $this->view
-                    ->assign('title','我是头部文件啊！我是头部文件啊！我是头部文件啊！我是头部文件啊！')
-                    ->render( 'header' );
+        $this->view->assign('title','我是头部文件啊！我是头部文件啊！我是头部文件啊！我是头部文件啊！')
+                    ->display( 'header' );
 	}
     
     

@@ -18,7 +18,7 @@ class Template{
 	}
 	
 	/**
-	 * 显示模版
+	 * 显示模版 直接输出
 	 */
 	public function display($template='',$ext = '.phtml'){
         $template_path = $this->getViewFile($template,$ext);
