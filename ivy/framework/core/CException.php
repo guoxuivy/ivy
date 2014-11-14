@@ -72,13 +72,19 @@ class CException extends \Exception
         }
     }
     
-
     
-
+    public static function shutdown_handler ()
+    {
+        // 资源操作 数据库连接 缓存 等处理
+        
+        return true;
+    }
+    
+ 
 }
-
-
-
 set_error_handler(array("Ivy\core\CException", "error_handler"));
 set_exception_handler(array("Ivy\core\CException", "exception_handler"));
+
+register_shutdown_function (array ('Ivy\core\CException', 'shutdown_handler'));
+
 

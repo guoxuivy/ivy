@@ -99,8 +99,15 @@ class Template{
 	/**
 	 * assign
 	 */
-	public function assign($key,$value){
-		$this->data[$key] = $value;
+	public function assign($key='',$value=''){
+        if($key&&$value&&is_string($key)){
+            $this->data[$key] = $value;
+        }
+        if($key&&is_array($key)){
+            foreach($key as $k=>$v){
+                $this->data[$k] = $v;
+            }
+        }
 		return $this;
 	}
 	

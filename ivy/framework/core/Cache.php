@@ -26,10 +26,15 @@ class Cache {
      **/
     private function _connectMemcache($key){
         $config = $this->_FlexiHash->get($key);
-        if (!isset($this->_memcache[$config])){  
+        if (!isset($this->_memcache[$config])){
+            
             $this->_memcache[$config] = new \Memcache;  
-            list($host, $port) = explode(":", $config);  
-            $this->_memcache[$config]->connect($host, $port);  
+            list($host, $port) = explode(":", $config);
+            $res = $this->_memcache[$config]->connect($host, $port); 
+            if(!$res){
+                throw new CException("memcache->".$host.":".$port.' off');
+            }
+            $this->_memcache[$config]->connect($host, $port); 
         }
         return $this->_memcache[$config];  
     }
