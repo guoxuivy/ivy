@@ -17,7 +17,7 @@ class CException extends \Exception
 	 */
 	public function __construct($message=null,$code=0)
 	{
-		parent::__construct($message,$code);
+        parent::__construct($message,$code);
 	}
     
     
@@ -27,11 +27,16 @@ class CException extends \Exception
         {
             return;
         }
+        
         echo '<style>.exception-trace p{padding-top:0px;margin-top:0px} .exception-trace pre{background-color: #E0EBD3;padding-top:0px;margin-top:0px} .exception-trace-index{background-color: #BBDBF4; border-bottom: 1px #1188FF solid}</style>';
         echo '<div class="exception-trace">';
-        echo '<b>Fatal error</b>:  系统错误-\'' . $message . '\' - '.$file."-line:{$line}";
+        //编码判断
+        if(json_encode($message) == 'null'){
+            $message=iconv("GBK", "UTF-8", $message); 
+        }
+        echo '<div class="exception-trace-index"><font color="red">系统错误</font>->'.$message.'</div>';
+        echo '<pre>file:'.$file."-line:{$line}</pre>";
         echo '<div>';
-        //throw new CException($message, 0, $code, $file, $line);
     }
     
     public static function exception_handler($exception)
@@ -39,10 +44,15 @@ class CException extends \Exception
         if(IVY_DEBUG){
             try
             {
+                //编码判断
+                $message = $exception->getMessage();
+                if(json_encode($message) == 'null'){
+                    $message=iconv("GBK", "UTF-8", $message); 
+                }
                 echo '<style>.exception-trace p{padding-top:0px;margin-top:0px} .exception-trace pre{background-color: #E0EBD3;padding-top:0px;margin-top:0px} .exception-trace-index{background-color: #BBDBF4; border-bottom: 1px #1188FF solid}</style>';
                 echo '<div class="exception-trace">';
                 echo '<b>Fatal error</b>:  未捕获的异常\'' . get_class($exception) . '\'  ';
-                echo '<br>异常消息：<font color="red">'.$exception->getMessage() . '</font><br>';
+                echo '<br>异常消息：<font color="red">'.$message.'</font><br>';
                 echo 'Stack trace:<div>';
                 foreach($exception->getTrace() as $key=>$t){
                     echo '<div class="exception-trace-index">trace->'.$key.'</div>';
@@ -68,7 +78,7 @@ class CException extends \Exception
                 print get_class($e)." thrown within the exception handler. Message: ".$e->getMessage()." on line ".$e->getLine();exit();
             }
         }else{
-            die('发生错误！');
+            die('有未捕获的异常！');
         }
     }
     
@@ -76,7 +86,6 @@ class CException extends \Exception
     public static function shutdown_handler ()
     {
         // 资源操作 数据库连接 缓存 等处理
-        
         return true;
     }
     

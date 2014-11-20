@@ -29,11 +29,15 @@ abstract class AbsoluteDB {
 		}
 		$sql .= ' from `' . $tableName . '` ';
 	
-		if ($condition instanceof Where) {
-			if(trim($condition->getCond ()) != ''){
-				$sql .= 'where ' . $condition->getCond ();
-			}
-		}
+        if ($condition instanceof Where) {
+            if(trim($condition->getCond ()) != ''){
+                $sql .= 'where ' . $condition->getCond ();
+            }
+        }elseif($condition&&is_string($condition)){
+            $sql .= 'where ' . $condition;
+        }else{
+            
+        }
 	
 		if(!empty($order)){
 			foreach ($order as $k => $v){

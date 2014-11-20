@@ -8,6 +8,7 @@
  */
 namespace Ivy\core;
 use Ivy\db\Where;
+use Ivy\db\pdo\mysql;
 abstract class Model implements \IteratorAggregate, \ArrayAccess{
 	//缓存时间30秒
 	private static $cachetime=30;
@@ -136,6 +137,23 @@ abstract class Model implements \IteratorAggregate, \ArrayAccess{
         }
     }
     
+    public function find($condition = NULL, $colmnus = array('*'),$order = array() ,$limit = NULL,$offset=NULL) {
+		$res = $this->db->find($this->tableName(),$condition,$colmnus,$order,$limit,$offset);
+        if($res){
+            $m = new $this->modelClass;
+            $m->attributes=$res;
+            return $m;
+        }else{
+            return null;
+        }
+        
+	}
+    
+    public function findAll($condition = NULL, $colmnus = array('*'),$order = array() ,$limit = NULL,$offset=NULL) {
+		return $this->db->findAll($this->tableName(),$condition,$colmnus,$order,$limit,$offset);
+	}
+    
+    
     /**
      *获取表信息 更类属性
      **/
@@ -151,20 +169,6 @@ abstract class Model implements \IteratorAggregate, \ArrayAccess{
             if("PRI"===$fie['Key']) $this->primaryKey=$fie['Field'];
         }
     }
-    
-
-	/**
-	 * @return array relational rules.
-	 */
-	public function relations()
-	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
-		return array(
-			'company' => array(self::BELONGS_TO, 'EmployCompany', 'stores'),
-			'customer' => array(self::BELONGS_TO, 'CuCustomerInfo', 'custom_id'),		
-		);
-	}
     
 
     /**

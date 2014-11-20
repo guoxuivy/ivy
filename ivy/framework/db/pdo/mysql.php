@@ -15,7 +15,7 @@ class mysql extends AbsoluteDB {
 		try {
 			$this->pdo = new \PDO ( $config ['dsn'], $config ['user'], $config ['password'] );
 			$this->pdo->exec('set names utf8');
-		} catch ( CException $e ) {
+		} catch ( PDOException $e ) {
 			throw new CException ( $e->getMessage () );
 		}
 	}

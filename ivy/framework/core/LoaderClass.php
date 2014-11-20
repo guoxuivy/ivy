@@ -48,21 +48,21 @@ class LoaderClass{
             }
         }
         
-        //加载其它文件 MVC文件  路由分发专用
+        //加载其它文件 MVC文件  路由分发专用  //业务层 model controllers文件载入
         if("Controller"===substr($className,-10)) $dispatch="controllers";
         if("Model"===substr($className,-5)) $dispatch="models";
         if(isset($dispatch)){
-            if(3==count(\Ivy::app()->temp_route)){
-                $className=explode("\\",$className);
-                $className=$className[1];
-                $file_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.\Ivy::app()->temp_route['module'].DIRECTORY_SEPARATOR.$dispatch.DIRECTORY_SEPARATOR.$className.'.php';
+            $className=explode("\\",$className);
+            if(count($className)==1){
+                //无命名空间
+                $file_path=__PROTECTED__.DIRECTORY_SEPARATOR.$dispatch.DIRECTORY_SEPARATOR.$className[0].'.php';
                 if(is_file($file_path)){
         			return include_once $file_path;
         		}
-            }
-            //控制器路由 自动载入
-            if(2==count(\Ivy::app()->temp_route)){
-                $file_path=__PROTECTED__.DIRECTORY_SEPARATOR.$dispatch.DIRECTORY_SEPARATOR.$className.'.php';
+            }else{
+                $module=array_shift($className);
+                $dir = implode(DIRECTORY_SEPARATOR ,$className);
+                $file_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.$module.DIRECTORY_SEPARATOR.$dispatch.DIRECTORY_SEPARATOR.$dir.'.php';
                 if(is_file($file_path)){
         			return include_once $file_path;
         		}
