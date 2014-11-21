@@ -13,7 +13,7 @@ header('Content-type: text/html; charset=utf-8');
 date_default_timezone_set('Asia/Shanghai');
  
 defined('__ROOT__') or define('__ROOT__', dirname(__DIR__));                                    //定义网站根目录 D:\wwwroot
-defined('__PROTECTED__') or define('__PROTECTED__',__ROOT__.DIRECTORY_SEPARATOR."protected");   //定义项目文件根目录
+defined('__PROTECTED__') or define('__PROTECTED__',__ROOT__.DIRECTORY_SEPARATOR."protected");   //定义项目文件根目录 D:\wwwroot..protected
 defined('SITE_URL') or define('SITE_URL', dirname($_SERVER['SCRIPT_NAME']));                    //定义访问地址  /ivy
 defined('IVY_PATH') or define('IVY_PATH',dirname(__FILE__));                                    //定义框架根目录 D:\wwwroot\ivy\framework
 
@@ -25,6 +25,7 @@ class Ivy
 	{
         require_once(IVY_PATH.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'LoaderClass.php');//加载自动加载
         require_once(IVY_PATH.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'CException.php');//加载异常处理
+        Ivy::quotes_gpc();
 	}
     //创建应用实例
 	public static function createApplication()
@@ -37,6 +38,34 @@ class Ivy
 	{
 		return Application::init();
 	}
+    
+    public static function import($uri){
+        require_once($uri);
+    }
+    
+    //安全过滤
+    public static function quotes_gpc()
+	{
+		if (!get_magic_quotes_gpc()){
+            !empty($_POST)     && Ivy::add_s($_POST);
+            !empty($_GET)     && Ivy::add_s($_GET);
+            !empty($_COOKIE) && Ivy::add_s($_COOKIE);
+            !empty($_REQUEST) && Ivy::add_s($_REQUEST);
+        }
+        !empty($_FILES) && Ivy::add_s($_FILES);
+	}
+    
+    public static function add_s(&$array){
+        if (is_array($array)){
+            foreach ($array as $key => $value) {
+                if (!is_array($value)) {
+                    $array[$key] = addslashes($value);
+                } else {
+                    Ivy::add_s($array[$key]);
+                }
+            }
+        }
+    }
     
 }
 
