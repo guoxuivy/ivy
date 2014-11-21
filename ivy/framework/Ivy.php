@@ -43,16 +43,13 @@ class Ivy
         require_once($uri);
     }
     
-    //安全过滤
+    //安全过滤 转义引号
     public static function quotes_gpc()
 	{
-		if (!get_magic_quotes_gpc()){
-            !empty($_POST)     && Ivy::add_s($_POST);
-            !empty($_GET)     && Ivy::add_s($_GET);
-            !empty($_COOKIE) && Ivy::add_s($_COOKIE);
-            !empty($_REQUEST) && Ivy::add_s($_REQUEST);
-        }
-        !empty($_FILES) && Ivy::add_s($_FILES);
+        !empty($_POST)     && Ivy::add_s($_POST);
+        !empty($_GET)     && Ivy::add_s($_GET);
+        !empty($_COOKIE) && Ivy::add_s($_COOKIE);
+        !empty($_REQUEST) && Ivy::add_s($_REQUEST);
 	}
     
     public static function add_s(&$array){
