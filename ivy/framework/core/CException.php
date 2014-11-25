@@ -86,6 +86,8 @@ class CException extends \Exception
     public static function shutdown_handler ()
     {
         // 资源操作 数据库连接 缓存 等处理
+        if(session_id()!=='')
+			@session_write_close();
         return true;
     }
     

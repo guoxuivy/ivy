@@ -14,6 +14,10 @@ final class Application {
 	 */
     protected $db = NULL;
     /**
+	 * 登录用户
+	 */
+    protected $user = NULL;
+    /**
 	 * cache
 	 */
     protected $cache = NULL;
@@ -42,7 +46,7 @@ final class Application {
 			$app = self::$app;
 		} else {
             $config = require_once($config);
-			$app = new Application ($config);
+			$app = new Application($config);
 		}
         self::$app=$app;
 		return $app;
@@ -83,6 +87,18 @@ final class Application {
             $class="Ivy\\db\\pdo\\".$class_arr[0];
         	$this->db = new $class ($this->config['db_pdo']);
             return $this->db;
+        }
+	}
+    
+    /**
+	 * 登录用户句柄对象
+	 */
+	public function getUser() {
+        if($this->user instanceof AbsoluteDB){
+        	return $this->user;
+        }else{
+            $this->user = new User ();
+            return $this->user;
         }
 	}
     
@@ -153,7 +169,7 @@ final class Application {
             if(!empty($param)){
                 $_REQUEST = array_merge($_REQUEST,$param);
             }
-            return $ReflectedClass->newInstanceArgs(array($this,$routerObj))->$action();//实例化
+            return $ReflectedClass->newInstanceArgs(array($routerObj))->$action();//实例化
         }
         throw new CException ( $class . '控制器中没有方法：' . $action );    
      
