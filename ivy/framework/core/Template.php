@@ -122,14 +122,6 @@ class Template{
 	}
 	
 	/**
-	 * 跳转
-	 */
-	public function redirect($controller,$action){
-		$url = $this->url($controller, $action);
-		header('location:'.$url);
-	}
-	
-	/**
 	 * 设置属性，供模版使用
 	 */
 	public function __set($k,$v){

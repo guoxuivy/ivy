@@ -7,23 +7,24 @@
  * @since 1.0
  */
 namespace Ivy\core;
-abstract class Controller {
-    //模板变量存储
+class Controller {
+	//变量存储
 	protected $data = array ();
 	public function __construct($route) {
        //私有的路由对象
        $this->data['route'] = $route;
        $this->init();
 	}
-    
-    public function init() {
-	}
-    
+
+	public function init() { }
+
     /**
-     * 搜索data和config变量
+     * 搜索data
      **/
     public function __get($name) {
-		if (isset ( $this->data[$name] )) {
+		if (method_exists($this,$name)) {
+			return $this->$name();
+		} else if (isset ( $this->data[$name] )) {
 			return $this->data[$name];
 		} else if ($name == 'view') {
 			return new Template($this);
@@ -31,6 +32,16 @@ abstract class Controller {
             return \Ivy::app()->getDb();
 		} else {
 			throw new CException ( '找不到' . $name );
+		}
+	}
+	function __set($proName,$value){
+		$method="set".ucfirst($proName);
+		if(method_exists($this,$method)){
+			return $this->$method($value);
+		}elseif(property_exists($this,$proName)){
+			return $this->$proName=$value;
+		}else{
+			return $this->data[$proName]=$value;
 		}
 	}
     
@@ -107,7 +118,15 @@ abstract class Controller {
 			return false;			
 		}
 	}
-	
-	
+    /**
+	 * 判断是否为post请求
+	 */
+	protected function isPost(){
+		if(isset($_POST) && $_SERVER['REQUEST_METHOD']=="POST"){
+			return true;
+		}else{
+			return false;			
+		}
+	}
 	
 }

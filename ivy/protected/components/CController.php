@@ -9,7 +9,7 @@
  * @since 1.0
  */
 use Ivy\core\Controller;
-abstract class CController extends Controller
+class CController extends Controller
 {
 
 }

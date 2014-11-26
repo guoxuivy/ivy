@@ -12,8 +12,6 @@ class User implements \IteratorAggregate, \ArrayAccess
 {
     const STATES_VAR='__states';
     private $_keyPrefix;
-    public $guestName='Guest';
-    public $loginUrl=array('/site/login');
     protected $attributes =null; //保存数据库中用户信息
     
     

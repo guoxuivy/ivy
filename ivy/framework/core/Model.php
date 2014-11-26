@@ -14,25 +14,28 @@ abstract class Model implements \IteratorAggregate, \ArrayAccess{
 	private static $cachetime=30;
     //静态对象保存 节省性能开销
 	private static $_models=array();
-    //protected $fields =null;
+
     protected $primaryKey =null;
     protected $attributes =null;
 	
     
     public function __construct(){
-        $this->getTableFields();
+        if($this->tableName()!==false){
+            $this->getTableFields();
+        }
     }
     
-    public static function model($className=__CLASS__)
+    public static function model()
 	{
-		if(isset(self::$_models[$className]))
-			return self::$_models[$className];
-		else
-		{
+        $className=get_called_class();
+		if(isset(self::$_models[$className])){
+            return self::$_models[$className]; 
+		}else{
 			$model=self::$_models[$className]=new $className(null);
 			return $model;
 		}
 	}
+    
  
     /**
      *支持对象的数组用法 ArrayAccess IteratorAggregate方法实现 
