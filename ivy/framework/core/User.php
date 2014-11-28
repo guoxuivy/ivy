@@ -17,6 +17,9 @@ class User implements \IteratorAggregate, \ArrayAccess
     
     public function __construct(){
         @session_start();
+        if(!$this->isGuest){
+            $this->attributes=$this->getState('__attributes');
+        }
     }
     
     /**
@@ -69,10 +72,13 @@ class User implements \IteratorAggregate, \ArrayAccess
     //session 用户登录前缀
     public function getStateKeyPrefix()
 	{
-		if($this->_keyPrefix!==null)
-			return $this->_keyPrefix;
-		else
-			return $this->_keyPrefix=md5('Ivy.'.get_class($this));
+		if($this->_keyPrefix!==null){
+            return $this->_keyPrefix;
+		}else{
+            $this->_keyPrefix=md5('Ivy.'.get_class($this));
+            return $this->_keyPrefix;
+		}
+			
 	}
     
     public function getState($key,$defaultValue=null)
@@ -120,6 +126,18 @@ class User implements \IteratorAggregate, \ArrayAccess
 	public function setId($value)
 	{
 		$this->setState('__id',$value);
+	}
+    
+    public function login($user)
+	{
+		$this->setState('__id',$user->id);
+        $this->setState('__attributes',$user->attributes);
+        $this->attributes=$user->attributes;
+        
+	}
+    public function logout()
+	{
+		$this->clearStates();
 	}
     
     

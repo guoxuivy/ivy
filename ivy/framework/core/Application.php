@@ -94,7 +94,7 @@ final class Application {
 	 * 登录用户句柄对象
 	 */
 	public function getUser() {
-        if($this->user instanceof AbsoluteDB){
+        if($this->user instanceof User){
         	return $this->user;
         }else{
             $this->user = new User ();
