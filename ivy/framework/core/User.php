@@ -6,11 +6,12 @@
  * @license http://www.ivyframework.com/license/
  * @package framework
  * @since 1.0
+ * 
  */
 namespace Ivy\core;
 class User implements \IteratorAggregate, \ArrayAccess
 {
-    const STATES_VAR='__states';
+    //const STATES_VAR='__states';
     private $_keyPrefix;
     protected $attributes =null; //保存数据库中用户信息
     
@@ -109,7 +110,9 @@ class User implements \IteratorAggregate, \ArrayAccess
 	}
     
     
-    
+    /**
+     * 检测是否为登录用户 
+     **/
     public function getIsGuest()
 	{
 		return $this->getState('__id')===null;

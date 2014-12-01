@@ -10,9 +10,12 @@ namespace Ivy\core;
 class Controller {
 	//变量存储
 	protected $data = array ();
+    //路由对象
+	public $route = NULL;
+    
 	public function __construct($route) {
-       //私有的路由对象
-       $this->data['route'] = $route;
+       //当前的路由对象
+       $this->route = $route;
        $this->init();
 	}
 
