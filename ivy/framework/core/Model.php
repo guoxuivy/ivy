@@ -19,7 +19,6 @@ abstract class Model extends CComponent implements \IteratorAggregate, \ArrayAcc
 	
     
     public function __construct(){
-        throw new CException('主键异常！');
         if($this->tableName()!==false){
             $this->getTableFields();
         }

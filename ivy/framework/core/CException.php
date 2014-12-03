@@ -43,13 +43,14 @@ class CException extends \Exception
     
     public static function exception_handler($exception)
     {
+		//编码判断
+		$message = $exception->getMessage();
+		if(json_encode($message) == 'null'){
+			$message=iconv("GBK", "UTF-8", $message); 
+		}
         $str = $str_log = '';
         try {
-            //编码判断
-            $message = $exception->getMessage();
-            if(json_encode($message) == 'null'){
-                $message=iconv("GBK", "UTF-8", $message); 
-            }
+            
             $str.= '<style>.exception-trace p{padding-top:0px;margin-top:0px} .exception-trace pre{background-color: #E0EBD3;padding-top:0px;margin-top:0px} .exception-trace-index{background-color: #BBDBF4; border-bottom: 1px #1188FF solid}</style>';
             $str.= '<div class="exception-trace">';
             $str.= '<b>Fatal error</b>:  未捕获的异常\'' . get_class($exception) . '\'  ';
@@ -87,7 +88,7 @@ class CException extends \Exception
             echo $str;die;
         }else{
             \Ivy::log($str_log,'error');
-            die('有未捕获的异常！');
+            die($message);
         }
     }
     
