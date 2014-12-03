@@ -9,12 +9,9 @@
  * 
  */
 namespace Ivy\core;
-class User implements \IteratorAggregate, \ArrayAccess
+class User extends Model
 {
-    //const STATES_VAR='__states';
     private $_keyPrefix;
-    protected $attributes =null; //保存数据库中用户信息
-    
     
     public function __construct(){
         @session_start();
@@ -23,52 +20,10 @@ class User implements \IteratorAggregate, \ArrayAccess
         }
     }
     
-    /**
-     *支持对象的数组用法 ArrayAccess IteratorAggregate方法实现 
-     **/
-    function offsetGet($offset){
-        return $this->$offset;
+    public function tableName(){
+        return false;
     }
-    function offsetSet($offset,$item){
-        return $this->$offset=$item;
-    }
-    public function offsetExists($offset) {
-        return property_exists($this,$offset);
-    }
-    public function offsetUnset($offset) {
-        unset($this->$offset);
-    }
-    public function getIterator()
-	{
-		$attributes=$this->attributes;
-		return new \ArrayIterator($attributes);
-	}
-    
-    
-    function __get($proName){
-        $method="get".ucfirst($proName);
-        if(method_exists($this,$method)){
-            return $this->$method();
-        }elseif(property_exists($this,$proName)){
-            return $this->$proName;
-        }elseif(isset($this->attributes[$proName])){
-            return $this->attributes[$proName];
-        }else{
-            return false;
-        }
-    }
-    function __set($proName,$value){
-        $method="set".ucfirst($proName);
-        if(method_exists($this,$method)){
-            return $this->$method($value);
-        }elseif(property_exists($this,$proName)){
-            return $this->$proName=$value;
-        }elseif(in_array($proName,array_keys($this->attributes))){
-            return $this->attributes[$proName]=$value;
-        }else{
-            return false;
-        }
-    }
+ 
     
     //session 用户登录前缀
     public function getStateKeyPrefix()
@@ -143,7 +98,6 @@ class User implements \IteratorAggregate, \ArrayAccess
 		$this->clearStates();
 	}
     
-    
     /**
 	 * 全局返回路径
 	 */
@@ -151,15 +105,11 @@ class User implements \IteratorAggregate, \ArrayAccess
 	{
 		return $this->getState('__returnUrl',$defaultUrl);
 	}
+    
 	public function setReturnUrl($value)
 	{
 		$this->setState('__returnUrl',$value);
 	}
-    
-    
-   
-	
-	
     
     
 }

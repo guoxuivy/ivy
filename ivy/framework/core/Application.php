@@ -7,8 +7,7 @@
  * @since 1.0
  */
 namespace Ivy\core;
-final class Application {
-	static $app = NULL;
+final class Application extends CComponent {
     /**
 	 * 数据库实例句柄
 	 */
@@ -24,43 +23,21 @@ final class Application {
     /**
 	 * 全局配置文件
 	 */
-	protected $config = array ();
+	protected $config = NULL;
     /**
 	 * 当前路由副本保存，共loaderClass使用
 	 */
-    public $temp_route=array();
+    protected $temp_route = NULL;
     
 
     /**
 	 * 加载全局配置文件
 	 */
-    private function __construct($config){
+    public function __construct($config){
+        \Ivy::setApplication($this);//保存句柄
+        $config = require_once($config);
         $this->config=$config;
     }
-    
-    /**
-	 * 实例化（单例模式）
-	 */
-	static public function init($config = NULL) {
-		if (self::$app instanceof Application) {
-			$app = self::$app;
-		} else {
-            $config = require_once($config);
-			$app = new Application($config);
-		}
-        self::$app=$app;
-		return $app;
-	}
-    
-    function __get($proName){
-        $method="get".ucfirst(strtolower($proName));
-        if(method_exists($this,$method)){
-            return $this->$method();
-        }else{
-            return $this->$proName;
-        }
-    }
-    
     
     /**
 	 * 缓存句柄对象
@@ -115,9 +92,6 @@ final class Application {
         $this->dispatch($route,$param);
 	}
     
-    
-
-    
 	
 	/**
 	 * 路由执行
@@ -163,6 +137,7 @@ final class Application {
         }catch(CException $e){
             throw new CException ( $router['module'] . '-分组不存在！'); 
         }
+        
         $hasMethod = $ReflectedClass->hasMethod($action);
         if($hasMethod){
             //widget的参数用$_REQUEST传递
@@ -175,19 +150,16 @@ final class Application {
      
 	}
     
+    public function getRuntimePath()
+	{
+		return __PROTECTED__.DIRECTORY_SEPARATOR.'runtime';
+	}
     
 	
 	/**
 	 * 结束 处理
 	 */
 	public function finished() {
-	
 	}
 	
-	/**
-	 * call
-	 */
-	public function __call($method, $arguments) {
-		throw new CException ( "访问的模块（{$method}）不存在！" );
-	}
 }

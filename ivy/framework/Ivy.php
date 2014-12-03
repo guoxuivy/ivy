@@ -16,10 +16,14 @@ defined('__ROOT__') or define('__ROOT__', dirname(__DIR__));                    
 defined('__PROTECTED__') or define('__PROTECTED__',__ROOT__.DIRECTORY_SEPARATOR."protected");   //定义项目文件根目录 D:\wwwroot..protected
 defined('SITE_URL') or define('SITE_URL', dirname($_SERVER['SCRIPT_NAME']));                    //定义访问地址  /ivy
 defined('IVY_PATH') or define('IVY_PATH',dirname(__FILE__));                                    //定义框架根目录 D:\wwwroot\ivy\framework
-
+defined('IVY_BEGIN_TIME') or define('IVY_BEGIN_TIME',microtime(true));  
 use Ivy\core\Application;
+use Ivy\logging\CLogger;
 class Ivy
 {
+    private static $_app;
+	private static $_logger;
+    
     //框架初始化代码
     public static function init()
 	{
@@ -31,13 +35,50 @@ class Ivy
 	public static function createApplication()
 	{
         $config=__PROTECTED__.DIRECTORY_SEPARATOR.'config.php';
-		return Application::init($config);
+        return new Application($config);
 	}
-    //获取应用实例句柄
+    
+    public static function setApplication($app)
+	{
+		if(self::$_app===null || $app===null)
+			self::$_app=$app;
+		else
+			throw new CException('application can only be created once.');
+	}
     public static function app()
 	{
-		return Application::init();
+		return self::$_app;
 	}
+    public static function logger()
+	{
+        if(self::$_logger===null){
+           self::$_logger=new CLogger;
+        }
+        return self::$_logger;
+	}
+    public static function log($msg,$level=CLogger::LEVEL_INFO,$category='application')
+	{
+		if(self::$_logger===null)
+			self::$_logger=new CLogger;
+		if( IVY_DEBUG && $level!==CLogger::LEVEL_PROFILE)
+		{
+			$traces=debug_backtrace();
+			$count=0;
+			foreach($traces as $trace)
+			{
+				if(isset($trace['file'],$trace['line']))
+				{
+					$msg.="\nin ".$trace['file'].' ('.$trace['line'].')';
+					if(++$count>=CLogger::REPORT_TRACE_LEVEL)
+						break;
+				}
+			}
+		}
+        
+		self::$_logger->log($msg,$level,$category);
+	}
+    
+ 
     
     public static function import($uri){
         require_once($uri);

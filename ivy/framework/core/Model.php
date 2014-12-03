@@ -9,17 +9,17 @@
 namespace Ivy\core;
 use Ivy\db\Where;
 use Ivy\db\pdo\mysql;
-abstract class Model implements \IteratorAggregate, \ArrayAccess{
-	//缓存时间30秒
-	private static $cachetime=30;
+abstract class Model extends CComponent implements \IteratorAggregate, \ArrayAccess{
+    
     //静态对象保存 节省性能开销
 	private static $_models=array();
-
     protected $primaryKey =null;
+    //用来存储表数据
     protected $attributes =null;
 	
     
     public function __construct(){
+        throw new CException('主键异常！');
         if($this->tableName()!==false){
             $this->getTableFields();
         }
@@ -60,28 +60,17 @@ abstract class Model implements \IteratorAggregate, \ArrayAccess{
     
     
     function __get($proName){
-        $method="get".ucfirst($proName);
-        if(method_exists($this,$method)){
-            return $this->$method();
-        }elseif(property_exists($this,$proName)){
-            return $this->$proName;
-        }elseif(isset($this->attributes[$proName])){
+        if(isset($this->attributes[$proName])){
             return $this->attributes[$proName];
-        }else{
-            return false;
         }
+        return parent::__get($proName);
     }
     function __set($proName,$value){
-        $method="set".ucfirst($proName);
-        if(method_exists($this,$method)){
-            return $this->$method($value);
-        }elseif(property_exists($this,$proName)){
-            return $this->$proName=$value;
-        }elseif(in_array($proName,array_keys($this->attributes))){
+        if(in_array($proName,array_keys($this->attributes))){
             return $this->attributes[$proName]=$value;
-        }else{
-            return false;
         }
+        return parent::__set($proName,$value);
+        
     }
     
 

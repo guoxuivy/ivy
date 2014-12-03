@@ -27,57 +27,66 @@ class CException extends \Exception
         {
             return;
         }
-        
-        echo '<style>.exception-trace p{padding-top:0px;margin-top:0px} .exception-trace pre{background-color: #E0EBD3;padding-top:0px;margin-top:0px} .exception-trace-index{background-color: #BBDBF4; border-bottom: 1px #1188FF solid}</style>';
-        echo '<div class="exception-trace">';
         //编码判断
         if(json_encode($message) == 'null'){
             $message=iconv("GBK", "UTF-8", $message); 
         }
-        echo '<div class="exception-trace-index"><font color="red">系统错误</font>->'.$message.'</div>';
-        echo '<pre>file:'.$file."-line:{$line}</pre>";
-        echo '<div>';
+        if(IVY_DEBUG){
+            echo '<style>.exception-trace p{padding-top:0px;margin-top:0px} .exception-trace pre{background-color: #E0EBD3;padding-top:0px;margin-top:0px} .exception-trace-index{background-color: #BBDBF4; border-bottom: 1px #1188FF solid}</style>';
+            echo '<div class="exception-trace">';
+            echo '<div class="exception-trace-index"><font color="red">系统错误</font>->'.$message.'</div>';
+            echo '<pre>file:'.$file."-line:{$line}</pre>";
+            echo '<div>';
+        }
+        \Ivy::log('系统错误:'.$message.'->file:'.$file.'->line:'.$line,'error');
     }
     
     public static function exception_handler($exception)
     {
-        if(IVY_DEBUG){
-            try
-            {
-                //编码判断
-                $message = $exception->getMessage();
-                if(json_encode($message) == 'null'){
-                    $message=iconv("GBK", "UTF-8", $message); 
-                }
-                echo '<style>.exception-trace p{padding-top:0px;margin-top:0px} .exception-trace pre{background-color: #E0EBD3;padding-top:0px;margin-top:0px} .exception-trace-index{background-color: #BBDBF4; border-bottom: 1px #1188FF solid}</style>';
-                echo '<div class="exception-trace">';
-                echo '<b>Fatal error</b>:  未捕获的异常\'' . get_class($exception) . '\'  ';
-                echo '<br>异常消息：<font color="red">'.$message.'</font><br>';
-                echo 'Stack trace:<div>';
-                foreach($exception->getTrace() as $key=>$t){
-                    echo '<div class="exception-trace-index">trace->'.$key.'</div>';
-                    echo '<pre>';
-                    foreach($t as $k=>$v){
-                        if($k=='args'){
-                            echo "<p>args:";
-                                var_export($v);
-                            echo "</p>";
-                        }else{
-                            echo "<p>{$k}:{$v}</p>";
-                        }
+        $str = $str_log = '';
+        try {
+            //编码判断
+            $message = $exception->getMessage();
+            if(json_encode($message) == 'null'){
+                $message=iconv("GBK", "UTF-8", $message); 
+            }
+            $str.= '<style>.exception-trace p{padding-top:0px;margin-top:0px} .exception-trace pre{background-color: #E0EBD3;padding-top:0px;margin-top:0px} .exception-trace-index{background-color: #BBDBF4; border-bottom: 1px #1188FF solid}</style>';
+            $str.= '<div class="exception-trace">';
+            $str.= '<b>Fatal error</b>:  未捕获的异常\'' . get_class($exception) . '\'  ';
+            $str_log.= "\n <!--Fatal error-->:  未捕获的异常" . get_class($exception) . "  \n";
+            $str.= '<br>异常消息：<font color="red">'.$message.'</font><br>';
+            $str_log.= "异常消息：".$message."  \n";
+            $str.= 'Stack trace:<div>';
+            foreach($exception->getTrace() as $key=>$t){
+                $str.= '<div class="exception-trace-index">trace->'.$key.'</div>';
+                $str.= '<pre>';
+                foreach($t as $k=>$v){
+                    if($k=='args'){
+                        $str.= "<p>args:";
+                            $str.=var_export($v,true);
+                            $str_log.= "args:".var_export($v,true)."  \n";
+                        $str.= "</p>";
+                    }else{
+                       $str.= "<p>{$k}:{$v}</p>";
+                       $str_log.= "{$k}:{$v}  \n";
                     }
-                    echo '</pre>';
+                    
                 }
-                echo '</div>';
-                echo '异常抛出点：<b>' . $exception->getFile() . '</b> on line <b>' . $exception->getLine() . '</b><br>';
-                echo '</div>';
-                exit();
+                $str.= '</pre>';
             }
-            catch (Exception $e)
-            {
-                print get_class($e)." thrown within the exception handler. Message: ".$e->getMessage()." on line ".$e->getLine();exit();
-            }
+            $str.= '</div>';
+            $str.= '异常抛出点：<b>' . $exception->getFile() . '</b> on line <b>' . $exception->getLine() . '</b><br>';
+            $str_log.= '异常抛出点：' . $exception->getFile() . ' on line ' . $exception->getLine() . ''."\n";
+            $str.= '</div>';
+        } 
+        catch (\Exception $e) {
+            $str.= get_class($e)." thrown within the exception handler. Message: ".$e->getMessage()." on line ".$e->getLine();
+            $str_log.= get_class($e)." thrown within the exception handler. Message: ".$e->getMessage()." on line ".$e->getLine()."\n";
+        }
+        if(IVY_DEBUG){
+            echo $str;die;
         }else{
+            \Ivy::log($str_log,'error');
             die('有未捕获的异常！');
         }
     }
@@ -85,6 +94,7 @@ class CException extends \Exception
     
     public static function shutdown_handler ()
     {
+        \Ivy::logger()->flush();
         // 资源操作 数据库连接 缓存 等处理
         if(session_id()!=='')
 			@session_write_close();

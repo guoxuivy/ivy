@@ -7,11 +7,9 @@
  * @since 1.0
  */
 namespace Ivy\core;
-class Controller {
-	//变量存储
-	protected $data = array ();
+class Controller extends CComponent {
     //路由对象
-	public $route = NULL;
+	protected $route = NULL;
     
 	public function __construct($route) {
        //当前的路由对象
@@ -21,31 +19,11 @@ class Controller {
 
 	public function init() { }
 
-    /**
-     * 搜索data
-     **/
-    public function __get($name) {
-		if (method_exists($this,$name)) {
-			return $this->$name();
-		} else if (isset ( $this->data[$name] )) {
-			return $this->data[$name];
-		} else if ($name == 'view') {
-			return new Template($this);
-		} else if ($name == 'db') {
-            return \Ivy::app()->getDb();
-		} else {
-			throw new CException ( '找不到' . $name );
-		}
+    public function getDb() {
+		return \Ivy::app()->getDb();
 	}
-	function __set($proName,$value){
-		$method="set".ucfirst($proName);
-		if(method_exists($this,$method)){
-			return $this->$method($value);
-		}elseif(property_exists($this,$proName)){
-			return $this->$proName=$value;
-		}else{
-			return $this->data[$proName]=$value;
-		}
+    public function getView() {
+		return new Template($this);
 	}
     
 	protected function ajaxReturn($statusCode, $message, $data = array()) {
@@ -108,7 +86,6 @@ class Controller {
 	{
 		return !empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'],'off');
 	}
-
 
 	
 	/**
