@@ -91,7 +91,7 @@ class Controller extends CComponent {
 	/**
 	 * 判断是否为ajax请求
 	 */
-	protected function isAjax(){
+	protected function getIsAjax(){
 		if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'){
 			return true;
 		}else{
@@ -101,7 +101,7 @@ class Controller extends CComponent {
     /**
 	 * 判断是否为post请求
 	 */
-	protected function isPost(){
+	protected function getIsPost(){
 		if(isset($_POST) && $_SERVER['REQUEST_METHOD']=="POST"){
 			return true;
 		}else{

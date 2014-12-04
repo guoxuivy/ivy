@@ -78,6 +78,9 @@ class CFileLogRoute extends CLogRoute
 	 */
 	public function setLogPath($value)
 	{
+		if (!is_dir($value)){
+			@mkdir($value,0777,true);
+		}
 		$this->_logPath=realpath($value);
 		if($this->_logPath===false || !is_dir($this->_logPath) || !is_writable($this->_logPath))
 			throw new CException('CFileLogRoute.logPath "'.$value.'" does not point to a valid directory. Make sure the directory exists and is writable by the Web server process.');
