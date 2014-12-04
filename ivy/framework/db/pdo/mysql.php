@@ -4,8 +4,9 @@
  * @copyright Copyright &copy; 2013-2017 Ivy Software LLC
  * @license http://www.ivyframework.com/license/
  * @package framework
- * @since 1.0
- * @comment PDO数据库操作类
+ * @link https://github.com/guoxuivy/ivy 
+ * @since 1.0 
+ * PDO数据库操作类
  */
 namespace Ivy\db\pdo;
 use Ivy\core;

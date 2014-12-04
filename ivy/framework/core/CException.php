@@ -4,7 +4,8 @@
  * @copyright Copyright &copy; 2013-2017 Ivy Software LLC
  * @license http://www.ivyframework.com/license/
  * @package framework
- * @since 1.0
+ * @link https://github.com/guoxuivy/ivy 
+ * @since 1.0 
  */
 namespace Ivy\core;
 class CException extends \Exception
@@ -95,6 +96,7 @@ class CException extends \Exception
     
     public static function shutdown_handler ()
     {
+        //日志写入
         \Ivy::logger()->flush();
         // 资源操作 数据库连接 缓存 等处理
         if(session_id()!=='')
@@ -108,5 +110,3 @@ set_error_handler(array("Ivy\core\CException", "error_handler"));
 set_exception_handler(array("Ivy\core\CException", "exception_handler"));
 
 register_shutdown_function (array ('Ivy\core\CException', 'shutdown_handler'));
-
-

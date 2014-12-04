@@ -4,8 +4,9 @@
  * @copyright Copyright &copy; 2013-2017 Ivy Software LLC
  * @license http://www.ivyframework.com/license/
  * @package framework
- * @since 1.0
- * @comment 生成sql条件
+ * @link https://github.com/guoxuivy/ivy 
+ * @since 1.0 
+ * 生成sql条件
  */
 namespace Ivy\db;
 use Ivy\core\CException;

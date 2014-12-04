@@ -4,7 +4,8 @@
  * @copyright Copyright &copy; 2013-2017 Ivy Software LLC
  * @license http://www.ivyframework.com/license/
  * @package framework
- * @since 1.0
+ * @link https://github.com/guoxuivy/ivy 
+ * @since 1.0 
  */
 namespace Ivy\core;
 class LoaderClass{
@@ -12,7 +13,7 @@ class LoaderClass{
     /**
      * @author ivy <guoxuivy@gmail.com>
      * @comment 框架自动类加载 依次寻找路径列表 次路径只能在 framework范围内
-     * @since 1.0
+     * @link https://github.com/guoxuivy/ivy * @since 1.0 
      */
     static $load_dir = array(
         "0"=>"db",

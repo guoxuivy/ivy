@@ -5,7 +5,6 @@
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
  * @copyright Copyright &copy; 2008-2011 Yii Software LLC
- * @license http://www.yiiframework.com/license/
  */
 
 /**
@@ -25,7 +24,14 @@
  * @property integer $memoryUsage Memory usage of the application (in bytes).
  * @property array $profilingResults The profiling results.
  * 移植于YII 1.3 二次开发
+ * @author ivy <guoxuivy@gmail.com>
+ * @copyright Copyright &copy; 2013-2017 Ivy Software LLC
+ * @license http://www.ivyframework.com/license/
+ * @package framework
+ * @link https://github.com/guoxuivy/ivy 
+ * @since 1.0 
  */
+
 namespace Ivy\logging;
 use Ivy\core\CComponent;
 use Ivy\core\CException;

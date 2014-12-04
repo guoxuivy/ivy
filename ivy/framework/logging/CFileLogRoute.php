@@ -5,7 +5,6 @@
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
  * @copyright Copyright &copy; 2008-2011 Yii Software LLC
- * @license http://www.yiiframework.com/license/
  */
 
 /**
@@ -24,9 +23,13 @@
  * @property integer $maxFileSize Maximum log file size in kilo-bytes (KB). Defaults to 1024 (1MB).
  * @property integer $maxLogFiles Number of files used for rotation. Defaults to 5.
  *
- * @author Qiang Xue <qiang.xue@gmail.com>
- * @package system.logging
- * @since 1.0
+ * 移植于YII 1.3 二次开发
+ * @author ivy <guoxuivy@gmail.com>
+ * @copyright Copyright &copy; 2013-2017 Ivy Software LLC
+ * @license http://www.ivyframework.com/license/
+ * @package framework
+ * @link https://github.com/guoxuivy/ivy 
+ * @since 1.0 
  */
 namespace Ivy\logging;
 use Ivy\core\CComponent;

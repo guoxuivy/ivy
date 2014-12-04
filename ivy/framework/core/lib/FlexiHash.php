@@ -4,7 +4,7 @@
  * @copyright Copyright &copy; 2013-2017 Ivy Software LLC
  * @license http://www.ivyframework.com/license/
  * @package framework
- * @since 1.0
+ * @link https://github.com/guoxuivy/ivy * @since 1.0 
  */
 namespace Ivy\core\lib;
 /**
@@ -12,15 +12,15 @@ namespace Ivy\core\lib;
  * 使用二分查找法查找虚拟节点环
  * demo：
  * 
-    $config = array(
-    	"127.0.0.1:11211",
-    	"127.0.0.1:11212",
-    	"127.0.0.1:11213",
-    	"127.0.0.1:11214",
-    	"127.0.0.1:11215"
-    );
-    $FlexiHash = new FlexiHash($config);
-    echo $FlexiHash->get('ivy'); //putout 127.0.0.1:11215
+ *    $config = array(
+ *   	"127.0.0.1:11211",
+ *     	"127.0.0.1:11212",
+ *     	"127.0.0.1:11213",
+ *     	"127.0.0.1:11214",
+ *     	"127.0.0.1:11215"
+ *     );
+ *     $FlexiHash = new FlexiHash($config);
+ *     echo $FlexiHash->get('ivy'); //putout 127.0.0.1:11215
  * 
  **/
 class FlexiHash{

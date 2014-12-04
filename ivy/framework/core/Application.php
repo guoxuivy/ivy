@@ -4,7 +4,8 @@
  * @copyright Copyright &copy; 2013-2017 Ivy Software LLC
  * @license http://www.ivyframework.com/license/
  * @package framework
- * @since 1.0
+ * @link https://github.com/guoxuivy/ivy 
+ * @since 1.0 
  */
 namespace Ivy\core;
 final class Application extends CComponent {
