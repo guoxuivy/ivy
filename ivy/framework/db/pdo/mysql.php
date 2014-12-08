@@ -38,7 +38,7 @@ class mysql extends AbsoluteDB {
 	 */
 	public function InsertData($tableName, $data) {
 		$sql = $this->getInsertSql($tableName, $data);
-		$this->pdo->exec( $sql );
+		$this->exec( $sql );
 		return $this->pdo->lastInsertId();
 	}
 	
@@ -102,7 +102,12 @@ class mysql extends AbsoluteDB {
 	 * @param string $sql;
 	 */
 	public function exec($sql){
-		return $this->pdo->exec( $sql );
+		try {
+			$res = $this->pdo->exec( $sql );
+		} catch ( PDOException $e ) {
+			throw new CException ( $e->getMessage () );
+		}
+		return $res;
 	}
     
 	
@@ -138,7 +143,7 @@ class mysql extends AbsoluteDB {
 	 */
 	public function updateDataByCondition($tableName,$Condition,$data){
 		$sql = $this->getUpdataSql($tableName,$Condition,$data);
-		return $this->pdo->exec( $sql );
+		return $this->exec( $sql );
 	}
 	
 	/**
@@ -146,6 +151,6 @@ class mysql extends AbsoluteDB {
 	 */
 	public function deleteDataByCondition($tableName,$Condition){
 		$sql = $this->getDeltetSql($tableName,$Condition);
-		return $this->pdo->exec( $sql );
+		return $this->exec( $sql );
 	}
 }

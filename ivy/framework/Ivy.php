@@ -17,7 +17,8 @@ defined('__ROOT__') or define('__ROOT__', dirname(__DIR__));                    
 defined('__PROTECTED__') or define('__PROTECTED__',__ROOT__.DIRECTORY_SEPARATOR."protected");   //定义项目文件根目录 D:\wwwroot..protected
 defined('SITE_URL') or define('SITE_URL', dirname($_SERVER['SCRIPT_NAME']));                    //定义访问地址  /ivy
 defined('IVY_PATH') or define('IVY_PATH',dirname(__FILE__));                                    //定义框架根目录 D:\wwwroot\ivy\framework
-defined('IVY_BEGIN_TIME') or define('IVY_BEGIN_TIME',microtime(true));  
+defined('IVY_BEGIN_TIME') or define('IVY_BEGIN_TIME',microtime(true));
+defined('IVY_DEBUG') or define('IVY_DEBUG',false);  
 use Ivy\core\Application;
 use Ivy\logging\CLogger;
 class Ivy
@@ -46,10 +47,17 @@ class Ivy
 		else
 			throw new CException('application can only be created once.');
 	}
+	/**
+	* application句柄
+	**/
     public static function app()
 	{
 		return self::$_app;
 	}
+
+	/**
+	* 日志句柄
+	**/
     public static function logger()
 	{
         if(self::$_logger===null){
@@ -57,6 +65,9 @@ class Ivy
         }
         return self::$_logger;
 	}
+	/**
+	* 快速日志写入
+	**/
     public static function log($msg,$level=CLogger::LEVEL_INFO,$category='application')
 	{
 		if(self::$_logger===null)
@@ -93,7 +104,7 @@ class Ivy
         !empty($_COOKIE) && Ivy::add_s($_COOKIE);
         !empty($_REQUEST) && Ivy::add_s($_REQUEST);
 	}
-    
+    //递归转义
     public static function add_s(&$array){
         if (is_array($array)){
             foreach ($array as $key => $value) {

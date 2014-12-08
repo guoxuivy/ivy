@@ -297,6 +297,10 @@ class CLogger extends CComponent
 		return $results;
 	}
 
+	/**
+	 * Profile 暂时未实现
+	 *
+	 */
 	private function calculateTimings()
 	{
 		$this->_timings=array();
@@ -304,6 +308,8 @@ class CLogger extends CComponent
 		$stack=array();
 		foreach($this->_logs as $log)
 		{
+
+			continue;	//暂不实现 Profile功能
 			if($log[1]!==CLogger::LEVEL_PROFILE)
 				continue;
 			list($message,$level,$category,$timestamp)=$log;
@@ -321,8 +327,7 @@ class CLogger extends CComponent
 					$this->_timings[]=array($message,$category,$delta);
 				}
 				else
-					throw new CException(Yii::t('yii','CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Yii::beginProfile() and Yii::endProfile() be properly nested.',
-						array('{token}'=>$token)));
+					throw new CException('CProfileLogRoute found a mismatching code block "'.$token.'". Make sure the calls to Ivy::beginProfile() and Ivy::endProfile() be properly nested.');
 			}
 		}
 

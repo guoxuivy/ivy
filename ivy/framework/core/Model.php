@@ -16,7 +16,10 @@ abstract class Model extends CComponent implements \IteratorAggregate, \ArrayAcc
 	private static $_models=array();
     protected $primaryKey =null;
     //用来存储表数据
-    protected $attributes =null;
+    protected $attributes =array();
+
+    //错误搜集
+    protected $_error = array();
 	
     
     public function __construct(){
@@ -58,19 +61,18 @@ abstract class Model extends CComponent implements \IteratorAggregate, \ArrayAcc
 		return new \ArrayIterator($attributes);
 	}
     
-    
+    //数据库属性字段检索
     function __get($proName){
-        if(isset($this->attributes[$proName])){
+        if(array_key_exists($proName , $this->attributes)){
             return $this->attributes[$proName];
         }
         return parent::__get($proName);
     }
     function __set($proName,$value){
-        if(in_array($proName,array_keys($this->attributes))){
+        if(array_key_exists($proName , $this->attributes)){
             return $this->attributes[$proName]=$value;
         }
         return parent::__set($proName,$value);
-        
     }
     
 
