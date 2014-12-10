@@ -51,7 +51,7 @@ class Controller extends CComponent {
 	{
         if(strpos($uri,'://')===false){
             //站内转跳
-            $uri = SITE_URL.'/index.php/?r='.rtrim($uri);
+            $uri = SITE_URL.'/index.php?r='.rtrim($uri);
             $param_arr = array_filter($param);
             if(!empty($param_arr)){
                 foreach($param_arr as $k=>$v){

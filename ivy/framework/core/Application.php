@@ -82,8 +82,8 @@ final class Application extends CComponent {
     
     /**
 	 * widget 与 run 类似直接输出 不返回
-     * @param $routerStr  路由参数  
      * @comment 自动适配分组模式 优先适配普通模式的控制器
+     * @param $routerStr  路由参数  
      * @param $param array 自定义参数
 	 */
 	public function widget($routerStr,$param=array()) {
