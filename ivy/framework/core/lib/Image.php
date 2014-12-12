@@ -291,7 +291,8 @@ class Image {
     static function buildImageVerify($length=4, $mode=1, $type='png', $width=48, $height=22, $verifyName='verify') {
         //import('ORG.Util.String');
         $randval = String::randString($length, $mode);
-        session($verifyName, md5($randval));
+        //session($verifyName, md5($randval));
+        \Ivy::app()->user->setState($verifyName, md5($randval));//session存储
         $width = ($length * 10 + 10) > $width ? $length * 10 + 10 : $width;
         if ($type != 'gif' && function_exists('imagecreatetruecolor')) {
             $im = imagecreatetruecolor($width, $height);
