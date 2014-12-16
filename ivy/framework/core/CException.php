@@ -8,6 +8,7 @@
  * @since 1.0 
  */
 namespace Ivy\core;
+use Ivy\logging\CLogger;
 class CException extends \Exception
 {
 	/**
@@ -39,7 +40,7 @@ class CException extends \Exception
             echo '<pre>file:'.$file."-line:{$line}</pre>";
             echo '<div>';
         }
-        \Ivy::log('系统错误:'.$message.'->file:'.$file.'->line:'.$line,'error');
+        \Ivy::log('系统错误:'.$message.'->file:'.$file.'->line:'.$line,CLogger::LEVEL_ERROR);
     }
     
     public static function exception_handler($exception)
@@ -88,7 +89,7 @@ class CException extends \Exception
         if(IVY_DEBUG){
             echo $str;die;
         }else{
-            \Ivy::log($str_log,'error');
+            \Ivy::log($str_log,CLogger::LEVEL_ERROR);
             die($message);
         }
     }

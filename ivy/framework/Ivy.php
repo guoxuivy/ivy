@@ -70,9 +70,7 @@ class Ivy
 	**/
     public static function log($msg,$level=CLogger::LEVEL_INFO,$category='application')
 	{
-		if(self::$_logger===null)
-			self::$_logger=new CLogger;
-		if( IVY_DEBUG && $level!==CLogger::LEVEL_PROFILE)
+		if($level===CLogger::LEVEL_PROFILE)
 		{
 			$traces=debug_backtrace();
 			$count=0;
@@ -80,14 +78,14 @@ class Ivy
 			{
 				if(isset($trace['file'],$trace['line']))
 				{
-					$msg.="\nin ".$trace['file'].' ('.$trace['line'].')';
+					$msg.=" in->".$trace['file'].' ('.$trace['line'].")";
 					if(++$count>=CLogger::REPORT_TRACE_LEVEL)
 						break;
 				}
 			}
 		}
         
-		self::$_logger->log($msg,$level,$category);
+		self::logger()->log($msg,$level,$category);
 	}
     
  

@@ -42,7 +42,7 @@ class CLogger extends CComponent
 	const LEVEL_ERROR='error';
 	const LEVEL_INFO='info';
 	const LEVEL_PROFILE='profile';
-    const REPORT_TRACE_LEVEL='3';
+    const REPORT_TRACE_LEVEL='1';
 
 	/**
 	 * @var integer how many messages should be logged before they are flushed to destinations.
