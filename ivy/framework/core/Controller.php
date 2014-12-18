@@ -26,7 +26,13 @@ class Controller extends CComponent {
     public function getView() {
 		return new Template($this);
 	}
-    
+    /**
+     * ajax 返回
+     * @param  srting $statusCode [状态]
+     * @param  string $message    [消息]
+     * @param  array  $data       [数据]
+     * @return json             [json返回值]
+     */
 	protected function ajaxReturn($statusCode, $message, $data = array()) {
 		if (empty ( $data )) {
 			die ( json_encode ( array (
@@ -41,6 +47,25 @@ class Controller extends CComponent {
 			) ) );
 		}
 	}
+
+	/**
+	 * 格式化url
+	 * $uri     admin/order/index
+	 * $param   array("id"=>1)
+	 * @return string
+	 */
+	public function url($uri="",$param=array()){ 
+        $uri = SITE_URL.'/index.php?r='.rtrim($uri);
+        $param_arr = array_filter($param);
+        if(!empty($param_arr)){
+            foreach($param_arr as $k=>$v){
+                $k=urlencode($k);
+                $v=urlencode($v);
+                $uri.="&{$k}={$v}";
+            }
+        }
+		return $uri;
+	}
     
    /**
     * 重定向方法 
@@ -50,21 +75,16 @@ class Controller extends CComponent {
     public function redirect($uri="",$param=array())
 	{
         if(strpos($uri,'://')===false){
-            //站内转跳
-            $uri = SITE_URL.'/index.php?r='.rtrim($uri);
-            $param_arr = array_filter($param);
-            if(!empty($param_arr)){
-                foreach($param_arr as $k=>$v){
-                    $k=urlencode($k);
-                    $v=urlencode($v);
-                    $uri.="&{$k}={$v}";
-                }
-            }
+        	$uri = $this->url($uri,$param);
             $uri=$this->getHostInfo().$uri;
 		}
         header('Location: '.$uri, true, 302);exit;
             
 	}
+	/**
+	 * 获取当前主机
+	 * @return string 主机字符串
+	 */
     public function getHostInfo()
 	{
 	   if($secure=$this->getIsSecureConnection())

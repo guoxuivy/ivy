@@ -12,6 +12,10 @@ namespace Ivy\db\pdo;
 use Ivy\core;
 use Ivy\db\AbsoluteDB;
 class mysql extends AbsoluteDB {
+
+	//事物标记
+	private $_begin_transaction = false;
+
 	public function __construct($config) {
 		try {
 			$this->pdo = new \PDO ( $config ['dsn'], $config ['user'], $config ['password'] );
@@ -20,6 +24,51 @@ class mysql extends AbsoluteDB {
 			throw new CException ( $e->getMessage () );
 		}
 	}
+
+	/**
+	 * 事务开始
+	 * @return [boolen] [description]
+	 */
+	public function beginT(){
+		//如果已经有事物在运行 则先回滚
+		if($this->_begin_transaction){
+			throw new CException ( '还有有事务未提交！' );
+		}
+		$this->_begin_transaction = false;
+		$this->pdo->setAttribute(\PDO::ATTR_AUTOCOMMIT, 0);
+		$res = $this->pdo->beginTransaction();
+		if($res) $this->_begin_transaction = true;
+		return $res;
+	}
+
+	/**
+	 * 事物回滚
+	 * @return boolen 
+	 */
+	public function rollbackT(){
+		$this->_begin_transaction = false;
+		$res = $this->pdo->rollback();
+		//恢复自动提交
+		$this->pdo->setAttribute(\PDO::ATTR_AUTOCOMMIT, 1);
+		return $res;
+
+	}
+
+	/**
+	 * 事务提交
+	 * @return [boolen] 
+	 */
+	public function commitT(){
+		if($this->_begin_transaction){
+			$this->_begin_transaction = false;
+			$res = $this->pdo->commit();
+			//恢复自动提交
+			$this->pdo->setAttribute(\PDO::ATTR_AUTOCOMMIT, 1);
+			return $res;
+		}
+		return false;
+	}
+
 	
 	/**
 	 * 执行删改语句，返回受影响行数

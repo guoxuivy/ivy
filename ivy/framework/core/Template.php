@@ -84,17 +84,8 @@ class Template{
 	 * $uri     admin/order/index
 	 * $param   array("id"=>1)
 	 */
-	public function url($uri="",$param=array()){ 
-        $uri = SITE_URL.'/index.php?r='.rtrim($uri);
-        $param_arr = array_filter($param);
-        if(!empty($param_arr)){
-            foreach($param_arr as $k=>$v){
-                $k=urlencode($k);
-                $v=urlencode($v);
-                $uri.="&{$k}={$v}";
-            }
-        }
-		return $uri;
+	public function url($uri="",$param=array()){
+        return $this->controller->url($uri,$param);
 	}
 	
 	/**

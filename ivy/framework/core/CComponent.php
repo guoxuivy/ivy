@@ -31,10 +31,8 @@ class CComponent
             return $this->$method($value);
         }elseif(property_exists($this,$name)){
             return $this->$name=$value;
-        }elseif(in_array($name,array_keys($this->_m))){
-            return $this->_m[$name]=$value;
         }else{
-            throw new CException( 'Property "'.get_class($this).'.'.$name.'" is not defined.' );
+            return $this->_m[$name]=$value;
         }
     }
 

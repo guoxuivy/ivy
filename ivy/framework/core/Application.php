@@ -44,7 +44,7 @@ final class Application extends CComponent {
 	 * 缓存句柄对象
 	 */
 	public function getCache() {
-        if($this->cache instanceof Cache){
+        if($this->cache){
         	return $this->cache;
         }else{
             $this->cache = new Cache ($this->config['memcache']);
@@ -58,7 +58,7 @@ final class Application extends CComponent {
      * 变量类名 无法应用命名空间~~~!
 	 */
 	public function getDb() {
-        if($this->db instanceof AbsoluteDB){
+        if($this->db){
         	return $this->db;
         }else{
             $class_arr=explode(":",$this->config['db_pdo']['dsn']);
@@ -72,7 +72,7 @@ final class Application extends CComponent {
 	 * 登录用户句柄对象
 	 */
 	public function getUser() {
-        if($this->user instanceof User){
+        if($this->user){
         	return $this->user;
         }else{
             $this->user = new User ();
@@ -139,15 +139,21 @@ final class Application extends CComponent {
             throw new CException ( $router['module'] . '-分组不存在！'); 
         }
         
-        $hasMethod = $ReflectedClass->hasMethod($action);
-        if($hasMethod){
-            //widget的参数用$_REQUEST传递
-            if(!empty($param)){
-                $_REQUEST = array_merge($_REQUEST,$param);
-            }
-            return $ReflectedClass->newInstanceArgs(array($routerObj))->$action();//实例化
+        //widget的参数用$_REQUEST传递
+        if(!empty($param)){
+            $_REQUEST = array_merge($_REQUEST,$param);
         }
-        throw new CException ( $class . '控制器中没有方法：' . $action );    
+        return $ReflectedClass->newInstanceArgs(array($routerObj))->$action();//实例化
+
+        // $hasMethod = $ReflectedClass->hasMethod($action);
+        // if(!$hasMethod){
+        //     //widget的参数用$_REQUEST传递
+        //     if(!empty($param)){
+        //         $_REQUEST = array_merge($_REQUEST,$param);
+        //     }
+        //     return $ReflectedClass->newInstanceArgs(array($routerObj))->$action();//实例化
+        // }
+        // throw new CException ( $class . '控制器中没有方法：' . $action );   
      
 	}
     

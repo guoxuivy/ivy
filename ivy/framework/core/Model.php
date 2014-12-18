@@ -14,12 +14,14 @@ abstract class Model extends CComponent implements \IteratorAggregate, \ArrayAcc
     
     //静态对象保存 节省性能开销
 	private static $_models=array();
-    protected $primaryKey =null;
+    //存储数据库表对应字段名
+    private        $_fields = array();
+    //主键
+    protected      $primaryKey = null;
     //用来存储表数据
-    protected $attributes =array();
-
+    protected      $attributes = array();
     //错误搜集
-    protected $_error = array();
+    protected      $_error = array();
 	
     
     public function __construct(){
@@ -30,11 +32,11 @@ abstract class Model extends CComponent implements \IteratorAggregate, \ArrayAcc
     
     public static function model()
 	{
-        $className=get_called_class();
+        $className = get_called_class();
 		if(isset(self::$_models[$className])){
             return self::$_models[$className]; 
 		}else{
-			$model=self::$_models[$className]=new $className(null);
+			$model = self::$_models[$className] = new $className(null);
 			return $model;
 		}
 	}
@@ -61,14 +63,27 @@ abstract class Model extends CComponent implements \IteratorAggregate, \ArrayAcc
 		return new \ArrayIterator($attributes);
 	}
     
-    //数据库属性字段检索
+    //数据库属性字段 扩展
     function __get($proName){
+        if($proName=='id') return '';
+
+        // if($this->primaryKey!=null && $proName==$this->primaryKey){
+        //     if(isset($this->attributes[$proName]))
+        //         return $this->attributes[$proName];
+        //     return null;
+        // }
+
         if(array_key_exists($proName , $this->attributes)){
             return $this->attributes[$proName];
         }
         return parent::__get($proName);
     }
     function __set($proName,$value){
+        if($proName=='attributes'){
+            foreach ($value as $k => $v) {
+                $this->__set($k,$v);
+            }
+        }
         if(array_key_exists($proName , $this->attributes)){
             return $this->attributes[$proName]=$value;
         }
@@ -99,15 +114,29 @@ abstract class Model extends CComponent implements \IteratorAggregate, \ArrayAcc
     public function save()
 	{
 	   $pk_field=$this->primaryKey;
-	   if($this->$pk_field===null){
-	       $_pk = $this->db->InsertData($this->tableName(),$this->attributes);
+	   if($this->$pk_field==null){
+	       $_pk = $this->db->InsertData($this->tableName(),$this->getSafeAttributes());
            $this->$pk_field=$_pk;
            return $_pk;
 	   }else{
 	       $where = $this->where->eqTo($pk_field,$this->$pk_field);
-	       return $this->db->updateDataByCondition($this->tableName(),$where,$this->attributes);
+	       return $this->db->updateDataByCondition($this->tableName(),$where,$this->getSafeAttributes());
 	   }
 	}
+
+    /**
+     * 返回安全的属性
+     * @return array fieldes 中存在的数据
+     */
+    public function getSafeAttributes(){
+        $safeAttributes=array();
+        foreach ($this->attributes as $key => $value) {
+            if(in_array($key, $this->_fields)){
+                $safeAttributes[$key]=$value;
+            }
+        }
+        return $safeAttributes;
+    }
     
     /**
      *仅仅支持int行主键 
@@ -121,18 +150,12 @@ abstract class Model extends CComponent implements \IteratorAggregate, \ArrayAcc
             throw new CException('主键异常！');
         }
         $where = $this->where->eqTo($pk_field,$pk);
-        $res = $this->db->find($this->tableName(),$where);
-        if($res){
-            $m = new $this->modelClass;
-            $m->attributes=$res;
-            return $m;
-        }else{
-            return null;
-        }
+
+        return $this->find($where);
     }
     
     public function find($condition = NULL, $colmnus = array('*'),$order = array() ,$limit = NULL,$offset=NULL) {
-		$res = $this->db->find($this->tableName(),$condition,$colmnus,$order,$limit,$offset);
+        $res = $this->db->find($this->tableName(),$condition,$colmnus,$order,$limit,$offset);
         if($res){
             $m = new $this->modelClass;
             $m->attributes=$res;
@@ -160,12 +183,14 @@ abstract class Model extends CComponent implements \IteratorAggregate, \ArrayAcc
         }
         foreach($fields as $fie){
             $this->attributes[$fie['Field']]=$fie['Default'];
+            $this->_fields[]=$fie['Field'];
             if("PRI"===$fie['Key']) $this->primaryKey=$fie['Field'];
         }
     }
     
 
     /**
+     * 抽象方法 获取表名
 	 * @return string database table name
 	 */
 	abstract function tableName();
