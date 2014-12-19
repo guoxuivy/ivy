@@ -120,8 +120,10 @@ abstract class Model extends CComponent implements \IteratorAggregate, \ArrayAcc
            return $_pk;
 	   }else{
 	       $where = $this->where->eqTo($pk_field,$this->$pk_field);
-	       return $this->db->updateDataByCondition($this->tableName(),$where,$this->getSafeAttributes());
+           $res = $this->db->updateDataByCondition($this->tableName(),$where,$this->getSafeAttributes());
+	       if(!$res) throw new CException('数据更新失败!');
 	   }
+       return $this->$pk_field;
 	}
 
     /**
