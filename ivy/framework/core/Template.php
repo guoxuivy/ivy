@@ -67,13 +67,13 @@ class Template{
         if(3==count($r)){
             $template_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.$r['module'].DIRECTORY_SEPARATOR.self::$view_name.DIRECTORY_SEPARATOR.$template.$ext;
             if(!file_exists($template_path)){
-    			throw new CException('分组的模版不存在!');
+    			throw new CException('分组的模版-'.$template.'-不存在!');
     		}
         }
         if(2==count($r)){
             $template_path=__PROTECTED__.DIRECTORY_SEPARATOR.self::$view_name.DIRECTORY_SEPARATOR.$template.$ext;
             if(!file_exists($template_path)){
-    			throw new CException('模版不存在!');
+    			throw new CException('模版-'.$template.'-不存在!');
     		}
         }
         
