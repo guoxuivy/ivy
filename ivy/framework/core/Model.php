@@ -65,13 +65,12 @@ abstract class Model extends CComponent implements \IteratorAggregate, \ArrayAcc
     
     //数据库属性字段 扩展
     function __get($proName){
-        if($proName=='id') return '';
-
-        // if($this->primaryKey!=null && $proName==$this->primaryKey){
-        //     if(isset($this->attributes[$proName]))
-        //         return $this->attributes[$proName];
-        //     return null;
-        // }
+        //主键特别处理
+        if($this->primaryKey!==null && $proName===$this->primaryKey){
+            if(isset($this->attributes[$proName]) && !empty($this->attributes[$proName]))
+                return $this->attributes[$proName];
+            return null;
+        }
 
         if(array_key_exists($proName , $this->attributes)){
             return $this->attributes[$proName];
@@ -79,11 +78,11 @@ abstract class Model extends CComponent implements \IteratorAggregate, \ArrayAcc
         return parent::__get($proName);
     }
     function __set($proName,$value){
-        if($proName=='attributes'){
-            foreach ($value as $k => $v) {
-                $this->__set($k,$v);
-            }
+        //赋值表内属性
+        if(in_array($proName, $this->_fields)){
+            return $this->attributes[$proName]=$value;
         }
+        //更新额外的attr属性（由$this->attributes = array()强制赋值的表外属性）
         if(array_key_exists($proName , $this->attributes)){
             return $this->attributes[$proName]=$value;
         }

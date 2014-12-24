@@ -95,7 +95,6 @@ class mysql extends AbsoluteDB {
 			$sql = $this->getInsertSql($tableName, $data);
 			$this->exec( $sql );
 			return $this->pdo->lastInsertId();
-			return $res->fetchAll(\PDO::FETCH_ASSOC);
 		} catch ( \PDOException $e ) {
 			throw new CException ( $e->getMessage () );
 		}
@@ -198,7 +197,7 @@ class mysql extends AbsoluteDB {
 	 */
 	public function getPagener($tableName,$order = array(),$limit,$page,$condition = NULL,$colmnus = array('*')){
 		$data = array();
-		if(($condition instanceof where) && $condition->getCond() != NULL){
+		if(($condition instanceof Where) && $condition->getCond() != NULL){
 			$sql = 'select count(1) as `count` from `'.$tableName .'` where '.$condition->getCond();
 		}else{
 			$sql = 'select count(1) as `count` from `'.$tableName.'`';
