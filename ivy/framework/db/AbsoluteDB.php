@@ -32,17 +32,17 @@ abstract class AbsoluteDB {
 	
         if ($condition instanceof Where) {
             if(trim($condition->getCond ()) != ''){
-                $sql .= 'where ' . $condition->getCond ();
+                $sql .= ' where ' . $condition->getCond ();
             }
         }elseif($condition&&is_string($condition)){
-            $sql .= 'where ' . $condition;
+            $sql .= ' where ' . $condition;
         }else{
             
         }
 	
 		if(!empty($order)){
 			foreach ($order as $k => $v){
-				$sql .= 'order by `'.$k.'` '.$v;
+				$sql .= ' order by `'.$k.'` '.$v;
 			}
 		}
 	
@@ -141,7 +141,7 @@ abstract class AbsoluteDB {
 			$page_num_arr[] = $i;
 		}
 		
-		$nowPage = $data['currentpage'];
+		$nowPage = $data['currentPage'];
 		if(count($page_num_arr) <= 5){
 			$pagener = $page_num_arr;
 		}else if($nowPage <= 3){

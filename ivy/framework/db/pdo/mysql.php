@@ -191,24 +191,28 @@ class mysql extends AbsoluteDB {
 	 * 获取翻页信息
 	 * @param string $tableName	表名
 	 * @param array $order 排序
-	 * @param int $limit 查询条数
+	 * @param int $limit 每页显示条数
 	 * @param int $page 页码
 	 * @return array
 	 */
-	public function getPagener($tableName,$order = array(),$limit,$page,$condition = NULL,$colmnus = array('*')){
+	public function getPagener($tableName,$condition = NULL,$page=1,$limit = 10,$colmnus = array('*'),$order = array()){
 		$data = array();
 		if(($condition instanceof Where) && $condition->getCond() != NULL){
 			$sql = 'select count(1) as `count` from `'.$tableName .'` where '.$condition->getCond();
+		}elseif(is_string($condition)){
+			$sql = 'select count(1) as `count` from `'.$tableName .'` where '.$condition;
 		}else{
 			$sql = 'select count(1) as `count` from `'.$tableName.'`';
 		}
 		$count = $this->findBySql($sql);
+		$data['recordsTotal'] = (int)$count['count'];
+		$data['pageSize'] = (int)$limit;
 		$data['pageNums'] = (int)ceil($count['count']/$limit);
-		$data['currentpage'] = $page>0 ? $page : 1;
-		$data['currentpage'] = $data['currentpage'] > $data['pageNums'] ? $data['pageNums'] : $data['currentpage'];
-		$offset = ($data['currentpage']-1)*$limit;
-		$data['data'] = $this->findAll($tableName, $condition, $colmnus,$order,$limit,$offset);
-        return $this->generatePagener($data);
+		$data['currentPage'] = $page>0 ? $page : 1;
+		$data['currentPage'] = $data['currentPage'] > $data['pageNums'] ? $data['pageNums'] : $data['currentPage'];
+		$offset = ($data['currentPage']-1)*$limit;
+		$data['list'] = $this->findAll($tableName, $condition, $colmnus,$order,$limit,$offset);
+        return $data;
 	}
 	
 	/**

@@ -171,6 +171,10 @@ abstract class Model extends CComponent implements \IteratorAggregate, \ArrayAcc
 		return $this->db->findAll($this->tableName(),$condition,$colmnus,$order,$limit,$offset);
 	}
     
+    //默认每页10条记录
+    public function getPagener($condition = NULL, $page=1,$limit = 10,$colmnus = array('*'),$order = array()) {
+        return $this->db->getPagener($this->tableName(),$condition,$page,$limit,$colmnus,$order);
+    }
     
     /**
      *获取表信息 更类属性
