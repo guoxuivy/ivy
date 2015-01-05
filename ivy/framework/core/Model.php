@@ -16,7 +16,7 @@ abstract class Model extends CComponent implements \IteratorAggregate, \ArrayAcc
 	private static $_models=array();
     //存储数据库表对应字段名
     private        $_fields = array();
-    //主键
+    //主键字段名
     protected      $primaryKey = null;
     //用来存储表数据
     protected      $attributes = array();
@@ -175,6 +175,28 @@ abstract class Model extends CComponent implements \IteratorAggregate, \ArrayAcc
     public function getPagener($condition = NULL, $page=1,$limit = 10,$colmnus = array('*'),$order = array()) {
         return $this->db->getPagener($this->tableName(),$condition,$page,$limit,$colmnus,$order);
     }
+
+    /**
+     * 删除记录
+     * @param  [type] $condition [description]
+     * @return [type]            [description]
+     */
+    public function delete($condition = NULL) {
+        if($condition===NULL){
+            $pk_field = $this->primaryKey;
+            $pk = (int)$this->$pk_field;
+            if(empty($pk)){
+                throw new CException('主键异常！');
+            }
+            $condition = $this->where->eqTo($pk_field,$pk);
+        }
+
+        $res = $this->db->deleteDataByCondition($this->tableName(),$condition);
+        return $res;
+        
+    }
+
+
     
     /**
      *获取表信息 更类属性

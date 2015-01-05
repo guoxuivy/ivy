@@ -41,9 +41,11 @@ abstract class AbsoluteDB {
         }
 	
 		if(!empty($order)){
+			$sql .= ' order by ';
 			foreach ($order as $k => $v){
-				$sql .= ' order by `'.$k.'` '.$v;
+				$sql .= " `{$k}` {$v} ,";
 			}
+			$sql=substr($sql,0,-1);
 		}
 	
 		if(isset($limit) && !isset($offset)){

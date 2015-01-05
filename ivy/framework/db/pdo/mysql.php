@@ -159,7 +159,7 @@ class mysql extends AbsoluteDB {
 	}
     
     /**
-	 * 执行sql返回结果集
+	 * 执行sql返回单条结果
 	 * @param string $sql;
 	 * @return array;
 	 */
