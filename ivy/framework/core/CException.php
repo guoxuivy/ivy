@@ -22,27 +22,47 @@ class CException extends \Exception
         parent::__construct($message,$code);
 	}
     
-    
+    /**
+     * 系统错误处理 暂不启用
+     * @param  [type] $code    [description]
+     * @param  [type] $message [description]
+     * @param  [type] $file    [description]
+     * @param  [type] $line    [description]
+     * @return [type]          [description]
+     */
     public static function error_handler($code, $message, $file, $line)
     {
-        if (0 == error_reporting())
-        {
-            return;
-        }
+        //if (0 == error_reporting()) return;
         //编码判断
         if(json_encode($message) == 'null'){
             $message=iconv("GBK", "UTF-8", $message); 
         }
         if(IVY_DEBUG){
-            echo '<style>.exception-trace p{padding-top:0px;margin-top:0px} .exception-trace pre{background-color: #E0EBD3;padding-top:0px;margin-top:0px} .exception-trace-index{background-color: #BBDBF4; border-bottom: 1px #1188FF solid}</style>';
-            echo '<div class="exception-trace">';
-            echo '<div class="exception-trace-index"><font color="red">系统错误</font>->'.$message.'</div>';
-            echo '<pre>file:'.$file."-line:{$line}</pre>";
-            echo '<div>';
+            // echo '<style>.exception-trace p{padding-top:0px;margin-top:0px} .exception-trace pre{background-color: #E0EBD3;padding-top:0px;margin-top:0px} .exception-trace-index{background-color: #BBDBF4; border-bottom: 1px #1188FF solid}</style>';
+            // echo '<div class="exception-trace">';
+            // echo '<div class="exception-trace-index"><font color="red">系统错误</font>->'.$message.'</div>';
+            // echo '<pre>file:'.$file."-line:{$line}</pre>";
+            // echo '<div>';
+            return;
         }
-        \Ivy::log('系统错误:'.$message.'->file:'.$file.'->line:'.$line,CLogger::LEVEL_ERROR);
+        switch ($code) {
+            case 2:
+                \Ivy::log('系统警告:'.$message.'->file:'.$file.'->line:'.$line,CLogger::LEVEL_WARNING);
+                break;
+            case 8:
+                \Ivy::log('系统通知:'.$message.'->file:'.$file.'->line:'.$line,CLogger::LEVEL_NOTICE);
+                break;
+            default:
+                \Ivy::log('系统错误:'.$message.'->file:'.$file.'->line:'.$line,CLogger::LEVEL_ERROR);
+                break;
+        }
+        
     }
-    
+    /**
+     * 异常框架捕获
+     * @param  [type] $exception [description]
+     * @return [type]            [description]
+     */
     public static function exception_handler($exception)
     {
 		//编码判断
@@ -52,11 +72,10 @@ class CException extends \Exception
 		}
         $str = $str_log = '';
         try {
-            
             $str.= '<style>.exception-trace p{padding-top:0px;margin-top:0px} .exception-trace pre{background-color: #E0EBD3;padding-top:0px;margin-top:0px} .exception-trace-index{background-color: #BBDBF4; border-bottom: 1px #1188FF solid}</style>';
             $str.= '<div class="exception-trace">';
             $str.= '<b>Fatal error</b>:  未捕获的异常\'' . get_class($exception) . '\'  ';
-            $str_log.= "\n <!--Fatal error-->:  未捕获的异常" . get_class($exception) . "  \n";
+            $str_log.= "\n<!--Fatal error-->\n未捕获的异常" . get_class($exception) . "  \n";
             $str.= '<br>异常消息：<font color="red">'.$message.'</font><br>';
             $str_log.= "异常消息：".$message."  \n";
             $str.= 'Stack trace:<div>';
@@ -79,7 +98,7 @@ class CException extends \Exception
             }
             $str.= '</div>';
             $str.= '异常抛出点：<b>' . $exception->getFile() . '</b> on line <b>' . $exception->getLine() . '</b><br>';
-            $str_log.= '异常抛出点：' . $exception->getFile() . ' on line ' . $exception->getLine() . ''."\n";
+            $str_log.= '异常抛出点：' . $exception->getFile() . ' on line ' . $exception->getLine() ."\n<!--Fatal error end-->\n";
             $str.= '</div>';
         } 
         catch (\Exception $e) {
@@ -89,7 +108,7 @@ class CException extends \Exception
         if(IVY_DEBUG){
             echo $str;die;
         }else{
-            \Ivy::log($str_log,CLogger::LEVEL_ERROR);
+            \Ivy::log($str_log,CLogger::LEVEL_TRACE);
             die($message);
         }
     }
@@ -107,7 +126,6 @@ class CException extends \Exception
     
  
 }
-set_error_handler(array("Ivy\core\CException", "error_handler"));
+set_error_handler(array("Ivy\core\CException", "error_handler")); //是否启用框架自定义错误处理
 set_exception_handler(array("Ivy\core\CException", "exception_handler"));
-
 register_shutdown_function (array ('Ivy\core\CException', 'shutdown_handler'));

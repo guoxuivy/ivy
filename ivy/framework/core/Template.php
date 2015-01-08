@@ -24,7 +24,7 @@ class Template{
 	public function display($template='',$ext = '.phtml'){
         $template_path = $this->getViewFile($template,$ext);
         extract($this->data);
-		include_once $template_path;
+        include_once $template_path;
 	}
     
     /**

@@ -39,6 +39,7 @@ class CLogger extends CComponent
 {
 	const LEVEL_TRACE='trace';
 	const LEVEL_WARNING='warning';
+	const LEVEL_NOTICE='notice';
 	const LEVEL_ERROR='error';
 	const LEVEL_INFO='info';
 	const LEVEL_PROFILE='profile';
