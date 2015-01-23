@@ -23,7 +23,7 @@ class CException extends \Exception
 	}
     
     /**
-     * 系统错误处理 暂不启用
+     * 自定义系统错误处理 启用后 仅error_reporting = 0 生效
      * @param  [type] $code    [description]
      * @param  [type] $message [description]
      * @param  [type] $file    [description]
@@ -32,7 +32,7 @@ class CException extends \Exception
      */
     public static function error_handler($code, $message, $file, $line)
     {
-        //if (0 == error_reporting()) return;
+        if (0 == error_reporting()) return;
         //编码判断
         if(json_encode($message) == 'null'){
             $message=iconv("GBK", "UTF-8", $message); 

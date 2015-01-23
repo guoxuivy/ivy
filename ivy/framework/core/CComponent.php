@@ -37,14 +37,17 @@ class CComponent
     }
 
 	
-
+    /**
+     * 非类型安全
+     * array() 或者 ""都会判定为false
+     */
 	public function __isset($name)
 	{
         $method="get".ucfirst($name);
         if(method_exists($this,$method)){
-            return $this->$method()!==null;
+            return $this->$method()!=null;
         }elseif(property_exists($this,$name)){
-            return $this->$name!==null;
+            return $this->$name!=null;
         }elseif(isset($this->_m[$name])){
             return true;
         }else{

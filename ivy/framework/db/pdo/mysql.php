@@ -175,7 +175,8 @@ class mysql extends AbsoluteDB {
     
     /**
 	 * 执行sql
-	 * @param string $sql;
+	 * @param string $sql
+	 * @return  返回影响行数 可能为 0
 	 */
 	public function exec($sql){
 		try {

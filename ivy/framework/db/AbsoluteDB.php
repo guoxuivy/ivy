@@ -31,8 +31,8 @@ abstract class AbsoluteDB {
 		$sql .= ' from `' . $tableName . '` ';
 	
         if ($condition instanceof Where) {
-            if(trim($condition->getCond ()) != ''){
-                $sql .= ' where ' . $condition->getCond ();
+            if(trim($condition->getCond()) != ''){
+                $sql .= ' where ' . $condition->getCond();
             }
         }elseif($condition&&is_string($condition)){
             $sql .= ' where ' . $condition;
@@ -53,7 +53,6 @@ abstract class AbsoluteDB {
 		}else if(isset($limit) && isset($offset)){
 			$sql .= ' limit ' . $offset.','.$limit;
 		}
-
 		return $sql;
 	}
 	
@@ -111,7 +110,6 @@ abstract class AbsoluteDB {
 		}else{
 			throw new CException('无效的条件');
 		}
-
 		return $sql;
 	}
 	

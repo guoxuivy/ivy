@@ -6,30 +6,25 @@
  * @package framework
  * @link https://github.com/guoxuivy/ivy 
  * @since 1.0 
+ *
+ * 普通数据库操作对象 提供复杂的自定义数据库操作
  */
 namespace Ivy\core;
 use Ivy\db\Where;
-use Ivy\db\pdo\mysql;
-abstract class Model extends CComponent implements \IteratorAggregate, \ArrayAccess{
+class Model extends CComponent{
     
     //静态对象保存 节省性能开销
 	private static $_models=array();
-    //存储数据库表对应字段名
-    private        $_fields = array();
-    //主键字段名
-    protected      $primaryKey = null;
-    //用来存储表数据
-    protected      $attributes = array();
     //错误搜集
     protected      $_error = array();
-	
     
-    public function __construct(){
-        if($this->tableName()!==false){
-            $this->getTableFields();
-        }
+    public function __construct($do=null){
+        $this->init();
     }
-    
+    /**
+     * 返回模型对象实例
+     * @return obj 
+     */
     public static function model()
 	{
         $className = get_called_class();
@@ -40,60 +35,23 @@ abstract class Model extends CComponent implements \IteratorAggregate, \ArrayAcc
 			return $model;
 		}
 	}
-    
- 
     /**
-     *支持对象的数组用法 ArrayAccess IteratorAggregate方法实现 
-     **/
-    function offsetGet($offset){
-        return $this->$offset;
+     * 初始化后调用
+     */
+    public function init(){
     }
-    function offsetSet($offset,$item){
-        return $this->$offset=$item;
-    }
-    public function offsetExists($offset) {
-        return property_exists($this,$offset);
-    }
-    public function offsetUnset($offset) {
-        unset($this->$offset);
-    }
-    public function getIterator()
-	{
-		$attributes=$this->attributes;
-		return new \ArrayIterator($attributes);
-	}
-    
-    //数据库属性字段 扩展
-    function __get($proName){
-        //主键特别处理
-        if($this->primaryKey!==null && $proName===$this->primaryKey){
-            if(isset($this->attributes[$proName]) && !empty($this->attributes[$proName]))
-                return $this->attributes[$proName];
-            return null;
-        }
 
-        if(array_key_exists($proName , $this->attributes)){
-            return $this->attributes[$proName];
-        }
-        return parent::__get($proName);
-    }
-    function __set($proName,$value){
-        //赋值表内属性
-        if(in_array($proName, $this->_fields)){
-            return $this->attributes[$proName]=$value;
-        }
-        //更新额外的attr属性（由$this->attributes = array()强制赋值的表外属性）
-        if(array_key_exists($proName , $this->attributes)){
-            return $this->attributes[$proName]=$value;
-        }
-        return parent::__set($proName,$value);
-    }
-    
-
+    /**
+     * 生产新where实例
+     * @return [type] [description]
+     */
 	public function getWhere(){
 		return new Where();
 	}
-    
+    /**
+     * 返回数据库对象句柄
+     * @return [type] [description]
+     */
     public function getDb(){
 		return \Ivy::app()->getDb();
 	}
@@ -101,126 +59,37 @@ abstract class Model extends CComponent implements \IteratorAggregate, \ArrayAcc
     /**
     * 获得model的类名
     */
-    public function getModelClass()
-    {
+    public function getModelClass(){
         $modelclass = get_class($this);
         return $modelclass;
     }
-	
-    /**
-    * 更新、插入数据库
-    */
-    public function save()
-	{
-	   $pk_field=$this->primaryKey;
-	   if($this->$pk_field==null){
-	       $_pk = $this->db->InsertData($this->tableName(),$this->getSafeAttributes());
-           $this->$pk_field=$_pk;
-           return $_pk;
-	   }else{
-	       $where = $this->where->eqTo($pk_field,$this->$pk_field);
-           $res = $this->db->updateDataByCondition($this->tableName(),$where,$this->getSafeAttributes());
-	       if(!$res) throw new CException('数据更新失败!');
-	   }
-       return $this->$pk_field;
-	}
 
     /**
-     * 返回安全的属性
-     * @return array fieldes 中存在的数据
+     * 单条记录查询
+     * @param  [type] $sql [description]
+     * @return array      二维数组
      */
-    public function getSafeAttributes(){
-        $safeAttributes=array();
-        foreach ($this->attributes as $key => $value) {
-            if(in_array($key, $this->_fields)){
-                $safeAttributes[$key]=$value;
-            }
-        }
-        return $safeAttributes;
-    }
-    
-    /**
-     *仅仅支持int行主键 
-     * @return object tableModel
-     **/
-    public function findByPk($pk)
-    {
-        $pk_field=$this->primaryKey;
-        $pk=(int)$pk;
-        if(empty($pk_field)||empty($pk)){
-            throw new CException('主键异常！');
-        }
-        $where = $this->where->eqTo($pk_field,$pk);
-
-        return $this->find($where);
-    }
-    
-    public function find($condition = NULL, $colmnus = array('*'),$order = array() ,$limit = NULL,$offset=NULL) {
-        $res = $this->db->find($this->tableName(),$condition,$colmnus,$order,$limit,$offset);
-        if($res){
-            $m = new $this->modelClass;
-            $m->attributes=$res;
-            return $m;
-        }else{
-            return null;
-        }
-        
-	}
-    
-    public function findAll($condition = NULL, $colmnus = array('*'),$order = array() ,$limit = NULL,$offset=NULL) {
-		return $this->db->findAll($this->tableName(),$condition,$colmnus,$order,$limit,$offset);
-	}
-    
-    //默认每页10条记录
-    public function getPagener($condition = NULL, $page=1,$limit = 10,$colmnus = array('*'),$order = array()) {
-        return $this->db->getPagener($this->tableName(),$condition,$page,$limit,$colmnus,$order);
-    }
-
-    /**
-     * 删除记录
-     * @param  [type] $condition [description]
-     * @return [type]            [description]
-     */
-    public function delete($condition = NULL) {
-        if($condition===NULL){
-            $pk_field = $this->primaryKey;
-            $pk = (int)$this->$pk_field;
-            if(empty($pk)){
-                throw new CException('主键异常！');
-            }
-            $condition = $this->where->eqTo($pk_field,$pk);
-        }
-
-        $res = $this->db->deleteDataByCondition($this->tableName(),$condition);
-        return $res;
+    public function find($sql){
+        return $this->db->findBySql($sql);
         
     }
 
-
-    
     /**
-     *获取表信息 更类属性
-     **/
-    protected function getTableFields()
-    {
-        $tableName=$this->tableName();
-        $fields = $this->db->findAllBySql("DESCRIBE `{$tableName}`");
-        if(!$fields){
-            throw new CException("模型-{$tableName}-初始化失败");
-        }
-        foreach($fields as $fie){
-            $this->attributes[$fie['Field']]=$fie['Default'];
-            $this->_fields[]=$fie['Field'];
-            if("PRI"===$fie['Key']) $this->primaryKey=$fie['Field'];
-        }
+     * 多条记录查询
+     * @param  [type] $sql [description]
+     * @return array   三维数组
+     */
+    public function findAll($sql){
+        return $this->db->findAllBySql($sql);
     }
-    
 
     /**
-     * 抽象方法 获取表名
-	 * @return string database table name
-	 */
-	abstract function tableName();
-	
+     * 多条记录查询
+     * @param  [type] $sql [description]
+     * @return array   三维数组
+     */
+    public function exec($sql){
+        return $this->db->exec($sql);
+    }
 
 }
