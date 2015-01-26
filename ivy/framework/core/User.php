@@ -12,19 +12,23 @@
 namespace Ivy\core;
 class User extends Model
 {
-    private $_keyPrefix;
+    private static $_keyPrefix; 
+    private $_attributes = null;
     
     public function __construct(){
         @session_start();
         if(!$this->isGuest){
-            $this->attributes=$this->getState('__attributes');
+            $this->_attributes=$this->getState('__attributes');
         }
     }
-    
-    public function tableName(){
-        return false;
+
+    function __get($proName){
+        if(array_key_exists($proName , $this->_attributes)){
+            return $this->_attributes[$proName];
+        }
+        return parent::__get($proName);
     }
- 
+    
     
     //session 用户登录前缀
     public function getStateKeyPrefix()
@@ -38,6 +42,7 @@ class User extends Model
 			
 	}
     
+    //存储器 默认sssion方式
     public function getState($key,$defaultValue=null)
 	{
 		$key=$this->getStateKeyPrefix().$key;
@@ -91,7 +96,7 @@ class User extends Model
 	{
 		$this->setState('__id',$user->id);
         $this->setState('__attributes',$user->attributes);
-        $this->attributes=$user->attributes;
+        $this->_attributes=$user->attributes;
         
 	}
     public function logout()

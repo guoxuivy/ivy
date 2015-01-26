@@ -24,8 +24,7 @@ class LoaderClass{
 	 * 自动加载函数
 	 */
 	static public function loadFile($className){
-        //自动加载框架文件
-        //Ivy 命名空间自动截取
+        //Ivy命名空间自动截取  自动加载框架文件 命名空间必须和文件路径一致
         if("Ivy\\"===substr($className,0,4)){
             $className=substr($className,4);
             //加载框架文件
@@ -37,7 +36,7 @@ class LoaderClass{
     		}
         }
         
-        //自动加载components 文件
+        //自动加载 应用下的 components 文件
         $file_path=__PROTECTED__.DIRECTORY_SEPARATOR."components";
         $files=array();
         self::allScandir($file_path,$files);
@@ -49,11 +48,11 @@ class LoaderClass{
             }
         }
         
-        //加载其它文件 MVC文件  路由分发专用  //业务层 model controllers文件载入
+        //加载应用  控制器、模型文件  路由分发专用  //业务层 model controllers文件载入
         if("Controller"===substr($className,-10)) $dispatch="controllers";
         if("Model"===substr($className,-5)) $dispatch="models";
         if(isset($dispatch)){
-            $className=explode("\\",$className);
+            $className= array_filter(explode("\\",$className));
             if(count($className)==1){
                 //无命名空间
                 $file_path=__PROTECTED__.DIRECTORY_SEPARATOR.$dispatch.DIRECTORY_SEPARATOR.$className[0].'.php';

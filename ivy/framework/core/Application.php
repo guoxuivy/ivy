@@ -75,7 +75,7 @@ final class Application extends CComponent {
         if($this->user instanceof User){
         	return $this->user;
         }else{
-            $this->user = new User ();
+            $this->user = new User();
             return $this->user;
         }
 	}
