@@ -90,13 +90,15 @@ final class Application extends CComponent {
         $route = new Route();
         if(is_array($routerStr)) $routerStr=implode("/",$routerStr);
         $route->start($routerStr);
-        $this->dispatch($route,$param);
+        return $this->dispatch($route,$param);
 	}
     
 	
-	/**
-	 * 路由执行
-	 */
+    /**
+     * 执行路由
+     * 直接输出结果 无返回值
+     * @return null
+     */
 	public function run() {
 		$route = new Route();
         $routerStr=isset($_GET['r'])?$_GET['r']:"";
@@ -116,7 +118,6 @@ final class Application extends CComponent {
      * 'action' => 'index'          //方法（必须）
 	 */
 	public function dispatch($routerObj,$param=array()) {
-        //$this->beforeDispatch();
         $router=$this->temp_route=$routerObj->getRouter();
         $module=isset($router['module'])?strtolower($router['module']):"";
         $class=ucfirst(strtolower($router['controller']))."Controller";
@@ -127,8 +128,7 @@ final class Application extends CComponent {
             }catch(CException $e){
                 //试图适配分组模式
                 $routerObj->setRouter(array('module'=>$router['controller'],'controller'=>$router['action']));
-                $this->dispatch($routerObj);
-                exit();
+                return $this->dispatch($routerObj,$param);
             }
         }
         try{
@@ -143,29 +143,25 @@ final class Application extends CComponent {
         if(!empty($param)){
             $_REQUEST = array_merge($_REQUEST,$param);
         }
-        return $ReflectedClass->newInstanceArgs(array($routerObj))->$action();//实例化
-
-        // $hasMethod = $ReflectedClass->hasMethod($action);
-        // if(!$hasMethod){
-        //     //widget的参数用$_REQUEST传递
-        //     if(!empty($param)){
-        //         $_REQUEST = array_merge($_REQUEST,$param);
-        //     }
-        //     return $ReflectedClass->newInstanceArgs(array($routerObj))->$action();//实例化
-        // }
-        // throw new CException ( $class . '控制器中没有方法：' . $action );   
-     
+        $controller_obj = $ReflectedClass->newInstanceArgs(array($routerObj));
+        if($ReflectedClass->hasMethod("actionBefore")){
+             $controller_obj->actionBefore();
+        }
+        return $controller_obj->$action();
 	}
     
-    public function getRuntimePath()
-	{
+    /**
+     * 后去runtime路径
+     * @return string
+     */
+    public function getRuntimePath() {
 		return __PROTECTED__.DIRECTORY_SEPARATOR.'runtime';
 	}
-    
 	
-	/**
-	 * 结束 处理
-	 */
+    /**
+     * 正常结束处理
+     * @return [type] [description]
+     */
 	public function finished() {
 	}
 	

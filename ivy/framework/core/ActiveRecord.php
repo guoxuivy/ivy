@@ -250,7 +250,10 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
         }
     }
 
-    //更新AR对象
+    /**
+     * 刷新AR对象
+     * @return [type] [description]
+     */
     public function refresh(){
         if(($record=$this->findByPk($this->getPk()))!==null){
             $this->setAttributes($record);

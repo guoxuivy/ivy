@@ -18,7 +18,11 @@ class Controller extends CComponent {
        $this->init();
 	}
 
-	public function init() { }
+	/**
+	 * 实例化处理器
+	 */
+	public function init() {
+	}
 
     public function getDb() {
 		return \Ivy::app()->getDb();
@@ -26,6 +30,12 @@ class Controller extends CComponent {
     public function getView() {
 		return new Template($this);
 	}
+	/**
+	 * 所有action前执行
+	 */
+	public function actionBefore() {
+	}
+
     /**
      * ajax 返回
      * @param  srting $statusCode [状态]
