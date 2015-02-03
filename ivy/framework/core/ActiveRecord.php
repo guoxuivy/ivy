@@ -17,8 +17,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
     private $_attributes=array();               // attribute name => attribute value 字符串索引数组
     private $_related=array();                  // attribute name => related objects
     private $_c;                                // query criteria (used by finder only)
-    private $_pk=null;                          // old primary key value
-    private $_pk_col=null;                      // 主键对应的字段名
+    private $_pk=array();                       // 主键字段名数组
     private $_alias='t';                        // the table alias being used for query
 
 
@@ -43,8 +42,8 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
             throw new CException("模型-{$tableName}-初始化失败");
         }
         foreach($fields as $fie){
-            $this->_fields[$fie['Field']]=$fie['Default'];
-            if("PRI"===$fie['Key']) $this->_pk_col=$fie['Field'];
+            $this->_fields[$fie['Field']]=$fie['Type'];
+            if("PRI"===$fie['Key']) $this->_pk[]=$fie['Field'];
         }
     }
 
@@ -66,9 +65,8 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
     function __set($proName,$value){
         //赋值表内属性
         if(array_key_exists($proName, $this->_fields)){
-                //如果传入主键 则不认为是新记录
-                if($proName==$this->_pk_col&&$value!=null){
-                    $this->setPk($value);
+                //如果传入主键 则认为是老记录
+                if(in_array($proName, $this->_pk)&&$value!=null){
                     $this->setIsNewRecord(false);
                 }
 
@@ -78,13 +76,31 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
     }
 
     /**
-     * 主键值
+     * 返回标准化的主键值数组
+     * @param   $pri 传入值 如果默认则返回当前对象主键数组
+     * @return array 返回关键字数组 array('id'=>123)
      */
-    public function getPk(){
-        return $this->_pk;
-    }
-    public function setPk($v){
-        return $this->_pk=$v;
+    public function getPk($pri=null){
+        if(empty($this->_pk)) throw new CException('表主键未设置！');
+        $pk = array();
+        if($pri===null){
+            foreach($this->_pk as $key){
+                if($this->$key==null){
+                   throw new CException('主键不全！'.$this->$key); 
+                } 
+                $pk[$key]=$this->$key;
+            }
+        }elseif(is_array($pri)){
+            foreach($this->_pk as $key){
+                if($pri[$key]==null) throw new CException('主键不全！');
+                $pk[$key]=$pri[$key];
+            }
+        }elseif(is_int($pri)||is_string($pri)){
+            $pk[$this->_pk[0]]=$pri;
+        }else{
+            throw new CException('主键参数错误！');
+        }
+        return $pk;
     }
 
     /**
@@ -103,9 +119,8 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
             if(array_key_exists($key, $this->_fields)){
                 $this->_attributes[$key]=$value;
 
-                //如果传入主键 则不认为是新记录
-                if($key==$this->_pk_col&&$value!=null){
-                    $this->setPk($value);
+                //如果传入主键 则认为是老记录
+                if(in_array($key, $this->_pk)&&$value!=NULL){
                     $this->setIsNewRecord(false);
                 }
             }
@@ -153,13 +168,13 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	
     /**
     * 插入
+    * 返回 lastInsertId();
     */
     public function insert(){
 	   if($this->getIsNewRecord()){
-	       $pk = $this->db->InsertData($this->tableName(),$this->getAttributes());
-           $this->setPk($pk);
+	       $res = $this->db->InsertData($this->tableName(),$this->getAttributes());
            $this->setIsNewRecord(false);
-           return $pk;
+           return $res;
 	   }else{
 	       throw new CException('这不是一个新数据，无法插入！');
 	   }
@@ -171,24 +186,29 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
        if($this->getIsNewRecord()){
            throw new CException('这是一个新数据，无法更新！');
        }else{
-           $where = $this->where->eqTo($this->_pk_col,$this->getPk());
-           $this->db->updateDataByCondition($this->tableName(),$where,$this->getAttributes());
-           return $this->getPk();
+            $pri=$this->getPk();
+            $where = $this->where;
+            foreach ($pri as $key=>$val) {
+                $where->eqTo($key,$val);
+                if($val !== end($pri)) $where->_and();
+            }
+            return $this->db->updateDataByCondition($this->tableName(),$where,$this->getAttributes());
        }
        
     }
-    
+
     
     /**
      *仅仅支持int行主键 
      * @return object tableModel
      **/
     public function findByPk($pk){
-        $pk=(int)$pk;
-        if(empty($this->_pk_col)||empty($pk)){
-            throw new CException('主键异常！');
+        $pri=$this->getPk($pk);
+        $where = $this->where;
+        foreach ($pri as $key=>$val) {
+            $where->eqTo($key,$val);
+            if($val !== end($pri)) $where->_and();
         }
-        $where = $this->where->eqTo($this->_pk_col,$pk);
         return $this->find($where);
     }
     /**
@@ -205,7 +225,6 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
         if($res){
             $this->setAttributes($res);
             $this->setIsNewRecord(false);
-            $this->setPk($res[$this->_pk_col]);
             return $this;
         }else{
             return null;
@@ -238,12 +257,13 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
      */
     public function delete() {
         if(!$this->getIsNewRecord()){
-            $pk=$this->getPk();
-            if(empty($pk)){
-                throw new CException('主键异常！');
+            $pri=$this->getPk();
+            $where = $this->where;
+            foreach ($pri as $key=>$val) {
+                $where->eqTo($key,$val);
+                if($val !== end($pri)) $where->_and();
             }
-            $condition = $this->where->eqTo($this->_pk_col,$pk);
-            $res = $this->db->deleteDataByCondition($this->tableName(),$condition);
+            $res = $this->db->deleteDataByCondition($this->tableName(),$where);
             return $res;
         }else{
             throw new CException('新记录无法删除！');
@@ -255,7 +275,14 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
      * @return [type] [description]
      */
     public function refresh(){
-        if(($record=$this->findByPk($this->getPk()))!==null){
+        $pri=$this->getPk();
+        $where = $this->where;
+        foreach ($pri as $key=>$val) {
+            $where->eqTo($key,$val);
+            if($val !== end($pri)) $where->_and();
+        }
+
+        if(($record=$this->find($where))!==null){
             $this->setAttributes($record);
             $this->setIsNewRecord(false);
             return true;

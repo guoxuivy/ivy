@@ -116,6 +116,17 @@ class User extends Model
 	{
 		$this->setState('__returnUrl',$value);
 	}
+
+
+	/**
+	 * 权限检测快捷方式
+	 * @return boolen
+	 */
+	protected function checkAccess(){
+
+	}
+
+
     
     
 }

@@ -47,27 +47,31 @@ class LoaderClass{
                 }
             }
         }
+
+      
         
         //加载应用  控制器、模型文件  路由分发专用  //业务层 model controllers文件载入
-        if("Controller"===substr($className,-10)) $dispatch="controllers";
-        if("Model"===substr($className,-5)) $dispatch="models";
-        if(isset($dispatch)){
-            $className= array_filter(explode("\\",$className));
-            if(count($className)==1){
-                //无命名空间
-                $file_path=__PROTECTED__.DIRECTORY_SEPARATOR.$dispatch.DIRECTORY_SEPARATOR.$className[0].'.php';
-                if(is_file($file_path)){
-        			return include_once $file_path;
-        		}
-            }else{
-                $module=array_shift($className);
-                $dir = implode(DIRECTORY_SEPARATOR ,$className);
-                $file_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.$module.DIRECTORY_SEPARATOR.$dispatch.DIRECTORY_SEPARATOR.$dir.'.php';
-                if(is_file($file_path)){
-        			return include_once $file_path;
-        		}
-            }
+        if("Controller"===substr($className,-10)){
+            $dispatch="controllers";
+        }else{
+            $dispatch="models";
         }
+        $className=array_filter(explode("\\",$className));
+        if(count($className)==1){
+            //无命名空间
+            $file_path=__PROTECTED__.DIRECTORY_SEPARATOR.$dispatch.DIRECTORY_SEPARATOR.$className[0].'.php';
+            if(is_file($file_path)){
+    			return include_once $file_path;
+    		}
+        }else{
+            $module=array_shift($className);
+            $dir = implode(DIRECTORY_SEPARATOR ,$className);
+            $file_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.$module.DIRECTORY_SEPARATOR.$dispatch.DIRECTORY_SEPARATOR.$dir.'.php';
+            if(is_file($file_path)){
+    			return include_once $file_path;
+    		}
+        }
+        
         throw new CException('找不到'.$className.'类文件');
 	}
     
