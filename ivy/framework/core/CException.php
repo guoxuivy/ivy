@@ -43,7 +43,7 @@ class CException extends \Exception
             // echo '<div class="exception-trace-index"><font color="red">系统错误</font>->'.$message.'</div>';
             // echo '<pre>file:'.$file."-line:{$line}</pre>";
             // echo '<div>';
-            return;
+           // return;
         }
         switch ($code) {
             case 2:

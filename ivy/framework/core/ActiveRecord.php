@@ -47,6 +47,29 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
         }
     }
 
+
+    /**
+     * 判断数据库是否存在该记录 主键判断
+     * @return boolen
+     */
+    private function checkNewRecord(){
+        try{
+            $pri=$this->getPk();
+            $where = $this->where;
+            foreach ($pri as $key=>$val) {
+                $where->eqTo($key,$val);
+                if($val !== end($pri)) $where->_and();
+            }
+            $record = $this->db->find($this->tableName(),$where);
+            if($record!=null){
+                $this->setIsNewRecord(false);
+            }else{
+                $this->setIsNewRecord(true);
+            }
+        }catch(CException $e){
+            $this->setIsNewRecord(true);
+        }
+    }
     public function getIsNewRecord(){
         return $this->_new;
     }
@@ -65,12 +88,12 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
     function __set($proName,$value){
         //赋值表内属性
         if(array_key_exists($proName, $this->_fields)){
-                //如果传入主键 则认为是老记录
-                if(in_array($proName, $this->_pk)&&$value!=null){
-                    $this->setIsNewRecord(false);
-                }
-
-            return $this->_attributes[$proName]=$value;
+            $this->_attributes[$proName]=$value;
+            //如果传入主键 则检测刷新new
+            if(in_array($proName, $this->_pk)&&$value!==null){
+                $this->checkNewRecord();
+            }
+            return true;
         }
         return parent::__set($proName,$value);
     }
@@ -118,10 +141,9 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
         foreach ($attributes as $key => $value) {
             if(array_key_exists($key, $this->_fields)){
                 $this->_attributes[$key]=$value;
-
-                //如果传入主键 则认为是老记录
-                if(in_array($key, $this->_pk)&&$value!=NULL){
-                    $this->setIsNewRecord(false);
+                //如果传入主键 则检测刷新new
+                if(in_array($key, $this->_pk)&&$value!==NULL){
+                    $this->checkNewRecord();
                 }
             }
         }
@@ -172,29 +194,35 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
     */
     public function insert(){
 	   if($this->getIsNewRecord()){
-	       $res = $this->db->InsertData($this->tableName(),$this->getAttributes());
-           $this->setIsNewRecord(false);
-           return $res;
-	   }else{
-	       throw new CException('这不是一个新数据，无法插入！');
-	   }
+            $lastId = $this->db->InsertData($this->tableName(),$this->getAttributes());
+            if($lastId>0){
+                //自曾主键
+                $key=$this->_pk[0];
+                $this->_attributes[$key]=$lastId;
+            }else{
+                $this->setIsNewRecord(false);
+            }
+            return $this;
+        }else{
+            throw new CException('这不是一个新数据，无法插入！');
+        }
 	}
     /**
     * 更新
     */
     public function update(){
-       if($this->getIsNewRecord()){
+        if($this->getIsNewRecord()){
            throw new CException('这是一个新数据，无法更新！');
-       }else{
+        }else{
             $pri=$this->getPk();
             $where = $this->where;
             foreach ($pri as $key=>$val) {
                 $where->eqTo($key,$val);
                 if($val !== end($pri)) $where->_and();
             }
-            return $this->db->updateDataByCondition($this->tableName(),$where,$this->getAttributes());
-       }
-       
+            $this->db->updateDataByCondition($this->tableName(),$where,$this->getAttributes());
+            return $this;
+        }
     }
 
     

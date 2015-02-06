@@ -114,7 +114,7 @@ class mysql extends AbsoluteDB {
 		try {
 			$sql = $this->getSelectSql($tableName, $condition, $colmnus,$order,$limit,$offset);
 	        $res = $this->pdo->query( $sql );
-			if(!$res) return false;
+			if(!$res) return null;
 			return $res->fetchAll(\PDO::FETCH_ASSOC);
 		} catch ( \PDOException $e ) {
 			throw new CException ( $e->getMessage () );
@@ -134,7 +134,7 @@ class mysql extends AbsoluteDB {
 		try {
 			$sql = $this->getSelectSql($tableName, $condition, $colmnus,$order,$limit,$offset);
 			$res = $this->pdo->query( $sql );
-			if(!$res) return false;
+			if(!$res) return null;
 			return $res->fetch(\PDO::FETCH_ASSOC);
 		} catch ( \PDOException $e ) {
 			throw new CException ( $e->getMessage () );
@@ -150,7 +150,7 @@ class mysql extends AbsoluteDB {
 	public function findAllBySql($sql){
 		try {
 			$res = $this->pdo->query($sql);
-	        if(!$res) return false;
+	        if(!$res) return null;
 			return $res->fetchAll(\PDO::FETCH_ASSOC);
 		} catch ( \PDOException $e ) {
 			throw new CException ( $e->getMessage () );
@@ -166,7 +166,7 @@ class mysql extends AbsoluteDB {
 	public function findBySql($sql){
 		try {
 			$res = $this->pdo->query($sql);
-	        if(!$res) return false;
+	        if(!$res) return null;
 			return $res->fetch(\PDO::FETCH_ASSOC);
 		} catch ( \PDOException $e ) {
 			throw new CException ( $e->getMessage () );
@@ -181,10 +181,10 @@ class mysql extends AbsoluteDB {
 	public function exec($sql){
 		try {
 			$res = $this->pdo->exec( $sql );
+			return $res;
 		} catch ( \PDOException $e ) {
 			throw new CException ( $e->getMessage () );
 		}
-		return $res;
 	}
     
 	

@@ -12,7 +12,7 @@ class Controller extends CComponent {
     //路由对象
 	protected $route = NULL;
     
-	public function __construct($route) {
+	public function __construct($route=NULL) {
        //当前的路由对象
        $this->route = $route;
        $this->init();

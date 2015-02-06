@@ -47,7 +47,11 @@ class Cache {
     }  
     
     public function get($key){  
-        return $this->_connectMemcache($key)->get($key, true);  
+        $value = $this->_connectMemcache($key)->get($key, true);
+        if($value!==false){
+            $value=json_decode($value);
+        }
+        return $value;
     } 
     
     public function add($key, $vakue, $expire=0){  
