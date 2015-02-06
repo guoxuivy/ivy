@@ -23,7 +23,8 @@ class LoaderClass{
 	/**
 	 * 自动加载函数
 	 */
-	static public function loadFile($className){
+	static public function loadFile($objName){
+        $className = $objName;
         //Ivy命名空间自动截取  自动加载框架文件 命名空间必须和文件路径一致
         if("Ivy\\"===substr($className,0,4)){
             $className=substr($className,4);
@@ -32,7 +33,7 @@ class LoaderClass{
             if(is_file($file_path)){
     			return include_once $file_path;
     		}else{
-                throw new CException('找不到框架'.$className.'类文件');
+                throw new CException('找不到框架'.$objName.'类文件');
     		}
         }
         
@@ -72,7 +73,7 @@ class LoaderClass{
     		}
         }
         
-        throw new CException('找不到'.$className.'类文件');
+        throw new CException('找不到'.$objName.'类文件');
 	}
     
     

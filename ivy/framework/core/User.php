@@ -138,7 +138,7 @@ class User extends Model
         if($this->_auth instanceof \rbac\AuthController){
             return $this->_auth;
         }else{
-            $this->_auth = new \rbac\AuthController (\Ivy::app()->config['rbac']);
+            $this->_auth = new \rbac\AuthController ();
             return $this->_auth;
         }
     }
