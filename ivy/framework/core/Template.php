@@ -26,25 +26,7 @@ class Template{
         extract($this->data);
         include_once $template_path;
 	}
-    
-    /**
-	 * 模版路径-控制器自适应
-	 */
-	public function template($template){
-        $template=rtrim($template);
-        $r = $this->controller->route->getRouter();
-        if(''===$template){
-            $template=$r['controller']."/".$r['action'];
-            
-        }else{
-            $template_arr = array_filter(explode("/",$template));
-            if(count($template_arr)==1){
-                $template=$r['controller']."/".$template;
-            }
-        }
-        
-        return $template;
-	}
+
     /**
      * 返回渲染好的html
      */
@@ -57,27 +39,61 @@ class Template{
         return $str;
     }
     
+    
 	/**
 	 * 模板文件寻址
 	 */
 	public function getViewFile($template,$ext = '.phtml'){
-        $template=$this->template($template);
-        $r = $this->controller->route->getRouter();
-        //自适应分组模式 模板文件寻路
-        if(3==count($r)){
-            $template_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.$r['module'].DIRECTORY_SEPARATOR.self::$view_name.DIRECTORY_SEPARATOR.$template.$ext;
-            if(!file_exists($template_path)){
-    			throw new CException('分组的模版-'.$template.'-不存在!');
-    		}
-        }
-        if(2==count($r)){
-            $template_path=__PROTECTED__.DIRECTORY_SEPARATOR.self::$view_name.DIRECTORY_SEPARATOR.$template.$ext;
-            if(!file_exists($template_path)){
-    			throw new CException('模版-'.$template.'-不存在!');
-    		}
-        }
-        
-        return $template_path;
+		$template=rtrim($template);
+		$r = $this->controller->route->getRouter();
+		if($template===''){
+			$template=$r['action'];
+		}
+		$template_arr = explode("/",$template);
+		if($template_arr[0]==null){
+			//绝对路径查找
+			$template_arr = array_filter($template_arr);
+
+			if(2===count($template_arr)){
+				$template=implode('/', $template_arr);
+				$template_path=__PROTECTED__.DIRECTORY_SEPARATOR.self::$view_name.DIRECTORY_SEPARATOR.$template.$ext;
+				if(!file_exists($template_path)){
+	    			throw new CException('模版-'.$template.'-不存在!');
+	    		}
+			}
+			if(3===count($template_arr)){
+				$module=array_shift($template_arr);
+				$template=implode('/', $template_arr);
+
+				$template_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.$module.DIRECTORY_SEPARATOR.self::$view_name.DIRECTORY_SEPARATOR.$template.$ext;
+				
+				if(!file_exists($template_path)){
+	    			throw new CException('模版-'.$template.'-不存在!');
+	    		}
+			}
+			return $template_path;
+
+			var_dump($template_path);die;
+
+		}else{
+			//相对路径查找
+			$template=implode('/', $template_arr);
+
+			if(1==count($template_arr)) $template=$r['controller'].DIRECTORY_SEPARATOR.$template_arr[0];
+
+			if(isset($r['module'])){
+				$template_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.$r['module'].DIRECTORY_SEPARATOR.self::$view_name.DIRECTORY_SEPARATOR.$template.$ext;
+				if(!file_exists($template_path)){
+	    			throw new CException('模版-'.$template.'-不存在!');
+	    		}
+			}else{
+				$template_path=__PROTECTED__.DIRECTORY_SEPARATOR.self::$view_name.DIRECTORY_SEPARATOR.$template.$ext;
+				if(!file_exists($template_path)){
+	    			throw new CException('模版-'.$template.'-不存在!');
+	    		}
+			}
+			return $template_path;
+		}
 	}
 	/**
 	 * 格式化url

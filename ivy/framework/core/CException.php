@@ -114,6 +114,10 @@ class CException extends \Exception
     }
     
     
+    /**
+     * 所有代码执行完毕后处理 包括非正常结束和正常结束
+     * @return [type] [description]
+     */
     public static function shutdown_handler ()
     {
         //日志写入
