@@ -42,6 +42,8 @@ class Template{
     
 	/**
 	 * 模板文件寻址
+	 * /开头为绝对路径寻址
+	 * 其它为相对路径寻址
 	 */
 	public function getViewFile($template,$ext = '.phtml'){
 		$template=rtrim($template);
@@ -53,9 +55,8 @@ class Template{
 		if($template_arr[0]==null){
 			//绝对路径查找
 			$template_arr = array_filter($template_arr);
-
 			if(2===count($template_arr)){
-				$template=implode('/', $template_arr);
+				$template=implode(DIRECTORY_SEPARATOR, $template_arr);
 				$template_path=__PROTECTED__.DIRECTORY_SEPARATOR.self::$view_name.DIRECTORY_SEPARATOR.$template.$ext;
 				if(!file_exists($template_path)){
 	    			throw new CException('模版-'.$template.'-不存在!');
@@ -63,8 +64,7 @@ class Template{
 			}
 			if(3===count($template_arr)){
 				$module=array_shift($template_arr);
-				$template=implode('/', $template_arr);
-
+				$template=implode(DIRECTORY_SEPARATOR, $template_arr);
 				$template_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.$module.DIRECTORY_SEPARATOR.self::$view_name.DIRECTORY_SEPARATOR.$template.$ext;
 				
 				if(!file_exists($template_path)){
@@ -73,14 +73,10 @@ class Template{
 			}
 			return $template_path;
 
-			var_dump($template_path);die;
-
 		}else{
 			//相对路径查找
-			$template=implode('/', $template_arr);
-
+			$template=implode(DIRECTORY_SEPARATOR, $template_arr);
 			if(1==count($template_arr)) $template=$r['controller'].DIRECTORY_SEPARATOR.$template_arr[0];
-
 			if(isset($r['module'])){
 				$template_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.$r['module'].DIRECTORY_SEPARATOR.self::$view_name.DIRECTORY_SEPARATOR.$template.$ext;
 				if(!file_exists($template_path)){

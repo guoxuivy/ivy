@@ -30,8 +30,7 @@ class Cache {
         if (!isset($this->_memcache[$config])){
             $this->_memcache[$config] = new \Memcache;  
             list($host, $port) = explode(":", $config);
-            $res = $this->_memcache[$config]->connect($host, $port); 
-            $this->_memcache[$config]->connect($host, $port); 
+            $this->_memcache[$config]->connect($host, $port);
         }
         return $this->_memcache[$config];  
     }

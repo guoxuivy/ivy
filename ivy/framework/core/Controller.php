@@ -64,7 +64,13 @@ class Controller extends CComponent {
 	 * $param   array("id"=>1)
 	 * @return string
 	 */
-	public function url($uri="",$param=array()){ 
+	public function url($uri="",$param=array()){
+		if(strpos($uri,'/')===false){
+			// 如 'list' 不包含分隔符 默认在当前控制器下寻址
+			$r=$this->route->getRouter();
+			$uri=$r['controller'].'/'.$uri;
+			if($r['module']) $uri=$r['module'].'/'.$uri;
+		}
         $uri = SITE_URL.'/index.php?r='.rtrim($uri);
         $param_arr = array_filter($param);
         if(!empty($param_arr)){
