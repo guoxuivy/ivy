@@ -30,11 +30,15 @@ class Controller extends CComponent {
     public function getView() {
 		return new Template($this);
 	}
+	
 	/**
-	 * 所有action前执行
+	 * 所有action前自动执行
 	 */
-	public function actionBefore() {
-	}
+	public function actionBefore() {}
+	/**
+	 * 所有action 后自动执行
+	 */
+	public function actionAfter() {}
 
     /**
      * ajax 返回
@@ -65,6 +69,7 @@ class Controller extends CComponent {
 	 * @return string
 	 */
 	public function url($uri="",$param=array()){
+		if(empty($uri)) return SITE_URL.'/index.php';
 		if(strpos($uri,'/')===false){
 			// 如 'list' 不包含分隔符 默认在当前控制器下寻址
 			$r=$this->route->getRouter();

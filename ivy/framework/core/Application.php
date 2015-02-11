@@ -147,7 +147,11 @@ final class Application extends CComponent {
         if($ReflectedClass->hasMethod("actionBefore")){
              $controller_obj->actionBefore();
         }
-        return $controller_obj->$action();
+        $result = $controller_obj->$action();
+        if($ReflectedClass->hasMethod("actionAfter")){
+             $controller_obj->actionAfter();
+        }
+        return $result;
 	}
     
     /**

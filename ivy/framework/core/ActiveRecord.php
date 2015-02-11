@@ -16,7 +16,6 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
     private $_new=false;                        // whether this instance is new or not
     private $_attributes=array();               // attribute name => attribute value 字符串索引数组
     private $_related=array();                  // attribute name => related objects
-    private $_c;                                // query criteria (used by finder only)
     private $_pk=array();                       // 主键字段名数组
     private $_alias='t';                        // the table alias being used for query
 
@@ -100,7 +99,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 
     /**
      * 返回标准化的主键值数组
-     * @param   $pri 传入值 如果默认则返回当前对象主键数组
+     * @param   $pri 传入值 如果默认则返回当前对象主键数组 如果是数组 应该是array('id'=>123)的形式
      * @return array 返回关键字数组 array('id'=>123)
      */
     public function getPk($pri=null){
@@ -285,17 +284,26 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
      */
     public function delete() {
         if(!$this->getIsNewRecord()){
-            $pri=$this->getPk();
-            $where = $this->where;
-            foreach ($pri as $key=>$val) {
-                $where->eqTo($key,$val);
-                if($val !== end($pri)) $where->_and();
-            }
-            $res = $this->db->deleteDataByCondition($this->tableName(),$where);
-            return $res;
+            $pk=$this->getPk();
+            return $this->deleteByPk($pk);
         }else{
             throw new CException('新记录无法删除！');
         }
+    }
+
+    /**
+     * 删除指定记录
+     * @param  [type] $condition [description]
+     * @return [type]            [description]
+     */
+    public function deleteByPk($pk) {
+        $pri=$this->getPk($pk);
+        $where = $this->where;
+        foreach ($pri as $key=>$val) {
+            $where->eqTo($key,$val);
+            if($val !== end($pri)) $where->_and();
+        }
+        return $this->db->deleteDataByCondition($this->tableName(),$where);
     }
 
     /**

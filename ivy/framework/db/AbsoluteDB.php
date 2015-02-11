@@ -8,7 +8,7 @@
  * @since 1.0 
  */
 namespace Ivy\db;
-use Ivy\core;
+use Ivy\core\CException;
 abstract class AbsoluteDB {
 	protected $pdo = NULL;
 	/**
@@ -30,14 +30,16 @@ abstract class AbsoluteDB {
 		}
 		$sql .= ' from `' . $tableName . '` ';
 	
-        if ($condition instanceof Where) {
+        if($condition == NULL){
+            $sql .= ' where 1=1 ';
+        }elseif($condition&&is_string($condition)){
+            $sql .= ' where ' . $condition;
+        }elseif($condition instanceof Where){
             if(trim($condition->getCond()) != ''){
                 $sql .= ' where ' . $condition->getCond();
             }
-        }elseif($condition&&is_string($condition)){
-            $sql .= ' where ' . $condition;
         }else{
-            
+            throw new CException('无效的条件');
         }
 	
 		if(!empty($order)){
@@ -87,7 +89,7 @@ abstract class AbsoluteDB {
 	/**
 	 * 生成更新sql语句
 	 */
-	protected function getUpdataSql($tableName,$Condition,$data){
+	protected function getUpdataSql($tableName,$condition,$data){
 		if (! isset ( $tableName )) {
 			throw new CException ( '无效的表查询' );
 		}
@@ -104,25 +106,26 @@ abstract class AbsoluteDB {
 				$sql .= ' , `'.$k."` = '".$v."' ";
 			$count++;
 		}
-		
-		if($Condition instanceof Where && trim($Condition->getCond ()) != ''){
-			$sql .= ' where '.$Condition->getCond();
-		}else{
-			throw new CException('无效的条件');
-		}
+		if($condition instanceof Where && trim($condition->getCond ()) != ''){
+			$sql .= ' where '.$condition->getCond();
+		}elseif($condition&&is_string($condition)){
+            $sql .= ' where ' . $condition;
+        }else{
+            throw new CException('无效的条件');
+        }
 		return $sql;
 	}
 	
 	/**
 	 * 生成删除sql语句
 	 */
-	protected function getDeltetSql($tableName,$Condition){
+	protected function getDeltetSql($tableName,$condition){
 		if (! isset ( $tableName )) {
 			throw new CException ( '无效的表查询' );
 		}
 		$sql = 'delete from `'.$tableName.'` ';
-		if($Condition instanceof Where && trim($Condition->getCond ()) != ''){
-			$sql .= ' where '.$Condition->getCond();
+		if($condition instanceof Where && trim($condition->getCond ()) != ''){
+			$sql .= ' where '.$condition->getCond();
 		}else{
 			throw new CException('无效的条件');
 		}
