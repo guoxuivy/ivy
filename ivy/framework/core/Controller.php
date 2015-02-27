@@ -9,15 +9,15 @@
  */
 namespace Ivy\core;
 class Controller extends CComponent {
-    //路由对象
+	//路由对象
 	protected $route = NULL;
 	//默认布局文件
 	public $layout=NULL;
-    
+
 	public function __construct($route=NULL) {
-       //当前的路由对象
-       $this->route = $route;
-       $this->init();
+		//当前的路由对象
+		$this->route = $route;
+		$this->init();
 	}
 
 	/**
@@ -26,13 +26,13 @@ class Controller extends CComponent {
 	public function init() {
 	}
 
-    public function getDb() {
+	public function getDb() {
 		return \Ivy::app()->getDb();
 	}
-    public function getView() {
+	public function getView() {
 		return new Template($this);
 	}
-	
+
 	/**
 	 * 所有action前自动执行
 	 */
@@ -42,13 +42,13 @@ class Controller extends CComponent {
 	 */
 	public function actionAfter() {}
 
-    /**
-     * ajax 返回
-     * @param  srting $statusCode [状态]
-     * @param  string $message    [消息]
-     * @param  array  $data       [数据]
-     * @return json             [json返回值]
-     */
+	/**
+	 * ajax 返回
+	 * @param  srting $statusCode [状态]
+	 * @param  string $message    [消息]
+	 * @param  array  $data       [数据]
+	 * @return json             [json返回值]
+	 */
 	protected function ajaxReturn($statusCode, $message, $data = array()) {
 		if (empty ( $data )) {
 			die ( json_encode ( array (
@@ -78,39 +78,38 @@ class Controller extends CComponent {
 			$uri=$r['controller'].'/'.$uri;
 			if($r['module']) $uri=$r['module'].'/'.$uri;
 		}
-        $uri = SITE_URL.'/index.php?r='.rtrim($uri);
-        $param_arr = array_filter($param);
-        if(!empty($param_arr)){
-            foreach($param_arr as $k=>$v){
-                $k=urlencode($k);
-                $v=urlencode($v);
-                $uri.="&{$k}={$v}";
-            }
-        }
+		$uri = SITE_URL.'/index.php?r='.rtrim($uri);
+		$param_arr = array_filter($param);
+		if(!empty($param_arr)){
+			foreach($param_arr as $k=>$v){
+				$k=urlencode($k);
+				$v=urlencode($v);
+				$uri.="&{$k}={$v}";
+			}
+		}
 		return $uri;
 	}
-    
-   /**
-    * 重定向方法 
-    * $uri     admin/order/index
-    * $param   array("id"=>1)
-    */
-    public function redirect($uri="",$param=array())
+
+	/**
+	* 重定向方法 
+	* $uri     admin/order/index
+	* $param   array("id"=>1)
+	*/
+	public function redirect($uri="",$param=array())
 	{
-        if(strpos($uri,'://')===false){
-        	$uri = $this->url($uri,$param);
-            $uri=$this->getHostInfo().$uri;
+		if(strpos($uri,'://')===false){
+			$uri = $this->url($uri,$param);
+			$uri=$this->getHostInfo().$uri;
 		}
-        header('Location: '.$uri, true, 302);exit;
-            
+		header('Location: '.$uri, true, 302);exit;
 	}
 	/**
 	 * 获取当前主机
 	 * @return string 主机字符串
 	 */
-    public function getHostInfo()
+	public function getHostInfo()
 	{
-	   if($secure=$this->getIsSecureConnection())
+		if($secure=$this->getIsSecureConnection())
 			$http='https';
 		else
 			$http='http';
@@ -123,15 +122,15 @@ class Controller extends CComponent {
 			if($port!==80)
 				$hostInfo.=':'.$port;
 		}
-        return $hostInfo;
+		return $hostInfo;
 	}
-    
-    public function getIsSecureConnection()
+
+	public function getIsSecureConnection()
 	{
 		return !empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'],'off');
 	}
 
-	
+
 	/**
 	 * 判断是否为ajax请求
 	 */
@@ -139,17 +138,17 @@ class Controller extends CComponent {
 		if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'){
 			return true;
 		}else{
-			return false;			
+			return false;
 		}
 	}
-    /**
+	/**
 	 * 判断是否为post请求
 	 */
 	public function getIsPost(){
 		if(isset($_POST) && $_SERVER['REQUEST_METHOD']=="POST"){
 			return true;
 		}else{
-			return false;			
+			return false;
 		}
 	}
 	

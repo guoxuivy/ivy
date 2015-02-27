@@ -29,19 +29,19 @@ abstract class AbsoluteDB {
 			}
 		}
 		$sql .= ' from `' . $tableName . '` ';
-	
-        if($condition == NULL){
-            $sql .= ' where 1=1 ';
-        }elseif($condition&&is_string($condition)){
-            $sql .= ' where ' . $condition;
-        }elseif($condition instanceof Where){
-            if(trim($condition->getCond()) != ''){
-                $sql .= ' where ' . $condition->getCond();
-            }
-        }else{
-            throw new CException('无效的条件');
-        }
-	
+
+		if($condition == NULL){
+			$sql .= ' where 1=1 ';
+		}elseif($condition&&is_string($condition)){
+			$sql .= ' where ' . $condition;
+		}elseif($condition instanceof Where){
+			if(trim($condition->getCond()) != ''){
+				$sql .= ' where ' . $condition->getCond();
+			}
+		}else{
+			throw new CException('无效的条件');
+		}
+
 		if(!empty($order)){
 			$sql .= ' order by ';
 			foreach ($order as $k => $v){
@@ -49,7 +49,7 @@ abstract class AbsoluteDB {
 			}
 			$sql=substr($sql,0,-1);
 		}
-	
+
 		if(isset($limit) && !isset($offset)){
 			$sql .= ' limit ' . $limit;
 		}else if(isset($limit) && isset($offset)){
@@ -57,7 +57,7 @@ abstract class AbsoluteDB {
 		}
 		return $sql;
 	}
-	
+
 	/**
 	 * 生成插入数据sql语句
 	 */
@@ -66,7 +66,7 @@ abstract class AbsoluteDB {
 			throw new CException ( '无效的表查询' );
 		}
 		$sql = 'insert into `'.$tableName.'` (';
-	
+
 		$kStr = null;
 		$vStr = null;
 		if(!empty($data)){
@@ -85,7 +85,7 @@ abstract class AbsoluteDB {
 		$sql .= $kStr.') values('.$vStr.')';
 		return $sql;
 	}
-	
+
 	/**
 	 * 生成更新sql语句
 	 */
@@ -109,13 +109,13 @@ abstract class AbsoluteDB {
 		if($condition instanceof Where && trim($condition->getCond ()) != ''){
 			$sql .= ' where '.$condition->getCond();
 		}elseif($condition&&is_string($condition)){
-            $sql .= ' where ' . $condition;
-        }else{
-            throw new CException('无效的条件');
-        }
+			$sql .= ' where ' . $condition;
+		}else{
+			throw new CException('无效的条件');
+		}
 		return $sql;
 	}
-	
+
 	/**
 	 * 生成删除sql语句
 	 */
@@ -132,7 +132,7 @@ abstract class AbsoluteDB {
 
 		return $sql;
 	}
-	
+
 	/**
 	 * 生成翻页器
 	 */

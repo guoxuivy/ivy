@@ -82,8 +82,8 @@ class mysql extends AbsoluteDB {
 		return false;
 	}
 
-	
-	
+
+
 	/**
 	 * 插入数据，返回最后插入行的ID或序列值
 	 * @param string $tableName 表名
@@ -99,7 +99,7 @@ class mysql extends AbsoluteDB {
 			throw new CException ( $e->getMessage () );
 		}
 	}
-	
+
 	/**
 	 * 查询并返回结果集
 	 * @param string $tableName
@@ -113,14 +113,14 @@ class mysql extends AbsoluteDB {
 	public function findAll($tableName, $condition = NULL, $colmnus = array('*'),$order = array() ,$limit = NULL,$offset=NULL) {
 		try {
 			$sql = $this->getSelectSql($tableName, $condition, $colmnus,$order,$limit,$offset);
-	        $res = $this->pdo->query( $sql );
+			$res = $this->pdo->query( $sql );
 			if(!$res) return null;
 			return $res->fetchAll(\PDO::FETCH_ASSOC);
 		} catch ( \PDOException $e ) {
 			throw new CException ( $e->getMessage () );
 		}
 	}
-    /**
+	/**
 	 * 查询并返回结果集
 	 * @param string $tableName
 	 * @param Object $condition
@@ -141,7 +141,7 @@ class mysql extends AbsoluteDB {
 		}
 		
 	}
-	
+
 	/**
 	 * 执行sql返回结果集
 	 * @param string $sql;
@@ -150,15 +150,15 @@ class mysql extends AbsoluteDB {
 	public function findAllBySql($sql){
 		try {
 			$res = $this->pdo->query($sql);
-	        if(!$res) return null;
+			if(!$res) return null;
 			return $res->fetchAll(\PDO::FETCH_ASSOC);
 		} catch ( \PDOException $e ) {
 			throw new CException ( $e->getMessage () );
 		}
 		
 	}
-    
-    /**
+
+	/**
 	 * 执行sql返回单条结果
 	 * @param string $sql;
 	 * @return array;
@@ -166,14 +166,14 @@ class mysql extends AbsoluteDB {
 	public function findBySql($sql){
 		try {
 			$res = $this->pdo->query($sql);
-	        if(!$res) return null;
+			if(!$res) return null;
 			return $res->fetch(\PDO::FETCH_ASSOC);
 		} catch ( \PDOException $e ) {
 			throw new CException ( $e->getMessage () );
 		}
 	}
-    
-    /**
+
+	/**
 	 * 执行sql
 	 * @param string $sql
 	 * @return  返回影响行数 可能为 0
@@ -186,8 +186,8 @@ class mysql extends AbsoluteDB {
 			throw new CException ( $e->getMessage () );
 		}
 	}
-    
-	
+
+
 	/**
 	 * 获取翻页信息
 	 * @param string $tableName	表名
@@ -213,9 +213,9 @@ class mysql extends AbsoluteDB {
 		$data['currentPage'] = $data['currentPage'] > $data['pageNums'] ? $data['pageNums'] : $data['currentPage'];
 		$offset = ($data['currentPage']-1)*$limit;
 		$data['list'] = $this->findAll($tableName, $condition, $colmnus,$order,$limit,$offset);
-        return $data;
+		return $data;
 	}
-	
+
 	/**
 	 * 根据条件更新数据
 	 * @param string $tableName
@@ -226,7 +226,7 @@ class mysql extends AbsoluteDB {
 		$sql = $this->getUpdataSql($tableName,$Condition,$data);
 		return $this->exec( $sql );
 	}
-	
+
 	/**
 	 * 根据条件删除数据
 	 */

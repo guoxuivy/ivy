@@ -24,34 +24,34 @@ namespace Ivy\core\lib;
  * 
  **/
 class FlexiHash{
-    //所有虚拟节点 与 真实节点的映射
-    private $_node = array();
+	//所有虚拟节点 与 真实节点的映射
+	private $_node = array();
 	//所有虚拟节点key值
 	private $_nodeData = array();
 	//需要查找的哈希值
 	private $_keyNode = 0;
-    //真实节点
+	//真实节点
 	private $_realNode = array();
-    // 每个真实节点生成虚拟节点的个数 值越大 速度越慢
+	// 每个真实节点生成虚拟节点的个数 值越大 速度越慢
 	private $_virtualNodeNum = 200;
-	
+
 	public function __construct($nodes){
-        if (!$nodes){
-        	throw new Exception("real node null！");
-        }
+		if (!$nodes){
+			throw new Exception("real node null！");
+		}
 		$this->_realNode=$nodes;
-        // 设置虚拟节点
+		// 设置虚拟节点
 		foreach($nodes as $key=>$value){
 			for ($i = 0; $i < $this->_virtualNodeNum; $i++){
 				$this->_node[sprintf("%u", crc32($value."#".$i))] = $value."#".$i;
- 			}
+			}
 		}
 		// 排序
 		ksort($this->_node);
-       
+	   
 	}
 
-    /**
+	/**
 	 * 采用二分法从虚拟节点中查找最近的节点
 	 * @param int $low 开始位置
 	 * @param int $high 结束位置
@@ -102,30 +102,30 @@ class FlexiHash{
 			}
 		}
 	}
-    
-    /**
+
+	/**
 	 * 查找对应的真实节点
 	 * @param  $key 要查找的key
 	 * 
 	 */
-     private function _findNode($key){
+	 private function _findNode($key){
 		$this->_nodeData = array_keys($this->_node);
 
 		$this->_keyNode = sprintf("%u", crc32($key));
 		
 		// 获取key值对应的最近的节点的hash值
 		$nodeKey = $this->_findServerNode(0, count($this->_nodeData)-1);
-        
-        //获取对应的真实节点
+		
+		//获取对应的真实节点
 		list($realNode, $num) = explode("#", $this->_node[$nodeKey]);
-        
-        if (empty($realNode)){
+		
+		if (empty($realNode)){
 			throw new Exception("serach realNode config error！");
 		}
-        return $realNode;
+		return $realNode;
 	}
-    
-    public function get($key){
-	       return $this->_findNode($key);
+
+	public function get($key){
+		return $this->_findNode($key);
 	}
 }

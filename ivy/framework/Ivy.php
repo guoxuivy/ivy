@@ -22,24 +22,28 @@ use Ivy\core\Application;
 use Ivy\logging\CLogger;
 class Ivy
 {
-    private static $_app;
+	private static $_app;
 	private static $_logger;
-    
-    //框架初始化代码
-    public static function init()
+
+	//框架初始化代码
+	public static function init()
 	{
-        require_once(IVY_PATH.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'LoaderClass.php');//加载自动加载
-        require_once(IVY_PATH.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'CException.php');//加载异常处理
-        Ivy::quotes_gpc();
+		require_once(IVY_PATH.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'LoaderClass.php');//加载自动加载
+		require_once(IVY_PATH.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'CException.php');//加载异常处理
+		Ivy::quotes_gpc();
 	}
-    //创建应用实例
-	public static function createApplication()
+	//创建应用实例
+	public static function createApplication($config=null)
 	{
-        $config=__PROTECTED__.DIRECTORY_SEPARATOR.'config.php';
-        return new Application($config);
+		if($config===null)
+			$config=__PROTECTED__.DIRECTORY_SEPARATOR.'config.php';
+		return new Application($config);
 	}
-    
-    public static function setApplication($app)
+	/**
+	 * 设置保存 application句柄
+	 * @param [type] $app [description]
+	 */
+	public static function setApplication($app)
 	{
 		if(self::$_app===null || $app===null)
 			self::$_app=$app;
@@ -49,7 +53,7 @@ class Ivy
 	/**
 	* application句柄
 	**/
-    public static function app()
+	public static function app()
 	{
 		return self::$_app;
 	}
@@ -57,17 +61,17 @@ class Ivy
 	/**
 	* 日志句柄
 	**/
-    public static function logger()
+	public static function logger()
 	{
-        if(self::$_logger===null){
-           self::$_logger=new CLogger;
-        }
-        return self::$_logger;
+		if(self::$_logger===null){
+		   self::$_logger=new CLogger;
+		}
+		return self::$_logger;
 	}
 	/**
 	* 快速日志写入
 	**/
-    public static function log($msg,$level=CLogger::LEVEL_INFO,$category='application')
+	public static function log($msg,$level=CLogger::LEVEL_INFO,$category='application')
 	{
 		if($level===CLogger::LEVEL_PROFILE)
 		{
@@ -85,36 +89,35 @@ class Ivy
 		}
 		self::logger()->log($msg,$level,$category);
 	}
-    
- 
-    
-    public static function import($uri)
-    {
-        require_once($uri);
-    }
-    
-    //安全过滤 转义引号
-    public static function quotes_gpc()
+
+
+	/**
+	 * http 提交安全转义
+	 * @return [type] [description]
+	 */
+	public static function quotes_gpc()
 	{
-        !empty($_POST)     && Ivy::add_s($_POST);
-        !empty($_GET)     && Ivy::add_s($_GET);
-        !empty($_COOKIE) && Ivy::add_s($_COOKIE);
-        !empty($_REQUEST) && Ivy::add_s($_REQUEST);
+		!empty($_POST)     && Ivy::add_s($_POST);
+		!empty($_GET)     && Ivy::add_s($_GET);
+		!empty($_COOKIE) && Ivy::add_s($_COOKIE);
+		!empty($_REQUEST) && Ivy::add_s($_REQUEST);
 	}
-    //递归转义
-    public static function add_s(&$array)
-    {
-        if (is_array($array)){
-            foreach ($array as $key => $value) {
-                if (!is_array($value)) {
-                    $array[$key] = addslashes($value);
-                } else {
-                    Ivy::add_s($array[$key]);
-                }
-            }
-        }
-    }
-    
+	/**
+	 * 递归转义
+	 * @param [type] &$array [description]
+	 */
+	public static function add_s(&$array)
+	{
+		if (is_array($array)){
+			foreach ($array as $key => $value) {
+				if (!is_array($value)) {
+					$array[$key] = addslashes($value);
+				} else {
+					Ivy::add_s($array[$key]);
+				}
+			}
+		}
+	}
 }
 
 

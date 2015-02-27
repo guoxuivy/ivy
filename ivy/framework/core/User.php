@@ -12,45 +12,45 @@
 namespace Ivy\core;
 class User extends Model
 {
-    static $_keyPrefix; 
-    private $_attributes = null;
-    protected $_auth = null;
-    
-    public function __construct(){
-        @session_start();
-        if(!$this->isGuest){
-            $this->_attributes=$this->getState('__attributes');
-        }
-    }
+	static $_keyPrefix; 
+	private $_attributes = null;
+	protected $_auth = null;
 
-    function __get($proName){
-        if($this->_attributes&&array_key_exists($proName , $this->_attributes)){
-            return $this->_attributes[$proName];
-        }
-        return parent::__get($proName);
-    }
-    
-    
-    //session 用户登录前缀
-    public function getStateKeyPrefix()
+	public function __construct(){
+		@session_start();
+		if(!$this->isGuest){
+			$this->_attributes=$this->getState('__attributes');
+		}
+	}
+
+	function __get($proName){
+		if($this->_attributes&&array_key_exists($proName , $this->_attributes)){
+			return $this->_attributes[$proName];
+		}
+		return parent::__get($proName);
+	}
+
+
+	//session 用户登录前缀
+	public function getStateKeyPrefix()
 	{
 		if(self::$_keyPrefix!==null){
-            return self::$_keyPrefix;
+			return self::$_keyPrefix;
 		}else{
-            self::$_keyPrefix=md5('Ivy.'.get_class($this).$this->_attributes['id']?$this->_attributes['id']:'guest');
-            return self::$_keyPrefix;
+			self::$_keyPrefix=md5('Ivy.'.get_class($this).$this->_attributes['id']?$this->_attributes['id']:'guest');
+			return self::$_keyPrefix;
 		}
 			
 	}
-    
-    //存储器 默认sssion方式
-    public function getState($key,$defaultValue=null)
+
+	//存储器 默认sssion方式
+	public function getState($key,$defaultValue=null)
 	{
 		$key=$this->getStateKeyPrefix().$key;
 		return isset($_SESSION[$key]) ? $_SESSION[$key] : $defaultValue;
 	}
-    
-    public function setState($key,$value,$defaultValue=null)
+
+	public function setState($key,$value,$defaultValue=null)
 	{
 		$key=$this->getStateKeyPrefix().$key;
 		if($value===$defaultValue)
@@ -58,12 +58,12 @@ class User extends Model
 		else
 			$_SESSION[$key]=$value;
 	}
-    
-    /**
-     * session 销毁
-     * @return [type] [description]
-     */
-    public function clearStates()
+
+	/**
+	 * session 销毁
+	 * @return [type] [description]
+	 */
+	public function clearStates()
 	{
 		$keys=array_keys($_SESSION);
 		$prefix=$this->getStateKeyPrefix();
@@ -74,12 +74,12 @@ class User extends Model
 				unset($_SESSION[$key]);
 		}
 	}
-    
-    
-    /**
-     * 检测是否为登录用户 
-     **/
-    public function getIsGuest()
+
+
+	/**
+	 * 检测是否为登录用户 
+	 **/
+	public function getIsGuest()
 	{
 		return $this->getState('__id')===null;
 	}
@@ -96,28 +96,28 @@ class User extends Model
 	{
 		$this->setState('__id',$value);
 	}
-    
-    public function login($user)
+
+	public function login($user)
 	{
 		$this->setId($user->id);
-        $this->setState('__attributes',$user->attributes);
-        $this->_attributes=$user->attributes;
-        
+		$this->setState('__attributes',$user->attributes);
+		$this->_attributes=$user->attributes;
+		
 	}
-    public function logout()
+	public function logout()
 	{
 		$this->clearStates();
 		$this->clearAuthCache();
 	}
-    
-    /**
+
+	/**
 	 * 全局返回路径
 	 */
-    public function getReturnUrl($defaultUrl=null)
+	public function getReturnUrl($defaultUrl=null)
 	{
 		return $this->getState('__returnUrl',$defaultUrl);
 	}
-    
+
 	public function setReturnUrl($value)
 	{
 		$this->setState('__returnUrl',$value);
@@ -135,36 +135,31 @@ class User extends Model
 	}
 
 	public function getAuth() {
-        if($this->_auth instanceof \rbac\AuthController){
-            return $this->_auth;
-        }else{
-            $this->_auth = new \rbac\AuthController ();
-            return $this->_auth;
-        }
-    }
+		if($this->_auth instanceof \rbac\AuthController){
+			return $this->_auth;
+		}else{
+			$this->_auth = new \rbac\AuthController ();
+			return $this->_auth;
+		}
+	}
 
-    public function getAuthList(){
-    	$prefix=$this->getStateKeyPrefix();
-    	$list=\Ivy::app()->cache->get('auth_list_'.$prefix);
+	public function getAuthList(){
+		$prefix=$this->getStateKeyPrefix();
+		$list=\Ivy::app()->cache->get('auth_list_'.$prefix);
 		if($list==null){
 			$list = $this->getAuth()->getAuthList($this->getId());
 			\Ivy::app()->cache->set('auth_list_'.$prefix,$list);
 		}
 		return $list;
-    }
-    /**
-     * 权限缓存 销毁
-     * @return [type] [description]
-     */
-    public function clearAuthCache()
+	}
+	/**
+	 * 权限缓存 销毁
+	 * @return [type] [description]
+	 */
+	public function clearAuthCache()
 	{
 		$prefix=$this->getStateKeyPrefix();
 		$list=\Ivy::app()->cache->delete('auth_list_'.$prefix);
 	}
 
-
-
-
-    
-    
 }
