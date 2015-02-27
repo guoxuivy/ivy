@@ -11,6 +11,8 @@ namespace Ivy\core;
 class Controller extends CComponent {
     //路由对象
 	protected $route = NULL;
+	//默认布局文件
+	public $layout=NULL;
     
 	public function __construct($route=NULL) {
        //当前的路由对象
@@ -133,7 +135,7 @@ class Controller extends CComponent {
 	/**
 	 * 判断是否为ajax请求
 	 */
-	protected function getIsAjax(){
+	public function getIsAjax(){
 		if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'){
 			return true;
 		}else{
@@ -143,7 +145,7 @@ class Controller extends CComponent {
     /**
 	 * 判断是否为post请求
 	 */
-	protected function getIsPost(){
+	public function getIsPost(){
 		if(isset($_POST) && $_SERVER['REQUEST_METHOD']=="POST"){
 			return true;
 		}else{

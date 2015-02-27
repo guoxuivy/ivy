@@ -19,20 +19,23 @@ class Template{
 	}
 	
 	/**
-	 * 显示模版 直接输出
+	 * 显示输出 加载布局文件
 	 */
 	public function display($template='',$ext = '.phtml'){
-        $template_path = $this->getViewFile($template,$ext);
-        extract($this->data);
-        include_once $template_path;
+        $output=$this->render($template);
+        if($this->controller->layout!=null){
+        	$output=$this->render($this->controller->layout,array('content'=>$output));
+        }
+        echo $output;
 	}
 
     /**
      * 返回渲染好的html
      */
-    public function render($template='',$ext = '.phtml'){
+    public function render($template='',$data=null,$ext='.phtml'){
         $template_path = $this->getViewFile($template,$ext);
-        extract($this->data);
+        $data=empty($data)?$this->data:$data;
+        extract($data);
         ob_start();
         $includeReturn = include $template_path;
         $str = ob_get_clean();
@@ -91,6 +94,20 @@ class Template{
 			return $template_path;
 		}
 	}
+
+
+	/**
+	 * 引入其他模版文件
+	 * @param  [type] $template [description]
+	 * @param  string $ext      [description]
+	 * @return [type]           [description]
+	 */
+	public function includeTemp($template,$ext = '.phtml'){
+		$template_path = $this->getViewFile($template,$ext);
+		include $template_path;
+	}
+
+
 	/**
 	 * 格式化url
 	 * $uri     admin/order/index
@@ -101,7 +118,8 @@ class Template{
 	}
 	
 	/**
-	 * assign
+	 * assign 
+	 * 模版变量传递
 	 */
 	public function assign($key='',$value=''){
         if($key&&$value&&is_string($key)){

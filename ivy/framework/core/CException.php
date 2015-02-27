@@ -109,7 +109,10 @@ class CException extends \Exception
             echo $str;die;
         }else{
             \Ivy::log($str_log,CLogger::LEVEL_TRACE);
-            die($message);
+            if(isset(\Ivy::app()->config['errorHandler']['errorAction'])){
+                \Ivy::app()->widget(\Ivy::app()->config['errorHandler']['errorAction'],array('code'=>404,'msg'=>$message));die();
+            }
+            die('发生错误！');
         }
     }
     
