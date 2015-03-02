@@ -16,7 +16,7 @@ abstract class AbsoluteDB {
 	 */
 	protected function getSelectSql($tableName, $condition = NULL, $colmnus = array('*'),$order = array() ,$limit = NULL,$offset=NULL) {
 		if (! isset ( $tableName )) {
-			throw new CException ( '无效的表查询' );
+			throw new CException ( '无效的表' );
 		}
 		$sql = "select ";
 		foreach ( $colmnus as $k => $v ) {
@@ -63,7 +63,7 @@ abstract class AbsoluteDB {
 	 */
 	protected function getInsertSql($tableName,$data){
 		if (! isset ( $tableName )) {
-			throw new CException ( '无效的表查询' );
+			throw new CException ( '无效的表' );
 		}
 		$sql = 'insert into `'.$tableName.'` (';
 
@@ -91,7 +91,7 @@ abstract class AbsoluteDB {
 	 */
 	protected function getUpdataSql($tableName,$condition,$data){
 		if (! isset ( $tableName )) {
-			throw new CException ( '无效的表查询' );
+			throw new CException ( '无效的表' );
 		}
 		
 		$sql = 'update `'.$tableName.'` set ';
@@ -121,7 +121,7 @@ abstract class AbsoluteDB {
 	 */
 	protected function getDeltetSql($tableName,$condition){
 		if (! isset ( $tableName )) {
-			throw new CException ( '无效的表查询' );
+			throw new CException ( '无效的表' );
 		}
 		$sql = 'delete from `'.$tableName.'` ';
 		if($condition instanceof Where && trim($condition->getCond ()) != ''){
@@ -160,7 +160,7 @@ abstract class AbsoluteDB {
 				$pagener[] = $page_num_arr[$i];
 			}
 		}
-		$data['pagener'] = $pagener;
+		$data['linkList'] = $pagener;
 		return $data;
 	}
 }

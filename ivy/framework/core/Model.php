@@ -69,9 +69,8 @@ class Model extends CComponent{
 	 * @param  [type] $sql [description]
 	 * @return array      二维数组
 	 */
-	public function find($sql){
+	public function findBySql($sql){
 		return $this->db->findBySql($sql);
-		
 	}
 
 	/**
@@ -79,7 +78,7 @@ class Model extends CComponent{
 	 * @param  [type] $sql [description]
 	 * @return array   三维数组
 	 */
-	public function findAll($sql){
+	public function findAllBySql($sql){
 		return $this->db->findAllBySql($sql);
 	}
 

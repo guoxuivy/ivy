@@ -206,12 +206,13 @@ class mysql extends AbsoluteDB {
 			$sql = 'select count(1) as `count` from `'.$tableName.'`';
 		}
 		$count = $this->findBySql($sql);
-		$data['recordsTotal'] = (int)$count['count'];
-		$data['pageSize'] = (int)$limit;
-		$data['pageNums'] = (int)ceil($count['count']/$limit);
-		$data['currentPage'] = $page>0 ? $page : 1;
-		$data['currentPage'] = $data['currentPage'] > $data['pageNums'] ? $data['pageNums'] : $data['currentPage'];
-		$offset = ($data['currentPage']-1)*$limit;
+		$pagener['recordsTotal'] = (int)$count['count'];
+		$pagener['pageSize'] = (int)$limit;
+		$pagener['pageNums'] = (int)ceil($count['count']/$limit);
+		$pagener['currentPage'] = $page>0 ? $page : 1;
+		$pagener['currentPage'] = $pagener['currentPage'] > $pagener['pageNums'] ? $pagener['pageNums'] : $pagener['currentPage'];
+		$data['pagener']=$this->generatePagener($pagener);
+		$offset = ($pagener['currentPage']-1)*$limit;
 		$data['list'] = $this->findAll($tableName, $condition, $colmnus,$order,$limit,$offset);
 		return $data;
 	}
