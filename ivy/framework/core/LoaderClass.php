@@ -37,18 +37,30 @@ class LoaderClass{
 		}
 		
 		//自动加载 应用下的 components 文件
-		$file_path=__PROTECTED__.DIRECTORY_SEPARATOR."components";
-		$files=array();
-		self::allScandir($file_path,$files);
-		if(!empty($files)){
-			foreach($files as $f){
-				if( (strtolower($className))==strtolower(basename($f,".php")) ){
-					return include_once $f;
-				}
-			}
+		$file_path=__PROTECTED__.DIRECTORY_SEPARATOR."components".DIRECTORY_SEPARATOR.$className.'.php';
+		if(is_file($file_path))
+				return include_once $file_path;
+		//自动加载 分组下的 components 文件
+		$className_tmp=array_filter(explode("\\",$className));
+		if(count($className_tmp)>1){
+			$groupName=array_shift($className_tmp);
+			$cName=implode("\\",$className_tmp);
+			$file_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.$groupName.DIRECTORY_SEPARATOR."components".DIRECTORY_SEPARATOR.$cName.'.php';
+			if(is_file($file_path))
+				return include_once $file_path;
 		}
-
-	  
+		
+		//old 无命名空间加载（平面加载） 已经过期
+		// $file_path=__PROTECTED__.DIRECTORY_SEPARATOR."components";
+		// $files=array();
+		// self::allScandir($file_path,$files);
+		// if(!empty($files)){
+		// foreach($files as $f){
+		// 		if( (strtolower($className))==strtolower(basename($f,".php")) ){
+		// 			return include_once $f;
+		// 		}
+		// }
+		// }
 		
 		//加载应用  控制器、模型文件  路由分发专用  //业务层 model controllers文件载入
 		if("Controller"===substr($className,-10)){

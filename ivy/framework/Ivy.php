@@ -118,6 +118,24 @@ class Ivy
 			}
 		}
 	}
+
+
+	/**
+	 * 扩展导入
+	 * @param [type] &$array [description]
+	 */
+	public static function importExt($path,$ext=".php")
+	{
+		if(substr($path,0,1)=='/') $path=substr($path,1);
+		
+		$file_path=__PROTECTED__.DIRECTORY_SEPARATOR.'extensions'.DIRECTORY_SEPARATOR.$path.$ext;
+		
+		if(is_file($file_path))
+			return include_once $file_path;
+		else
+			throw new CException("import $path error");
+
+	}
 }
 
 
