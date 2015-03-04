@@ -8,6 +8,8 @@
  * @since 1.0 
  */
 namespace Ivy\core;
+use \Ivy\cache\AbsoluteCache;
+use \Ivy\db\AbsoluteDB;
 final class Application extends CComponent {
 	/**
 	 * 数据库实例句柄
@@ -42,28 +44,26 @@ final class Application extends CComponent {
 
 	/**
 	 * 数据库句柄对象
-	 * 
-	 * 变量类名 无法应用命名空间~~~!
+	 * 同一时刻仅支持单一数据库连接
 	 */
 	public function getDb() {
-		if($this->db instanceof \Ivy\db\AbsoluteDB){
+		if($this->db instanceof AbsoluteDB){
 			return $this->db;
 		}else{
-			$class_arr=explode(":",$this->config['db_pdo']['dsn']);
-			$class="\\Ivy\\db\\pdo\\".$class_arr[0];
-			$this->db = new $class ($this->config['db_pdo']);
+			$this->db = AbsoluteDB::getInstance($this->config['db_pdo']);
 			return $this->db;
 		}
 	}
 
 	/**
 	 * 缓存句柄对象
+     * 同一时刻仅支持单一缓存方式
 	 */
 	public function getCache() {
-		if($this->cache instanceof Cache){
+		if($this->cache instanceof AbsoluteCache){
 			return $this->cache;
 		}else{
-			$this->cache = new Cache ($this->config['memcache']);
+			$this->cache = AbsoluteCache::getInstance($this->config['memcache']);
 			return $this->cache;
 		}
 	}
@@ -93,7 +93,6 @@ final class Application extends CComponent {
 		return $this->dispatch($route,$param);
 	}
 
-
 	/**
 	 * 执行路由
 	 * 直接输出结果 无返回值
@@ -103,7 +102,9 @@ final class Application extends CComponent {
 		$route = new Route();
 		$routerStr=isset($_GET['r'])?$_GET['r']:"";
 		$route->start($routerStr);
-		$this->dispatch($route);
+        $param=$_GET;
+        unset($param['r']);
+		$this->dispatch($route,$param);
 		$this->finished();
 	}
 
@@ -122,7 +123,7 @@ final class Application extends CComponent {
 		$module=isset($router['module'])?strtolower($router['module']):"";
 		$class=ucfirst(strtolower($router['controller']))."Controller";
 		$action=strtolower($router['action']).'Action';
-		if(''===$module){
+		if(''==$module){
 			try{
 				$ReflectedClass = new \ReflectionClass($class); // 2级控制器检测 非分组模式
 			}catch(CException $e){
@@ -136,23 +137,54 @@ final class Application extends CComponent {
 			if(''!==$module) $class=$module."\\".$class; 
 			$ReflectedClass = new \ReflectionClass($class);
 		}catch(CException $e){
-			throw new CException ( $router['module'] . '-分组不存在！'); 
+			throw new CException ( $router['module'].'/'.$router['controller'] . '-不存在！'); 
 		}
 		
-		//widget的参数用$_REQUEST传递
-		if(!empty($param)){
-			$_REQUEST = array_merge($_REQUEST,$param);
-		}
 		$controller_obj = $ReflectedClass->newInstanceArgs(array($routerObj));
 		if($ReflectedClass->hasMethod("actionBefore")){
 			 $controller_obj->actionBefore();
 		}
-		$result = $controller_obj->$action();
+        $_before=str_replace('Action','Before',$action);
+        if($ReflectedClass->hasMethod($_before)){
+            $this->_doMethod($controller_obj, $_before, $param);
+		}
+        $result = $this->_doMethod($controller_obj, $action, $param);
+        $_after=str_replace('Action','After',$action);
+        if($ReflectedClass->hasMethod($_after)){
+            $this->_doMethod($controller_obj, $_after, $param);
+		}
 		if($ReflectedClass->hasMethod("actionAfter")){
 			 $controller_obj->actionAfter();
 		}
 		return $result;
 	}
+    
+    
+    /**
+    * 自动适配参数 并且执行
+    * @param string $method
+    * @param array $args
+    * @return mixed
+    */
+    private function _doMethod($obj, $method, array $args = array())
+    {
+        $reflection = new \ReflectionMethod($obj, $method);
+        $pass = array();
+        foreach($reflection->getParameters() as $param)
+        {
+            if(isset($args[$param->getName()]))
+            {
+                $pass[] = $args[$param->getName()];
+            }else{
+                try{
+                    $pass[] = $param->getDefaultValue();
+                }catch(\ReflectionException $e){
+                    $pass[] = null;
+                }
+            }
+        }
+        return $reflection->invokeArgs($obj, $pass);
+    }
 
 	/**
 	 * 后去runtime路径

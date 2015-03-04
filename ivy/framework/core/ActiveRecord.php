@@ -15,19 +15,32 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	private $_fields = array();                 // meta data 存储数据库表对应字段名  数字索引数组
 	private $_new=false;                        // whether this instance is new or not
 	private $_attributes=array();               // attribute name => attribute value 字符串索引数组
-	private $_related=array();                  // attribute name => related objects
+	// private $_related=array();                  // attribute name => related objects
 	private $_pk=array();                       // 主键字段名数组
-	private $_alias='t';                        // the table alias being used for query
+    
+	protected $_alias='t';                        // the table alias being used for query
 
-
+    
 	/**
 	 * 初始化AR
-	 * 完成 _fields、_attributes、_pk_col初始化
+	 * 完成 _fields、_attributes、初始化
 	 */
 	public function __construct($do=null){
 		$this->initTableFields();
 		$this->setIsNewRecord(true);
 		$this->init();
+	}
+
+	/**
+	 * 重写table方法
+	 * @access public
+	 * @param mixed $page 页数
+	 * @param mixed $listRows 每页数量
+	 * @return Model
+	 */
+	public function table($table=null){
+	    $this->options['table']= array($this->tableName()=>$this->_alias);//默认table 为当前AR
+	    return $this;
 	}
 
 
@@ -36,7 +49,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 **/
 	protected function initTableFields(){
 		$tableName=$this->tableName();
-		$fields = $this->db->findAllBySql("DESCRIBE `{$tableName}`");
+		$fields = $this->findAllBySql("DESCRIBE `{$tableName}`");
 		if(!$fields){
 			throw new CException("模型-{$tableName}-初始化失败");
 		}
@@ -54,12 +67,13 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	private function checkNewRecord(){
 		try{
 			$pri=$this->getPk();
-			$where = $this->where;
+			$where ='';
 			foreach ($pri as $key=>$val) {
-				$where->eqTo($key,$val);
-				if($val !== end($pri)) $where->_and();
+				$where.=" `".$key."`='".$val."' ";
+				if($val !== end($pri)) $where.=" AND ";
 			}
-			$record = $this->db->find($this->tableName(),$where);
+			$sql="SELECT * FROM `".$this->tableName()."` WHERE ".$where;
+			$record = $this->findBySql($sql);
 			if($record!=null){
 				$this->setIsNewRecord(false);
 			}else{
@@ -126,10 +140,18 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	}
 
 	/**
-	 * 返回 _attributes赋值
+	 * 返回 _attributes赋值  fields安全
 	 */
-	public function getAttributes(){
-		return $this->_attributes;
+	public function getAttributes($type='save'){
+        $arr=array();
+        if($type=='all')
+            return $this->_attributes;
+        foreach($this->_attributes as $key => $value){
+            if(array_key_exists($key, $this->_fields)){
+				$arr[$key]=$value;
+			}
+        }
+		return $arr;
 	}
 
 	/**
@@ -138,8 +160,8 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 */
 	public function setAttributes($attributes){
 		foreach ($attributes as $key => $value) {
-			if(array_key_exists($key, $this->_fields)){
-				$this->_attributes[$key]=$value;
+			$this->_attributes[$key]=$value;
+            if(array_key_exists($key, $this->_fields)){
 				//如果传入主键 则检测刷新new
 				if(in_array($key, $this->_pk)&&$value!==NULL){
 					$this->checkNewRecord();
@@ -169,6 +191,11 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	}
 
 
+	/**
+	 * 更新、插入 自动验证
+	 * @param  boolean $runValidation [description]
+	 * @return [type]                 [description]
+	 */
 	public function save($runValidation=true){
 		if($this->getAttributes()==null){
 			return false;
@@ -188,7 +215,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	}
 	
 	/**
-	* 插入
+	* 插入 AR插入
 	* 返回 lastInsertId();
 	*/
 	public function insert(){
@@ -206,20 +233,15 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 			throw new CException('这不是一个新数据，无法插入！');
 		}
 	}
+
 	/**
-	* 更新
+	* 更新 AR对象
 	*/
 	public function update(){
 		if($this->getIsNewRecord()){
 			throw new CException('这是一个新数据，无法更新！');
 		}else{
-			$pri=$this->getPk();
-			$where = $this->where;
-			foreach ($pri as $key=>$val) {
-				$where->eqTo($key,$val);
-				if($val !== end($pri)) $where->_and();
-			}
-			$this->db->updateDataByCondition($this->tableName(),$where,$this->getAttributes());
+			$this->db->updateDataByCondition($this->tableName(),$this->getPk(),$this->getAttributes());
 			return $this;
 		}
 	}
@@ -230,13 +252,8 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 * @return object tableModel
 	 **/
 	public function findByPk($pk){
-		$pri=$this->getPk($pk);
-		$where = $this->where;
-		foreach ($pri as $key=>$val) {
-			$where->eqTo($key,$val);
-			if($val !== end($pri)) $where->_and();
-		}
-		return $this->find($where);
+		$map=$this->getPk($pk);
+		return $this->find($map);
 	}
 	/**
 	 * 定点查询
@@ -247,8 +264,9 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 * @param  [type] $offset    [description]
 	 * @return [objModel]        [对象返回]
 	 */
-	public function find($condition = NULL,$order = array(),$limit = NULL,$offset=NULL){
-		$res = $this->db->find($this->tableName(),$condition,array('*'),$order,$limit,$offset);
+	public function find($condition = NULL){
+        $this->where($condition);
+		$res = $this->findBySql($this->buildSelectSql());
 		if($res){
 			$this->setAttributes($res);
 			$this->setIsNewRecord(false);
@@ -256,7 +274,6 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 		}else{
 			return null;
 		}
-		
 	}
 
 	/**
@@ -268,14 +285,11 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 * @param  [type] $offset    [description]
 	 * @return [array]            [数组返回]
 	 */
-	public function findAll($condition = NULL, $colmnus = array('*'),$order = array() ,$limit = NULL,$offset=NULL) {
-		return $this->db->findAll($this->tableName(),$condition,$colmnus,$order,$limit,$offset);
+	public function findAll($condition = NULL) {
+		$this->where($condition);
+		return $this->findAllBySql($this->buildSelectSql());
 	}
 	
-	//默认每页10条记录
-	public function getPagener($condition = NULL, $page=1,$limit = 10,$colmnus = array('*'),$order = array()) {
-		return $this->db->getPagener($this->tableName(),$condition,$page,$limit,$colmnus,$order);
-	}
 
 	/**
 	 * 删除本记录
@@ -297,13 +311,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 * @return [type]            [description]
 	 */
 	public function deleteByPk($pk) {
-		$pri=$this->getPk($pk);
-		$where = $this->where;
-		foreach ($pri as $key=>$val) {
-			$where->eqTo($key,$val);
-			if($val !== end($pri)) $where->_and();
-		}
-		return $this->db->deleteDataByCondition($this->tableName(),$where);
+		return $this->db->deleteDataByCondition($this->tableName(),$this->getPk($pk));
 	}
 
 	/**
@@ -311,13 +319,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 * @return [type] [description]
 	 */
 	public function refresh(){
-		$pri=$this->getPk();
-		$where = $this->where;
-		foreach ($pri as $key=>$val) {
-			$where->eqTo($key,$val);
-			if($val !== end($pri)) $where->_and();
-		}
-
+		$where=$this->getPk();
 		if(($record=$this->find($where))!==null){
 			$this->setAttributes($record);
 			$this->setIsNewRecord(false);

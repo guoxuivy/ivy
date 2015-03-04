@@ -37,7 +37,7 @@ class FlexiHash{
 
 	public function __construct($nodes){
 		if (!$nodes){
-			throw new Exception("real node null！");
+			throw new \Exception("real node null！");
 		}
 		$this->_realNode=$nodes;
 		// 设置虚拟节点
@@ -120,7 +120,7 @@ class FlexiHash{
 		list($realNode, $num) = explode("#", $this->_node[$nodeKey]);
 		
 		if (empty($realNode)){
-			throw new Exception("serach realNode config error！");
+			throw new \Exception("serach realNode config error！");
 		}
 		return $realNode;
 	}

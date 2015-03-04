@@ -12,11 +12,23 @@
 namespace Ivy\db\pdo;
 use Ivy\core\CException;
 use Ivy\db\AbsoluteDB;
-use Ivy\db\Where;
 class mysql extends AbsoluteDB {
+    //事物标记
+    private $_begin_transaction = false;
 
-	//事物标记
-	private $_begin_transaction = false;
+    /**
+     * 字段和表名处理添加`
+     * @access protected
+     * @param string $key
+     * @return string
+     */
+    protected function parseKey(&$key) {
+        $key   =  trim($key);
+        if(!preg_match('/[,\'\"\*\(\)`.\s]/',$key)) {
+           $key = '`'.$key.'`';
+        }
+        return $key;
+    }
 
 	public function __construct($config) {
 		try {
@@ -100,47 +112,6 @@ class mysql extends AbsoluteDB {
 		}
 	}
 
-	/**
-	 * 查询并返回结果集
-	 * @param string $tableName
-	 * @param Object $condition
-	 * @param array $colmnus
-	 * @param array $order
-	 * @param int $limit
-	 * @param int $offset
-	 * @return array
-	 */
-	public function findAll($tableName, $condition = NULL, $colmnus = array('*'),$order = array() ,$limit = NULL,$offset=NULL) {
-		try {
-			$sql = $this->getSelectSql($tableName, $condition, $colmnus,$order,$limit,$offset);
-			$res = $this->pdo->query( $sql );
-			if(!$res) return null;
-			return $res->fetchAll(\PDO::FETCH_ASSOC);
-		} catch ( \PDOException $e ) {
-			throw new CException ( $e->getMessage () );
-		}
-	}
-	/**
-	 * 查询并返回结果集
-	 * @param string $tableName
-	 * @param Object $condition
-	 * @param array $colmnus
-	 * @param array $order
-	 * @param int $limit
-	 * @param int $offset
-	 * @return array
-	 */
-	public function find($tableName, $condition = NULL, $colmnus = array('*'),$order = array() ,$limit = NULL,$offset=NULL) {
-		try {
-			$sql = $this->getSelectSql($tableName, $condition, $colmnus,$order,$limit,$offset);
-			$res = $this->pdo->query( $sql );
-			if(!$res) return null;
-			return $res->fetch(\PDO::FETCH_ASSOC);
-		} catch ( \PDOException $e ) {
-			throw new CException ( $e->getMessage () );
-		}
-		
-	}
 
 	/**
 	 * 执行sql返回结果集
@@ -187,35 +158,6 @@ class mysql extends AbsoluteDB {
 		}
 	}
 
-
-	/**
-	 * 获取翻页信息
-	 * @param string $tableName	表名
-	 * @param array $order 排序
-	 * @param int $limit 每页显示条数
-	 * @param int $page 页码
-	 * @return array
-	 */
-	public function getPagener($tableName,$condition = NULL,$page=1,$limit = 10,$colmnus = array('*'),$order = array()){
-		$data = array();
-		if(($condition instanceof Where) && $condition->getCond() != NULL){
-			$sql = 'select count(1) as `count` from `'.$tableName .'` where '.$condition->getCond();
-		}elseif(is_string($condition)){
-			$sql = 'select count(1) as `count` from `'.$tableName .'` where '.$condition;
-		}else{
-			$sql = 'select count(1) as `count` from `'.$tableName.'`';
-		}
-		$count = $this->findBySql($sql);
-		$pagener['recordsTotal'] = (int)$count['count'];
-		$pagener['pageSize'] = (int)$limit;
-		$pagener['pageNums'] = (int)ceil($count['count']/$limit);
-		$pagener['currentPage'] = $page>0 ? $page : 1;
-		$pagener['currentPage'] = $pagener['currentPage'] > $pagener['pageNums'] ? $pagener['pageNums'] : $pagener['currentPage'];
-		$data['pagener']=$this->generatePagener($pagener);
-		$offset = ($pagener['currentPage']-1)*$limit;
-		$data['list'] = $this->findAll($tableName, $condition, $colmnus,$order,$limit,$offset);
-		return $data;
-	}
 
 	/**
 	 * 根据条件更新数据

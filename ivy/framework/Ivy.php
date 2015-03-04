@@ -97,10 +97,9 @@ class Ivy
 	 */
 	public static function quotes_gpc()
 	{
-		!empty($_POST)     && Ivy::add_s($_POST);
+		!empty($_POST)    && Ivy::add_s($_POST);
 		!empty($_GET)     && Ivy::add_s($_GET);
-		!empty($_COOKIE) && Ivy::add_s($_COOKIE);
-		!empty($_REQUEST) && Ivy::add_s($_REQUEST);
+		!empty($_COOKIE)  && Ivy::add_s($_COOKIE);
 	}
 	/**
 	 * 递归转义
