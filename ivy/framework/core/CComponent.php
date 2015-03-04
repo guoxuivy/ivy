@@ -3,7 +3,7 @@
  * 全局 基类 提供 数据存储的魔术方法 
  * @author ivy <guoxuivy@gmail.com>
  * @copyright Copyright &copy; 2013-2017 Ivy Software LLC
- * @license http://www.ivyframework.com/license/
+ * @license https://github.com/guoxuivy/ivy/
  * @package framework
  * @link https://github.com/guoxuivy/ivy 
  * @since 1.0 

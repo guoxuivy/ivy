@@ -26,7 +26,7 @@
  * 移植于YII 1.3 二次开发
  * @author ivy <guoxuivy@gmail.com>
  * @copyright Copyright &copy; 2013-2017 Ivy Software LLC
- * @license http://www.ivyframework.com/license/
+ * @license https://github.com/guoxuivy/ivy/
  * @package framework
  * @link https://github.com/guoxuivy/ivy 
  * @since 1.0 
