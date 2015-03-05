@@ -8,24 +8,26 @@
  * @since 1.0 
  * 仿照TP中 DB 的连贯操作 简化实现
  * 使用示例：
-    // $map['t.id'] = array(array('gt',1),array('lt',10));
-    // $map['_logic'] = 'OR';
-    // $map['info.company_name'] = array('neq','CCTV');
-    // $sql = \CompanyAccount::model()
-    // ->field(array('info.`company_name`'=>'c_name'))
-    // ->join('`company_info` info on t.`company_id` = info.`id`')
-    // ->where($map)
-    // ->limit('2')
-    // ->order('id desc')
-    // ->buildSelectSql();
+ * 
+* $map['t.id'] = array(array('gt',1),array('lt',10));
+* $map['_logic'] = 'OR';
+* $map['info.company_name'] = array('neq','CCTV');
+* $sql = \CompanyAccount::model()
+* ->field(array('info.`company_name`'=>'c_name'))
+* ->join('`company_info` info on t.`company_id` = info.`id`')
+* ->where($map)
+* ->limit('2')
+* ->order('id desc')
+* ->buildSelectSql();
+* 
  */
 namespace Ivy\db;
 use Ivy\core\CException;
 abstract class AbsoluteDB {
-	protected $pdo = NULL;
+    //配置参数
+    protected $config = NULL;
     // 数据库表达式
     protected $comparison = array('eq'=>'=','neq'=>'<>','gt'=>'>','egt'=>'>=','lt'=>'<','elt'=>'<=','notlike'=>'NOT LIKE','like'=>'LIKE','in'=>'IN','notin'=>'NOT IN');
-    
     // 查询表达式 option 处理
     protected $selectSql  = 'SELECT%DISTINCT% %FIELD% FROM %TABLE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%COMMENT%';
     

@@ -11,11 +11,12 @@
  */
 namespace Ivy\core;
 class Model extends CComponent{
-
 	//静态对象保存 节省性能开销
 	private static $_models=array();
 	//错误搜集
 	protected      $_error = array();
+	//数据源个性配置，可覆盖默认配置
+	protected      $_config = null;
 
 	// 查询表达式参数
     protected $options          =   array();
@@ -25,20 +26,24 @@ class Model extends CComponent{
     protected $methods          =   array('table','distinct','field','join','where','group','having','union','order','limit','page');
 
 
-	public function __construct($do=null){
+	public function __construct($config=null){
+		$this->_config=$config;
 		$this->init();
 	}
 	/**
 	 * 返回模型对象实例
+	 * 支持数据库配置文件自定义
 	 * @return obj 
 	 */
-	public static function model()
+	public static function model($config=null)
 	{
 		$className = get_called_class();
-		if(isset(self::$_models[$className])){
-			return self::$_models[$className]; 
+		$key=md5(serialize($config));
+		$classKey=$className.'_'.$key;
+		if(isset(self::$_models[$classKey])){
+			return self::$_models[$classKey]; 
 		}else{
-			$model = self::$_models[$className] = new $className(null);
+			$model = self::$_models[$classKey] = new $className($config);
 			return $model;
 		}
 	}
@@ -53,7 +58,7 @@ class Model extends CComponent{
 	 * @return [type] [description]
 	 */
 	public function getDb(){
-		return \Ivy::app()->getDb();
+		return \Ivy::app()->getDb($this->_config);
 	}
 
     /**

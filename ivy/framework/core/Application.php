@@ -3,7 +3,7 @@
  * @author ivy <guoxuivy@gmail.com>
  * @copyright Copyright &copy; 2013-2017 Ivy Software LLC
  * @license https://github.com/guoxuivy/ivy/
- * @package framework
+ * @package framework 加特技 duang
  * @link https://github.com/guoxuivy/ivy 
  * @since 1.0 
  */
@@ -14,7 +14,7 @@ final class Application extends CComponent {
 	/**
 	 * 数据库实例句柄
 	 */
-	protected $db = NULL;
+	protected $db = array();
 	/**
 	 * 登录用户
 	 */
@@ -44,20 +44,23 @@ final class Application extends CComponent {
 
 	/**
 	 * 数据库句柄对象
-	 * 同一时刻仅支持单一数据库连接
+	 * 支持多数据库连接
+	 * $config 为配置数组
 	 */
-	public function getDb() {
-		if($this->db instanceof AbsoluteDB){
-			return $this->db;
+	public function getDb($config=null) {
+		$config=is_null($config)?$this->config['db_pdo']:$config;
+		$key=md5(serialize($config));
+		if(isset($this->db[$key]) && $this->db[$key] instanceof AbsoluteDB){
+			return $this->db[$key];
 		}else{
-			$this->db = AbsoluteDB::getInstance($this->config['db_pdo']);
-			return $this->db;
+			$this->db[$key] = AbsoluteDB::getInstance($config);
+			return $this->db[$key];
 		}
 	}
 
 	/**
 	 * 缓存句柄对象
-     * 同一时刻仅支持单一缓存方式
+     * memcache自动支持集群
 	 */
 	public function getCache() {
 		if($this->cache instanceof AbsoluteCache){

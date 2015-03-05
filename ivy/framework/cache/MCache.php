@@ -11,6 +11,7 @@ namespace Ivy\cache;
 use Ivy\core\lib\FlexiHash;
 use Ivy\core\CException;
 class MCache extends AbsoluteCache implements ICache{
+	//连接池句柄
 	private $_memcache = array();
 	//一致性哈希对象
 	private $_FlexiHash = null;

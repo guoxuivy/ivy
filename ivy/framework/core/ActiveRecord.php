@@ -25,10 +25,10 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 * 初始化AR
 	 * 完成 _fields、_attributes、初始化
 	 */
-	public function __construct($do=null){
+	public function __construct($config=null){
+		parent::__construct($config);
 		$this->initTableFields();
 		$this->setIsNewRecord(true);
-		$this->init();
 	}
 
 	/**

@@ -13,30 +13,41 @@ namespace Ivy\db\pdo;
 use Ivy\core\CException;
 use Ivy\db\AbsoluteDB;
 class mysql extends AbsoluteDB {
-    //事物标记
-    private $_begin_transaction = false;
+	//连接句柄池
+	private $pdo = null;
+	//事物标记
+	private $_begin_transaction = false;
 
-    /**
-     * 字段和表名处理添加`
-     * @access protected
-     * @param string $key
-     * @return string
-     */
-    protected function parseKey(&$key) {
-        $key   =  trim($key);
-        if(!preg_match('/[,\'\"\*\(\)`.\s]/',$key)) {
-           $key = '`'.$key.'`';
-        }
-        return $key;
-    }
 
-	public function __construct($config) {
+	public function __construct($config=null) {
+		if(empty($config))
+			throw new CException ( 'no DB config' );
+		$this->config=$config;
+		$this->pdo = $this->connect($config);
+	}
+
+	/**
+	 * 连接数据库
+	 * @param  [type] $config [description]
+	 * @return [type]         [description]
+	 */
+	public function connect($config=null) {
+		$config=is_null($config)?$this->config:$config;
 		try {
-			$this->pdo = new \PDO ( $config ['dsn'], $config ['user'], $config ['password'] );
-			$this->pdo->exec('set names utf8');
+			$pdo = new \PDO ( $config ['dsn'], $config ['user'], $config ['password'] );
+			$pdo->exec('set names utf8');
+			return $pdo;
 		} catch ( \PDOException $e ) {
 			throw new CException ( $e->getMessage () );
 		}
+	}
+
+	/**
+	 * 连接句柄
+	 * @return pdo
+	 */
+	protected function pdo(){
+		return $this->pdo;
 	}
 
 	/**
@@ -50,8 +61,8 @@ class mysql extends AbsoluteDB {
 		}
 		try {
 			$this->_begin_transaction = false;
-			$this->pdo->setAttribute(\PDO::ATTR_AUTOCOMMIT, 0);
-			$res = $this->pdo->beginTransaction();
+			$this->pdo()->setAttribute(\PDO::ATTR_AUTOCOMMIT, 0);
+			$res = $this->pdo()->beginTransaction();
 			if($res) $this->_begin_transaction = true;
 			return $res;
 		} catch ( \PDOException $e ) {
@@ -66,9 +77,9 @@ class mysql extends AbsoluteDB {
 	public function rollbackT(){
 		try {
 			$this->_begin_transaction = false;
-			$res = $this->pdo->rollback();
+			$res = $this->pdo()->rollback();
 			//恢复自动提交
-			$this->pdo->setAttribute(\PDO::ATTR_AUTOCOMMIT, 1);
+			$this->pdo()->setAttribute(\PDO::ATTR_AUTOCOMMIT, 1);
 			return $res;
 		} catch ( \PDOException $e ) {
 			throw new CException ( $e->getMessage () );
@@ -83,9 +94,9 @@ class mysql extends AbsoluteDB {
 		if($this->_begin_transaction){
 			try {
 				$this->_begin_transaction = false;
-				$res = $this->pdo->commit();
+				$res = $this->pdo()->commit();
 				//恢复自动提交
-				$this->pdo->setAttribute(\PDO::ATTR_AUTOCOMMIT, 1);
+				$this->pdo()->setAttribute(\PDO::ATTR_AUTOCOMMIT, 1);
 				return $res;
 			} catch ( \PDOException $e ) {
 				throw new CException ( $e->getMessage () );
@@ -106,7 +117,7 @@ class mysql extends AbsoluteDB {
 		try {
 			$sql = $this->getInsertSql($tableName, $data);
 			$this->exec( $sql );
-			return $this->pdo->lastInsertId();
+			return $this->pdo()->lastInsertId();
 		} catch ( \PDOException $e ) {
 			throw new CException ( $e->getMessage () );
 		}
@@ -120,7 +131,7 @@ class mysql extends AbsoluteDB {
 	 */
 	public function findAllBySql($sql){
 		try {
-			$res = $this->pdo->query($sql);
+			$res = $this->pdo()->query($sql);
 			if(!$res) return null;
 			return $res->fetchAll(\PDO::FETCH_ASSOC);
 		} catch ( \PDOException $e ) {
@@ -136,7 +147,7 @@ class mysql extends AbsoluteDB {
 	 */
 	public function findBySql($sql){
 		try {
-			$res = $this->pdo->query($sql);
+			$res = $this->pdo()->query($sql);
 			if(!$res) return null;
 			return $res->fetch(\PDO::FETCH_ASSOC);
 		} catch ( \PDOException $e ) {
@@ -151,7 +162,7 @@ class mysql extends AbsoluteDB {
 	 */
 	public function exec($sql){
 		try {
-			$res = $this->pdo->exec( $sql );
+			$res = $this->pdo()->exec( $sql );
 			return $res;
 		} catch ( \PDOException $e ) {
 			throw new CException ( $e->getMessage () );
@@ -176,5 +187,20 @@ class mysql extends AbsoluteDB {
 	public function deleteDataByCondition($tableName,$Condition){
 		$sql = $this->getDeltetSql($tableName,$Condition);
 		return $this->exec( $sql );
+	}
+
+
+	/**
+	 * 字段和表名处理添加`
+	 * @access protected
+	 * @param string $key
+	 * @return string
+	 */
+	protected function parseKey(&$key) {
+		$key   =  trim($key);
+		if(!preg_match('/[,\'\"\*\(\)`.\s]/',$key)) {
+			$key = '`'.$key.'`';
+		}
+		return $key;
 	}
 }
