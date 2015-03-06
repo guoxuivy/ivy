@@ -14,7 +14,7 @@ final class Application extends CComponent {
 	/**
 	 * 数据库实例句柄
 	 */
-	protected $db = array();
+	protected $dbs = array();
 	/**
 	 * 登录用户
 	 */
@@ -39,7 +39,7 @@ final class Application extends CComponent {
 	public function __construct($config){
 		\Ivy::setApplication($this);//保存句柄
 		$config = require_once($config);
-		$this->config=$config;
+		$this->C($config);
 	}
 
 	/**
@@ -48,25 +48,47 @@ final class Application extends CComponent {
 	 * $config 为配置数组
 	 */
 	public function getDb($config=null) {
-		$config=is_null($config)?$this->config['db_pdo']:$config;
+		$config=is_null($config)?$this->C('db_pdo'):$config;
+		if(empty($config))
+			throw new CException ( '未配置数据！'); 
 		$key=md5(serialize($config));
-		if(isset($this->db[$key]) && $this->db[$key] instanceof AbsoluteDB){
-			return $this->db[$key];
+		if(isset($this->dbs[$key]) && $this->dbs[$key] instanceof AbsoluteDB){
+			return $this->dbs[$key];
 		}else{
-			$this->db[$key] = AbsoluteDB::getInstance($config);
-			return $this->db[$key];
+			$this->dbs[$key] = AbsoluteDB::getInstance($config);
+			return $this->dbs[$key];
 		}
 	}
+
+
+	/**
+	 * 配置信息修改、读取
+	 * 支持全部、局部更新，全部、局部查询
+	 * @param [type] $key [description]
+	 * @param [type] $v   [description]
+	 */
+	public function C($key=null,$config=null) {
+		if(is_array($key))
+			return $this->config=$key;
+		if(is_null($key))
+			return $this->config;
+		if(is_null($config))
+			return $this->config[$key]?$this->config[$key]:null;
+		return  $this->config[$key]=$config;
+	}
+
+
 
 	/**
 	 * 缓存句柄对象
      * memcache自动支持集群
 	 */
 	public function getCache() {
+		$config=$this->C('memcache');
 		if($this->cache instanceof AbsoluteCache){
 			return $this->cache;
 		}else{
-			$this->cache = AbsoluteCache::getInstance($this->config['memcache']);
+			$this->cache = AbsoluteCache::getInstance($config);
 			return $this->cache;
 		}
 	}

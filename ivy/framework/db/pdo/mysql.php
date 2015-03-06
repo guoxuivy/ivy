@@ -113,7 +113,7 @@ class mysql extends AbsoluteDB {
 	 * @param array $data
 	 * @return int id;
 	 */
-	public function InsertData($tableName, $data) {
+	public function insertData($tableName, $data) {
 		try {
 			$sql = $this->getInsertSql($tableName, $data);
 			$this->exec( $sql );

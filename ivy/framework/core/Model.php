@@ -31,12 +31,13 @@ class Model extends CComponent{
 		$this->init();
 	}
 	/**
-	 * 返回模型对象实例
+	 * 返回模型对象实例  同样的类名称，不同的配置， 则生产不同的实例
 	 * 支持数据库配置文件自定义
 	 * @return obj 
 	 */
 	public static function model($config=null)
 	{
+		$config=is_null($config)?\Ivy::app()->C('db_pdo'):$config;
 		$className = get_called_class();
 		$key=md5(serialize($config));
 		$classKey=$className.'_'.$key;
@@ -148,8 +149,6 @@ class Model extends CComponent{
         return $this->lastSql;
     }
 
-	
-
 	/**
 	 * 单条记录查询
 	 * @param  [type] $sql [description]
@@ -169,12 +168,49 @@ class Model extends CComponent{
 	}
 
 	/**
-	 * 多条记录查询
+	 * 执行sql
 	 * @param  [type] $sql [description]
 	 * @return array   三维数组
 	 */
 	public function exec($sql){
 		return $this->db->exec($sql);
+	}
+
+	/**
+	 * 数据插入
+	 * @param [string] $tableName  [description]
+	 * @param [array] $data [description]
+	 * @return  lastInsertId 
+	 */
+	public function insertData($tableName=null,$data=null){
+		if(empty($tableName)||empty($data))
+			throw new CException("插入参数不全！");
+		return $this->db->insertData($tableName,$data);
+	}
+
+	/**
+	 * 更新数据
+	 * @param  [type] $tableName [description]
+	 * @param  [type] $condition 同连贯操作 where 参数
+	 * @param  [type] $data      [description]
+	 * @return [boolen]          是否执行成功
+	 */
+	public function updateData($tableName=null,$condition=null,$data=null){
+		if(empty($tableName)||empty($data))
+			throw new CException("更新参数不全！");
+		return $this->db->updateDataByCondition($tableName,$condition,$data);
+	}
+
+	/**
+	 * 删除数据
+	 * @param  [type] $tableName [description]
+	 * @param  [type] $condition 同连贯操作 where 参数
+	 * @return [boolen]          是否执行成功
+	 */
+	public function deleteData($tableName=null,$condition=null){
+		if(empty($tableName)||empty($condition))
+			throw new CException("删除参数不全！");
+		return $this->db->deleteDataByCondition($tableName,$condition);
 	}
 
 

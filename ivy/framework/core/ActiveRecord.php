@@ -219,8 +219,8 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	* 返回 lastInsertId();
 	*/
 	public function insert(){
-	   if($this->getIsNewRecord()){
-			$lastId = $this->db->InsertData($this->tableName(),$this->getAttributes());
+		if($this->getIsNewRecord()){
+			$lastId = $this->insertData($this->tableName(),$this->getAttributes());
 			if($lastId>0){
 				//自曾主键
 				$key=$this->_pk[0];
@@ -241,7 +241,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 		if($this->getIsNewRecord()){
 			throw new CException('这是一个新数据，无法更新！');
 		}else{
-			$this->db->updateDataByCondition($this->tableName(),$this->getPk(),$this->getAttributes());
+			$this->updateData($this->tableName(),$this->getPk(),$this->getAttributes());
 			return $this;
 		}
 	}
@@ -310,8 +310,8 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 * @param  [type] $condition [description]
 	 * @return [type]            [description]
 	 */
-	public function deleteByPk($pk) {
-		return $this->db->deleteDataByCondition($this->tableName(),$this->getPk($pk));
+	public function deleteByPk($pk=null) {
+		return $this->deleteData($this->tableName(),$this->getPk($pk));
 	}
 
 	/**
