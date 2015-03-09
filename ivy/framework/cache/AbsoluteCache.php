@@ -10,40 +10,39 @@
 namespace Ivy\cache;
 use Ivy\core\CException;
 class AbsoluteCache {
-    
-    /**
-     * 取得数据库类实例
-     * @static
-     * @access public
-     * @return mixed 返回数据库驱动类
-     */
-    public static function getInstance() {
-        $args = func_get_args();
-        return call_user_func_array(array(__CLASS__, "factory"),$args);
-    }
+	/**
+	 * 取得数据库类实例
+	 * @static
+	 * @access public
+	 * @return mixed 返回数据库驱动类
+	 */
+	public static function getInstance() {
+		$args = func_get_args();
+		return call_user_func_array(array(__CLASS__, "factory"),$args);
+	}
 
-    /**
-     * 加载缓存 支持配置文件
-     * @access public
-     * @param mixed $cache_config 配置信息
-     * @return string
-     */
-    public function factory($cache_config='') {
-        // 读取数据库配置
-        if(empty($cache_config)){
-            //文件缓存驱动 待扩展
-            $cache=null;
-            
-        }else{
-            $class = '\\Ivy\\cache\\'."MCache";
-            if(class_exists($class)) {
-                $cache = new $class ($cache_config);
-            } else {
-                throw new CException ('缓存驱动错误：'. $class);
-            }
-        }
-        return $cache;
-    }
+	/**
+	 * 加载缓存 支持配置文件
+	 * @access public
+	 * @param mixed $cache_config 配置信息
+	 * @return string
+	 */
+	protected static function factory($cache_config='') {
+		// 读取数据库配置
+		if(empty($cache_config)){
+			//文件缓存驱动 待扩展
+			$cache=null;
+			
+		}else{
+			$class = '\\Ivy\\cache\\'."MCache";
+			if(class_exists($class)) {
+				$cache = new $class ($cache_config);
+			} else {
+				throw new CException ('缓存驱动错误：'. $class);
+			}
+		}
+		return $cache;
+	}
 }
 /**
  * 缓存驱动需要实现的接口 

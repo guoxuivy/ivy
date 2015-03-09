@@ -76,7 +76,7 @@ class Controller extends CComponent {
 			// 如 'list' 不包含分隔符 默认在当前控制器下寻址
 			$r=$this->route->getRouter();
 			$uri=$r['controller'].'/'.$uri;
-			if($r['module']) $uri=$r['module'].'/'.$uri;
+			if(isset($r['module'])) $uri=$r['module'].'/'.$uri;
 		}
 		$uri = SITE_URL.'/index.php?r='.rtrim($uri);
 		$param_arr = array_filter($param);
