@@ -23,6 +23,23 @@ class CException extends \Exception
 	}
 
 	/**
+	 * 将整数拆解为2的幂和
+	 * @param  [type] $num [description]
+	 * @return [type]      [description]
+	 */
+	public static function pow_log($num){
+		$res = array();
+		while($num>0){
+			$re = pow(2, floor(log($num,2)));
+			$num -= $re;
+			$res[] = $re;
+		}
+		return $res;
+	}
+
+
+
+	/**
 	 * 自定义系统错误处理 启用后 仅error_reporting = 0 生效
 	 * @param  [type] $code    [description]
 	 * @param  [type] $message [description]
@@ -33,29 +50,34 @@ class CException extends \Exception
 	public static function error_handler($code, $message, $file, $line)
 	{
 		if (0 == error_reporting()) return;
+		$reporting_arr=self::pow_log(error_reporting());//当前警告级别拆分
+		if(!in_array($code, $reporting_arr)) return;//不在开启的错误级别中
+
 		//编码判断
 		if(json_encode($message) == 'null'){
 			$message=iconv("GBK", "UTF-8", $message); 
 		}
-		if(IVY_DEBUG){
-			// echo '<style>.exception-trace p{padding-top:0px;margin-top:0px} .exception-trace pre{background-color: #E0EBD3;padding-top:0px;margin-top:0px} .exception-trace-index{background-color: #BBDBF4; border-bottom: 1px #1188FF solid}</style>';
-			// echo '<div class="exception-trace">';
-			// echo '<div class="exception-trace-index"><font color="red">系统错误</font>->'.$message.'</div>';
-			// echo '<pre>file:'.$file."-line:{$line}</pre>";
-			// echo '<div>';
-		   // return;
-		}
+		// if(IVY_DEBUG){
+		// 	echo '<style>.exception-trace p{padding-top:0px;margin-top:0px} .exception-trace pre{background-color: #E0EBD3;padding-top:0px;margin-top:0px} .exception-trace-index{background-color: #BBDBF4; border-bottom: 1px #1188FF solid}</style>';
+		// 	echo '<div class="exception-trace">';
+		// 	echo '<div class="exception-trace-index"><font color="red">系统错误</font>->'.$message.'</div>';
+		// 	echo '<pre>file:'.$file."-line:{$line}</pre>";
+		// 	echo '<div>';
+		// 	return;
+		// }
+		
 		switch ($code) {
 			case 2:
-				\Ivy::log('系统警告:'.$message.'->file:'.$file.'->line:'.$line,CLogger::LEVEL_WARNING);
+				$level = CLogger::LEVEL_WARNING;
 				break;
 			case 8:
-				\Ivy::log('系统通知:'.$message.'->file:'.$file.'->line:'.$line,CLogger::LEVEL_NOTICE);
+				$level = CLogger::LEVEL_NOTICE;
 				break;
 			default:
-				\Ivy::log('系统错误:'.$message.'->file:'.$file.'->line:'.$line,CLogger::LEVEL_ERROR);
+				$level = CLogger::LEVEL_ERROR;
 				break;
 		}
+		\Ivy::log("system-level-$code: [".$message.'] file:'.$file.'->line:'.$line,$level);
 		
 	}
 	/**
