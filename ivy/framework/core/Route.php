@@ -17,7 +17,10 @@ class Route {
 		'action'	=> 'index'
 	);
 
+	//路由参数数组
 	protected $route = NULL;
+	//其它需要传递的参数
+	public $param = array();
 
 	public function __construct(){
 	}
@@ -26,19 +29,54 @@ class Route {
 	/**
 	 * 路由 处理  
 	 * 标准路由数组
+	 * 可扩展 url seo
 	 */
-	public function start($routerStr=''){
+	public function start($routerStr='',$param=array()){
+		if(empty($routerStr)){
+			$routerStr=isset($_GET['r'])?$_GET['r']:"";
+			$param=$_GET;
+			unset($param['r']);
+		}
 		$this->analyzeRoute($routerStr);
+		$this->param=$param;
 	}
 
 	/**
-	 * 获取当前
+	 * 格式化为url
+	 * 可扩展 url seo
+	 * $uri     admin/order/index 
+	 * $param   array("id"=>1)
+	 * @return string
+	 */
+	public function url($uri="",$param=array()){
+		if(empty($uri)) return SITE_URL.'/index.php';
+		if(strpos($uri,'/')===false){
+			// 如 'list' 不包含分隔符 默认在当前控制器下寻址
+			$r=$this->getRouter();
+			$uri=$r['controller'].'/'.$uri;
+			if(isset($r['module'])) $uri=$r['module'].'/'.$uri;
+		}
+		$uri = SITE_URL.'/index.php?r='.rtrim($uri);
+		$param_arr = array_filter($param);
+		if(!empty($param_arr)){
+			foreach($param_arr as $k=>$v){
+				$k=urlencode($k);
+				$v=urlencode($v);
+				$uri.="&{$k}={$v}";
+			}
+		}
+		return $uri;
+	}
+
+	/**
+	 * 获取当前路由数组
 	 */
 	public function getRouter(){
 		return $this->route;
 	}
+
 	/**
-	 * 获取当前
+	 * 设置当前路由
 	 */
 	public function setRouter($route){
 		$c_route=$this->getConfigRouter();

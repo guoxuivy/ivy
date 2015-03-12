@@ -114,8 +114,8 @@ final class Application extends CComponent {
 	public function widget($routerStr,$param=array()) {
 		$route = new Route();
 		if(is_array($routerStr)) $routerStr=implode("/",$routerStr);
-		$route->start($routerStr);
-		return $this->dispatch($route,$param);
+		$route->start($routerStr,$param);
+		return $this->dispatch($route);
 	}
 
 	/**
@@ -125,11 +125,9 @@ final class Application extends CComponent {
 	 */
 	public function run() {
 		$route = new Route();
-		$routerStr=isset($_GET['r'])?$_GET['r']:"";
-		$route->start($routerStr);
-        $param=$_GET;
-        unset($param['r']);
-		$this->dispatch($route,$param);
+		//$routerStr=isset($_GET['r'])?$_GET['r']:"";
+		$route->start();
+		$this->dispatch($route);
 		$this->finished();
 	}
 
@@ -143,7 +141,8 @@ final class Application extends CComponent {
 	 * 'controller' => 'roder'      //控制器（必须）
 	 * 'action' => 'index'          //方法（必须）
 	 */
-	public function dispatch($routerObj,$param=array()) {
+	public function dispatch($routerObj) {
+		$param=$routerObj->param;
 		$router=$this->temp_route=$routerObj->getRouter();
 		$module=isset($router['module'])?strtolower($router['module']):"";
 		$class=ucfirst(strtolower($router['controller']))."Controller";
@@ -154,7 +153,7 @@ final class Application extends CComponent {
 			}catch(CException $e){
 				//试图适配分组模式
 				$routerObj->setRouter(array('module'=>$router['controller'],'controller'=>$router['action']));
-				return $this->dispatch($routerObj,$param);
+				return $this->dispatch($routerObj);
 			}
 		}
 		try{

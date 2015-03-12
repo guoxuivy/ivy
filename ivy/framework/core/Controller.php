@@ -71,23 +71,7 @@ class Controller extends CComponent {
 	 * @return string
 	 */
 	public function url($uri="",$param=array()){
-		if(empty($uri)) return SITE_URL.'/index.php';
-		if(strpos($uri,'/')===false){
-			// 如 'list' 不包含分隔符 默认在当前控制器下寻址
-			$r=$this->route->getRouter();
-			$uri=$r['controller'].'/'.$uri;
-			if(isset($r['module'])) $uri=$r['module'].'/'.$uri;
-		}
-		$uri = SITE_URL.'/index.php?r='.rtrim($uri);
-		$param_arr = array_filter($param);
-		if(!empty($param_arr)){
-			foreach($param_arr as $k=>$v){
-				$k=urlencode($k);
-				$v=urlencode($v);
-				$uri.="&{$k}={$v}";
-			}
-		}
-		return $uri;
+		return $this->route->url($uri,$param);
 	}
 
 	/**
@@ -95,8 +79,7 @@ class Controller extends CComponent {
 	* $uri     admin/order/index
 	* $param   array("id"=>1)
 	*/
-	public function redirect($uri="",$param=array())
-	{
+	public function redirect($uri="",$param=array()){
 		if(strpos($uri,'://')===false){
 			$uri = $this->url($uri,$param);
 			$uri=$this->getHostInfo().$uri;
@@ -107,8 +90,7 @@ class Controller extends CComponent {
 	 * 获取当前主机
 	 * @return string 主机字符串
 	 */
-	public function getHostInfo()
-	{
+	public function getHostInfo(){
 		if($secure=$this->getIsSecureConnection())
 			$http='https';
 		else
@@ -125,8 +107,7 @@ class Controller extends CComponent {
 		return $hostInfo;
 	}
 
-	public function getIsSecureConnection()
-	{
+	public function getIsSecureConnection(){
 		return !empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'],'off');
 	}
 
