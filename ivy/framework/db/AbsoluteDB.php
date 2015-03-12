@@ -89,7 +89,7 @@ abstract class AbsoluteDB {
 				return $value;
 			}
 		}
-		$sql  = $this->parseSql($this->selectSql,$options);
+		$sql = $this->parseSql($this->selectSql,$options);
 		if(isset($key)) { // 写入SQL创建缓存
 			\Ivy::app()->cache->set($key,$sql,0);
 		}

@@ -35,6 +35,7 @@ class CException extends \Exception
 			$res[] = $re;
 		}
 		return $res;
+
 	}
 
 
@@ -77,7 +78,7 @@ class CException extends \Exception
 				$level = CLogger::LEVEL_ERROR;
 				break;
 		}
-		\Ivy::log("system-level-$code: [".$message.'] file:'.$file.'->line:'.$line,$level);
+		\Ivy::log("[system-level-$code] [".$message.'] file:'.$file.'->line:'.$line,$level);
 		
 	}
 	/**

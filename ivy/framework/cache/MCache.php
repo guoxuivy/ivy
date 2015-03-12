@@ -30,14 +30,18 @@ class MCache extends AbsoluteCache implements ICache{
 	private function _connectMemcache($key){
 		$config = $this->_FlexiHash->get($key);
 		if (!isset($this->_memcache[$config])){
-			$this->_memcache[$config] = new \Memcache;
+			$m_cache = new \Memcache;
 			list($host, $port) = explode(":", $config);
-			$this->_memcache[$config]->connect($host, $port);
+			$res = $m_cache->connect($host, $port);
+			if($res===false)
+				$this->_memcache[$config] = false;
+			else
+				$this->_memcache[$config] = $m_cache;
 		}
 		return $this->_memcache[$config];
 	}
 	/**
-	 * 测试探针 获取key对应的物理节点
+	 * 测试探针 获取key对应的物理节点 测试用
 	 **/
 	public function getConfigByKey($key){
 		return $config = $this->_FlexiHash->get($key);
@@ -47,22 +51,34 @@ class MCache extends AbsoluteCache implements ICache{
 	 * $expire 单位为秒
 	 **/
 	public function set($key, $value, $expire=0){
-		return $this->_connectMemcache($key)->set($key, json_encode($value), 0, $expire);
+		if($this->_connectMemcache($key)){
+			return $this->_connectMemcache($key)->set($key, json_encode($value), 0, $expire);
+		}
+		return false;
 	}
 
 	public function get($key){
-		$value = $this->_connectMemcache($key)->get($key, true);
-		if($value!==false)
-			$value=json_decode($value);
-		return $value;
+		if($this->_connectMemcache($key)){
+			$value = $this->_connectMemcache($key)->get($key, true);
+			if($value!==false)
+				$value=json_decode($value);
+			return $value;
+		}
+		return false;
 	}
 
 	public function add($key, $vakue, $expire=0){
-		return $this->_connectMemcache($key)->add($key, json_encode($value), 0, $expire);
+		if($this->_connectMemcache($key)){
+			return $this->_connectMemcache($key)->add($key, json_encode($value), 0, $expire);
+		}
+		return false;
 	}
 
-	public function delete($key){  
-		return $this->_connectMemcache($key)->delete($key);
+	public function delete($key){
+		if($this->_connectMemcache($key)){
+			return $this->_connectMemcache($key)->delete($key);
+		}
+		return false;
 	}
     
     public function flush(){
