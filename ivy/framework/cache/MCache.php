@@ -29,7 +29,7 @@ class MCache extends AbsoluteCache implements ICache{
 	 **/
 	private function _connectMemcache($key){
 		$config = $this->_FlexiHash->get($key);
-		if (!isset($this->_memcache[$config])){
+		if (is_null($this->_memcache[$config])){
 			$m_cache = new \Memcache;
 			list($host, $port) = explode(":", $config);
 			$res = $m_cache->connect($host, $port);
@@ -80,11 +80,11 @@ class MCache extends AbsoluteCache implements ICache{
 		}
 		return false;
 	}
-    
-    public function flush(){
-        foreach($this->_memcache as $memcache_obj){
-            $memcache_obj->flush();
-        }
+
+	public function flush(){
+		foreach($this->_memcache as $memcache_obj){
+			$memcache_obj->flush();
+		}
 		return true;
 	}
 }

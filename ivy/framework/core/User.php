@@ -37,7 +37,7 @@ class User extends Model
 		if(self::$_keyPrefix!==null){
 			return self::$_keyPrefix;
 		}else{
-			self::$_keyPrefix=md5('Ivy.'.get_class($this).$this->_attributes['id']?$this->_attributes['id']:'guest');
+			self::$_keyPrefix=md5('Ivy.'.get_class($this).'.'.(isset($this->_attributes['id'])?$this->_attributes['id']:'guest'));
 			return self::$_keyPrefix;
 		}
 			

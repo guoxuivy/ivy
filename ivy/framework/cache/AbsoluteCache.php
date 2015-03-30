@@ -44,9 +44,11 @@ class AbsoluteCache {
 		return $cache;
 	}
 }
+
+
 /**
- * 缓存驱动需要实现的接口 
- **/
+* 缓存驱动需要实现的接口 
+**/
 interface ICache{
 	/**
 	 * Retrieves a value from cache with a specified key.

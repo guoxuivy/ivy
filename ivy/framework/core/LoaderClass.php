@@ -29,6 +29,7 @@ class LoaderClass{
 			$className=substr($className,4);
 			//加载框架文件
 			$file_path=IVY_PATH.DIRECTORY_SEPARATOR.$className.'.php';
+			$file_path = str_replace('\\', DIRECTORY_SEPARATOR, $file_path);
 			if(is_file($file_path)){
 				return include_once $file_path;
 			}else{
@@ -38,13 +39,14 @@ class LoaderClass{
 		
 		//自动加载 应用下的 components 文件
 		$file_path=__PROTECTED__.DIRECTORY_SEPARATOR."components".DIRECTORY_SEPARATOR.$className.'.php';
+		$file_path = str_replace('\\', DIRECTORY_SEPARATOR, $file_path);
 		if(is_file($file_path))
-				return include_once $file_path;
+			return include_once $file_path;
 		//自动加载 分组下的 components 文件
 		$className_tmp=array_filter(explode("\\",$className));
 		if(count($className_tmp)>1){
 			$groupName=array_shift($className_tmp);
-			$cName=implode("\\",$className_tmp);
+			$cName=implode(DIRECTORY_SEPARATOR,$className_tmp);
 			$file_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.$groupName.DIRECTORY_SEPARATOR."components".DIRECTORY_SEPARATOR.$cName.'.php';
 			if(is_file($file_path))
 				return include_once $file_path;
