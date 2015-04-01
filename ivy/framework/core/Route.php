@@ -49,12 +49,12 @@ class Route {
 	 * @return string
 	 */
 	public function url($uri="",$param=array()){
-		if(empty($uri)) return SITE_URL.'/index.php';
+		if($uri==='/') return SITE_URL.'/index.php';
 		if(strpos($uri,'/')===false){
-			// 如 'list' 不包含分隔符 默认在当前控制器下寻址
+			// 如 'list' 不包含分隔符 或者为空
 			$r=$this->getRouter();
-			$uri=$r['controller'].'/'.$uri;
-			if(isset($r['module'])) $uri=$r['module'].'/'.$uri;
+			if(!empty($uri)) $r['action']=$uri;
+			$uri=implode('/', $r);
 		}
 		$uri = SITE_URL.'/index.php?r='.rtrim($uri);
 		$param_arr = array_filter($param);

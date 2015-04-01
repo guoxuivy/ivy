@@ -32,9 +32,9 @@ class Template{
 	/**
 	 * 返回渲染好的html
 	 */
-	public function render($template='',$data=null,$ext='.phtml'){
+	public function render($template='',$data=array(),$ext='.phtml'){
 		$template_path = $this->getViewFile($template,$ext);
-		$data=empty($data)?$this->data:$data;
+		$data=array_merge($this->data,$data);
 		extract($data);
 		ob_start();
 		$includeReturn = include $template_path;

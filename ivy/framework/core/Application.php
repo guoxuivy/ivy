@@ -28,9 +28,9 @@ final class Application extends CComponent {
 	 */
 	protected $config = NULL;
 	/**
-	 * 当前路由副本保存，共loaderClass使用
+	 * 当前控制器路由对象（非widget路由）保存，
 	 */
-	protected $temp_route = NULL;
+	protected $_route = NULL;
 
 
 	/**
@@ -125,8 +125,8 @@ final class Application extends CComponent {
 	 */
 	public function run() {
 		$route = new Route();
-		//$routerStr=isset($_GET['r'])?$_GET['r']:"";
 		$route->start();
+		$this->_route=$route;
 		$this->dispatch($route);
 		$this->finished();
 	}
@@ -143,7 +143,7 @@ final class Application extends CComponent {
 	 */
 	public function dispatch($routerObj) {
 		$param=$routerObj->param;
-		$router=$this->temp_route=$routerObj->getRouter();
+		$router=$routerObj->getRouter();
 		$module=isset($router['module'])?strtolower($router['module']):"";
 		$class=ucfirst(strtolower($router['controller']))."Controller";
 		$action=strtolower($router['action']).'Action';
