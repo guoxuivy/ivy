@@ -117,6 +117,7 @@ final class Application extends CComponent {
 		$route->start($routerStr,$param);
 		return $this->dispatch($route);
 	}
+
 	/**
 	 * widget 小部件 按命名空间
 	 * @param $name  小部件名称（支持命名空间）  
@@ -130,7 +131,6 @@ final class Application extends CComponent {
 		}catch(CException $e){
 			throw new CException ( $class . '-不存在此widget！'); 
 		}
-
 		$widget_obj = $ReflectedClass->newInstanceArgs();
 		return $this->_doMethod($widget_obj, "run", $param);
 	}

@@ -11,6 +11,8 @@ namespace Ivy\core;
 use Ivy\logging\CLogger;
 class CException extends \Exception
 {
+	protected $code=404;
+	protected $message='';
 	/**
 	 * Constructor.
 	 * @param integer $status HTTP status code, such as 404, 500, etc.
@@ -133,7 +135,7 @@ class CException extends \Exception
 		}else{
 			\Ivy::log($str_log,CLogger::LEVEL_TRACE);
 			if(isset(\Ivy::app()->config['errorHandler']['errorAction'])){
-				\Ivy::app()->hook(\Ivy::app()->config['errorHandler']['errorAction'],array('code'=>404,'msg'=>$message));die();
+				\Ivy::app()->hook(\Ivy::app()->config['errorHandler']['errorAction'],array('code'=>$exception->getCode(),'msg'=>$message));die();
 			}
 			die('发生错误！');
 		}
