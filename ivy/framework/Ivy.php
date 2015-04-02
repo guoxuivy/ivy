@@ -134,6 +134,22 @@ class Ivy
 		else
 			throw new CException("import $path error");
 	}
+
+	/**
+	 * 载入widget
+	 * @param [type] &$array [description]
+	 */
+	public static function importWidget($path,$ext=".php")
+	{
+		if(substr($path,0,1)=='/') $path=substr($path,1);
+		
+		$file_path=__PROTECTED__.DIRECTORY_SEPARATOR.'widget'.DIRECTORY_SEPARATOR.$path."Widget".$ext;
+		
+		if(is_file($file_path))
+			return include_once $file_path;
+		else
+			throw new CException("import $path error");
+	}
 }
 
 
