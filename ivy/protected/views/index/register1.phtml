@@ -1,0 +1,171 @@
+<?php
+$themePath = $this->basePath('public');
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>好哇连锁管控平台-注册</title>
+<link href="<?php echo $this->basePath('public'); ?>/css/login.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="<?php echo $this->basePath('public/js/jquery.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('public/js/PCASClass.js'); ?>"></script>
+<link href="<?php echo $this->basePath('public/js/Validform/Validform_style.css'); ?>" rel="stylesheet">
+<script type="text/javascript" src="<?php echo $this->basePath('public/js/Validform/Validform_v5.3.2_min.js'); ?>"></script>
+</head>
+<body>
+	<div class="top">
+		<div class="top_center">
+			<span
+				id="go_back_home" style="float: right; background-color: #fff; border: solid 1px #ddd; display: inline-block; line-height: 25px; height: 25px; padding-left: 15px; padding-right: 15px; color: #666; font-size: 12px; margin-top: 25px; cursor: pointer;">返回首页</span>
+			<div class="logo">
+				<img src="<?php echo $themePath; ?>/images/howa_logo.png" width="170" height="42" />
+			</div>
+			<span class="logo_span">注册</span>
+		</div>
+	</div>
+	<div class="page">
+		<div class="page_tit buzhou_1">
+			<ul>
+				<li class="buzhou_1_li">1、填写并提交资料</li>
+				<li class="buzhou_1_visit">2、审核并等待发送验证码</li>
+				<li class="buzhou_1_visit">3、填写账号密码，注册成功</li>
+			</ul>
+		</div>
+		<div class="main">
+			<form action="<?php echo $this->controller->url('register1'); ?>" method="post">
+			<div class="main_left">
+				<div class="main_left_pp">
+					<div
+						style="height: 24px; font-size: 14px; color: #333; font-weight: bold; padding-bottom: 20px;">
+						<span
+							style="width: 18px; height: 18px; display: block; background-image: url(<?php echo $themePath; ?>/images/ai.jpg); float: left; margin-right: 5px;"></span>注册成功后将获取30天免费试用
+					</div>
+					<div class="plat_list_tit">公司信息</div>
+					<div class="plat_list">
+						<div class="plat_list_left">公司名称</div>
+						<div class="plat_list_right">
+							<input datatype="*" name="company_name" type="text" class="input_1" value="" />
+							<div class="plat_list_text">必须填写在工商局注册的公司全称</div>
+						</div>
+						<div class="clear"></div>
+					</div>
+					<div class="plat_list">
+						<div class="plat_list_left">公司总部地址</div>
+						<div class="plat_list_right">
+							<select datatype="*" name="pca_province" id="pca_province" class="select_1" style="width:45%;"></select>
+							<select datatype="*" name="pca_city" id="pca_city" class="select_1" style="width:45%;"></select> 
+						</div>
+						<div class="clear"></div>
+					</div>
+					<div class="plat_list">
+						<div class="plat_list_left">详细地址</div>
+						<div class="plat_list_right">
+							<input datatype="*" name="address" type="text" class="input_1" value="" />
+							<div class="plat_list_text">选择省市，并填写详细地址</div>
+						</div>
+						<div class="clear"></div>
+					</div>
+					<div class="plat_list">
+						<div class="plat_list_left">门店数量</div>
+						<div class="plat_list_right">
+							<select datatype="*" name="store_num" class="select_1" style="width: 95%;">
+								<option value="">----请选择----</option>
+								<?php for($i = 1; $i <= 100; $i++): ?>
+								<option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+								<?php endfor; ?>
+							</select>
+							<div class="plat_list_text">选择门店数量</div>
+						</div>
+						<div class="clear"></div>
+					</div>
+					<div class="plat_list_tit">联系人信息</div>
+					<div class="plat_list">
+						<div class="plat_list_left">联系人</div>
+						<div class="plat_list_right">
+							<input datatype="*" name="contact_name" type="text" class="input_1" value="" />
+						</div>
+						<div class="clear"></div>
+					</div>
+					<div class="plat_list">
+						<div class="plat_list_left">职务</div>
+						<div class="plat_list_right">
+							<input datatype="*" name="position" type="text" class="input_1" value="" />
+						</div>
+						<div class="clear"></div>
+					</div>
+					<div class="plat_list">
+						<div class="plat_list_left">手机号码</div>
+						<div class="plat_list_right">
+							<input datatype="m" name="phone" type="text" class="input_1" value="" />
+						</div>
+						<div class="clear"></div>
+					</div>
+					<div class="plat_list">
+						<div class="plat_list_left">电子邮箱</div>
+						<div class="plat_list_right">
+							<input datatype="e" name="email" type="text" class="input_1" value="" />
+						</div>
+						<div class="clear"></div>
+					</div>
+					<div class="start_goto">
+						<a id="form_submit" href="javascript:;" class="xiayibu_a">资料提交</a>
+					</div>
+				</div>
+			</div>
+			</form>
+			<div class="main_right">
+				已有Howa账户？ <a href="<?php echo $this->controller->url('login'); ?>">立即登录</a>
+			</div>
+			<div class="clear"></div>
+		</div>
+	</div>
+	<div class="footer">
+		<div class="footer_center">© Copyright 2011-2014 武汉好哇商业技术有限公司
+			鄂ICP备14003221号</div>
+	</div>
+<script type="text/javascript">
+new PCAS("pca_province","pca_city","","");
+$('#go_back_home').click(function() {
+	var url = '<?php echo $this->controller->url('login'); ?>';
+	window.location.href = url;
+});
+$('#form_submit').click(function() {
+	$('form').submit();
+});
+//提交前验证
+$('form').Validform({
+	tiptype:3,
+	ignoreHidden:true,
+	beforeSubmit:function() {
+		var next = false;
+		var ajax_url = "<?php echo $this->controller->url('validate1'); ?>";
+		var data = $('form').serialize();
+		var _html = "<div id='loading' style='position:fixed;left:0;width:100%;height:100%;top:0;background:rgb(0, 0, 0);opacity:0.5;filter:alpha(opacity=50);'><div style='position:absolute;  cursor1:wait;left:50%;top:50%;width:auto;height:16px;padding:13px 22px 28px 30px;background: url(<?php echo $this->basePath('public');?>/images/loading.gif) no-repeat scroll 5px 10px;text-indent: -99999px;color:#000;'>正在加载，请等待...</div></div>";
+	    $('body').append(_html);
+		$.ajax({
+			url : ajax_url,
+			data : data,
+			type : 'post',
+			async : false,
+			dataType : 'json',
+			complete : function() {
+				$('#loading').remove();
+			},
+			success : function(json) {
+				if(json.statusCode == '200') {
+					next = true;
+				}
+				else {
+					alert(json.message);
+				}
+			},
+			error : function(XMLHttpRequest, textStatus, errorThrown) {
+				alert(textStatus);
+			}
+		});
+		return next;
+	}
+});
+</script>
+</body>
+</html>

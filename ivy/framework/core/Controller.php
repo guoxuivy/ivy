@@ -9,26 +9,23 @@
  */
 namespace Ivy\core;
 class Controller extends CComponent {
-	//路由对象
-	protected $route = NULL;
 	//默认布局文件
 	public $layout=NULL;
 
 	public function __construct($route=NULL) {
-		//当前的路由对象
-		$this->route = $route;
+		$this->attachBehavior($route);//路由方法注入
 		$this->init();
 	}
 
-	/**
-	 * 实例化处理器
-	 */
-	public function init() {
-	}
+	public function init() {}
 
 	public function getDb() {
 		return \Ivy::app()->getDb();
 	}
+	/**
+	 * 获取模版对象
+	 * @return [type] [description]
+	 */
 	public function getView() {
 		return new Template($this);
 	}
@@ -41,6 +38,12 @@ class Controller extends CComponent {
 	 * 所有action 后自动执行
 	 */
 	public function actionAfter() {}
+
+	/**
+	 * 标准路由地址 
+	 * 由route对象注入
+	 */
+	//public function url(){}
 
 	/**
 	 * ajax 返回
@@ -62,16 +65,6 @@ class Controller extends CComponent {
 					'data' => $data 
 			) ) );
 		}
-	}
-
-	/**
-	 * 格式化url
-	 * $uri     admin/order/index
-	 * $param   array("id"=>1)
-	 * @return string
-	 */
-	public function url($uri="",$param=array()){
-		return $this->route->url($uri,$param);
 	}
 
 	/**
@@ -107,10 +100,13 @@ class Controller extends CComponent {
 		return $hostInfo;
 	}
 
+	/**
+	 * https 判断
+	 * @return [type] [description]
+	 */
 	public function getIsSecureConnection(){
 		return !empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'],'off');
 	}
-
 
 	/**
 	 * 判断是否为ajax请求
@@ -122,6 +118,7 @@ class Controller extends CComponent {
 			return false;
 		}
 	}
+	
 	/**
 	 * 判断是否为post请求
 	 */

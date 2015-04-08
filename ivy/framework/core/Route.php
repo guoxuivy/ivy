@@ -117,17 +117,18 @@ class Route {
 		$route_tmp=array_filter($route_tmp);
 		$route_info = array();
 		if(count($route_tmp) == 3){ //分组模式
-			$route_info['module'] = $route_tmp[0];
-			$route_info['controller'] = $route_tmp[1];
-			$route_info['action'] = $route_tmp[2];
+			$route_info['module'] = array_shift($route_tmp);
+			$route_info['controller'] = array_shift($route_tmp);
+			$route_info['action'] = array_shift($route_tmp);
 		}
 		if(count($route_tmp) == 2){ //普通模式
-			$route_info['controller'] = $route_tmp[0];
-			$route_info['action'] = $route_tmp[1];
+			$route_info['controller'] = array_shift($route_tmp);
+			$route_info['action'] = array_shift($route_tmp);
 		}
 		if(count($route_tmp) == 1){ //普通模式 默认action
-			if($route_tmp[0] != ''){
-				$route_info['controller'] = $route_tmp[0];
+			$controller=array_shift($route_tmp);
+			if($controller != ''){
+				$route_info['controller'] = $controller;
 				$c_r=$this->getConfigRouter();//采用配置action
 				$route_info['action'] = $c_r['action'];
 			}else{

@@ -1,0 +1,122 @@
+<?php
+$themePath = $this->basePath('public');
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>好哇连锁管控平台-注册</title>
+<link href="<?php echo $this->basePath('public'); ?>/css/login.css"
+	rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="<?php echo $this->basePath('public/js/jquery.js'); ?>"></script>
+<link href="<?php echo $this->basePath('public/js/Validform/Validform_style.css'); ?>" rel="stylesheet">
+<script type="text/javascript" src="<?php echo $this->basePath('public/js/Validform/Validform_v5.3.2_min.js'); ?>"></script>
+</head>
+<body>
+	<div class="top">
+		<div class="top_center">
+			<span
+				id="go_back_home" style="float: right; background-color: #fff; border: solid 1px #ddd; display: inline-block; line-height: 25px; height: 25px; padding-left: 15px; padding-right: 15px; color: #666; font-size: 12px; margin-top: 25px; cursor: pointer;">返回首页</span>
+			<div class="logo">
+				<img
+					src="<?php echo $this->basePath('public'); ?>/images/howa_logo.png"
+					width="170" height="42" />
+			</div>
+			<span class="logo_span">注册</span>
+		</div>
+	</div>
+	<div class="page">
+		<div class="page_tit buzhou_3">
+			<ul>
+				<li class="buzhou_1_li">1、填写并提交资料</li>
+				<li class="buzhou_1_li">2、审核并等待发送验证码</li>
+				<li class="buzhou_1_li">3、填写账号密码，注册成功</li>
+			</ul>
+		</div>
+		<div class="main">
+			<form action="<?php echo $this->controller->getRequestUri(); ?>" method="post">
+			<div class="main_left">
+				<div class="main_left_pp">
+					<div class="plat_list">
+						<div class="plat_list_left">公司账号</div>
+						<div class="plat_list_right">
+							<div class="plat_list_text" style="color: #07f;"><?php echo $model->company_name; ?></div>
+						</div>
+						<div class="clear"></div>
+					</div>
+					<div class="plat_list">
+						<div class="plat_list_left">管理员账号</div>
+						<div class="plat_list_right">
+							<input datatype="*" name="account_name" type="text" class="input_1" value="" />
+							<div class="plat_list_text">作为最高权限登录帐号，不可更改。请牢记您的账号</div>
+						</div>
+						<div class="clear"></div>
+					</div>
+					<div class="plat_list">
+						<div class="plat_list_left">管理员密码</div>
+						<div class="plat_list_right">
+							<input datatype="*" name="password" type="password" class="input_1" value="" />
+							<div class="plat_list_text">字母、数字或者英文符号，最短6位，区分大小写</div>
+						</div>
+						<div class="clear"></div>
+					</div>
+					<div class="plat_list">
+						<div class="plat_list_left">确认密码</div>
+						<div class="plat_list_right">
+							<input datatype="*" name="password2" type="password" class="input_1" value="" />
+							<div class="plat_list_text">请再次输入密码</div>
+						</div>
+						<div class="clear"></div>
+					</div>
+					<div class="start_goto">
+						<a id="form_submit" href="javascript:;" class="xiayibu_a">提交</a>
+					</div>
+				</div>
+			</div>
+			</form>
+			<div class="main_right">
+				已有Howa账户？ <a href="<?php echo $this->controller->url('login'); ?>">立即登录</a>
+			</div>
+			<div class="clear"></div>
+		</div>
+	</div>
+	<div class="footer">
+		<div class="footer_center">© Copyright 2011-2014 武汉好哇商业技术有限公司
+			鄂ICP备14003221号</div>
+	</div>
+<script type="text/javascript">
+$('#go_back_home').click(function() {
+	var url = '<?php echo $this->controller->url('login'); ?>';
+	window.location.href = url;
+});
+$('#form_submit').click(function() {
+	var ajax_url = $('form').attr('action');
+	var data = $('form').serialize();
+	$.ajax({
+		url : ajax_url,
+		type : 'post',
+		dataType : 'json',
+		data : data,
+		success : function(json) {
+			if(json.statusCode == '200') {
+				alert(json.message);
+				var login_url = '<?php echo $this->controller->url('login'); ?>';
+				window.location.href = login_url;
+			}
+			else {
+				alert(json.message);
+			}
+		},
+		error : function(XMLHttpRequest, textStatus, errorThrown) {
+			alert(textStatus);
+		}
+	});
+});
+//提交前验证
+$('form').Validform({
+	tiptype:3,
+	ignoreHidden:true
+});
+</script>
+</body>
+</html>

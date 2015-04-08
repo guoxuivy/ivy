@@ -12,7 +12,7 @@ namespace Ivy\core;
 class CComponent
 {
 	//数据存储
-	protected $_m;
+	protected $_m = array();
 	function __get($name){
 		$method="get".ucfirst($name);
 		if(method_exists($this,$method)){
@@ -71,8 +71,27 @@ class CComponent
 	}
 
 
-	public function __call($name,$parameters)
-	{
-		throw new CException( 'method "'.get_class($this).':'.$name.'" is not exist.' );
+	// public function __call($name,$parameters)
+	// {
+	// 	throw new CException( 'method "'.get_class($this).':'.$name.'" is not exist.' );
+	// }
+
+	/**
+	 * 提供对象行为注入 留待扩展实现AOP
+	 * @param  [type] $behaviorObj [description]
+	 * @return [type]              [description]
+	 */
+	public function attachBehavior($behaviorObj){
+		$this->_m[] = $behaviorObj;
+	}
+
+	public function __call($method,$param){
+		foreach($this->_m as $obj){
+			if(is_object($obj) && method_exists($obj,$method)){
+				$res = call_user_func_array(array($obj,$method),$param);
+				return $res;
+			}
+		}
+		throw new CException( 'method "'.get_class($this).'->'.$method.'()" is not exist.' );
 	}
 }

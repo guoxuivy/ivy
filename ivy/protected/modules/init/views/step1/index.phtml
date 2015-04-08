@@ -1,0 +1,80 @@
+<style>
+.start_zw input[type="checkbox"]{ vertical-align:middle; }
+</style>
+<div class="start_page">
+	<div class="start_page_content">
+		<div class="start_page_add">第一步：设置部门</div>
+		<div style="height: 24px; font-size: 12px; color: #f00;">
+			<span style="width: 16px; height: 16px; display: block; background-image: url(<?php echo $this->controller->themePath; ?>/images/jing.png); float: left; margin-right: 5px;"></span>您正在使用的是平台免费版，为了便于您的操作，我们已经将平台免费版中必须要用到的部门和角色选中
+		</div>
+		<form action="<?php echo $this->controller->getRequestUri(); ?>" method="post">
+		<div class="start_page_main">
+			<table width="100%" border="0" cellspacing="0" cellpadding="0" class="start_table">
+				<tbody>
+					<tr>
+						<th width="150" style="border-left: none;">部门名称</th>
+						<th>职位</th>
+					</tr>
+					<?php $i = 0; foreach($positionArr as $key => $val): ?>
+					<tr>
+						<td <?php if($i == 0) echo 'style="border: none;"'; ?>><?php echo empty($deptArr[$key]) ? '门店' : $deptArr[$key]; ?></td>
+						
+						<td <?php if($i == 0) echo 'style="border: none;"'; ?>>
+							<?php foreach($val as $p_id => $position): ?>
+							<span class="start_zw">
+								<?php if(in_array($p_id, $disabledArr)): ?>
+								<input name="position[<?php echo $key; ?>][]" value="<?php echo $p_id; ?>" type="checkbox" disabled="disabled">
+								<font class="plat_color"><?php echo $position; ?></font><font class="blue">（需升级高级版）</font>
+								<?php else: ?>
+								<input id="<?php echo 'position_',$key,'_',$p_id; ?>" name="position[<?php echo $key; ?>][]" value="<?php echo $p_id; ?>" type="checkbox" checked="checked" onclick="javascript:return false;">
+								<?php echo $position; ?>
+								<?php endif; ?>
+							</span>
+							<?php endforeach; ?>
+						</td>
+						
+					</tr>
+					<?php $i++; endforeach; ?>
+				</tbody>
+			</table>
+
+		</div>
+		<div class="start_goto">
+			<a id="next_step" class="xiayibu_a" href="javascript:;">下一步</a>
+		</div>
+		</form>
+		<div style="line-height: 25px; padding-bottom: 5px; font-size: 12px; color: #999;">
+			以下部门及职位需升级高级版后才可使用。
+			<a href="javascript:;" class="blue">申请高级版</a>
+		</div>
+		<div class="start_page_main">
+			<table width="100%" border="0" cellspacing="0" cellpadding="0" class="start_table">
+				<tbody>
+					<tr>
+						<th width="150" style="border-left: none;">部门名称</th>
+						<th>职位</th>
+					</tr>
+					<?php $j = 0; foreach($seniorPositionArr as $key => $val): ?>
+					<tr>
+						<td <?php if($j == 0) echo 'style="border: none;"'; ?>><?php echo $deptArr[$key]; ?></td>
+						<td <?php if($j == 0) echo 'style="border: none;"'; ?>>
+						<?php foreach($val as $p_id => $position): ?>
+						<span class="start_zw">
+							<input type="checkbox" disabled="disabled">
+							<font class="plat_color"><?php echo $position; ?></font>
+						</span> <span class="start_zw">
+						<?php endforeach; ?>
+						</td>
+					</tr>
+					<?php $j++; endforeach; ?>
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$('#next_step').click(function() {
+	$('form').submit();
+});
+</script>

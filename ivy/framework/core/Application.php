@@ -11,6 +11,8 @@ namespace Ivy\core;
 use \Ivy\cache\AbsoluteCache;
 use \Ivy\db\AbsoluteDB;
 final class Application extends CComponent {
+	//系统行为类存储 待扩展
+	protected $_m = array();
 	/**
 	 * 数据库实例句柄
 	 */
@@ -62,7 +64,7 @@ final class Application extends CComponent {
 
 
 	/**
-	 * 配置信息修改、读取
+	 * 当前实例的配置信息修改、读取
 	 * 支持全部、局部更新，全部、局部查询
 	 * @param [type] $key [description]
 	 * @param [type] $v   [description]
@@ -81,7 +83,7 @@ final class Application extends CComponent {
 
 	/**
 	 * 缓存句柄对象
-     * memcache自动支持集群
+	 * memcache自动支持集群
 	 */
 	public function getCache() {
 		$config=$this->C('memcache');
@@ -106,19 +108,6 @@ final class Application extends CComponent {
 	}
 
 	/**
-	 * hook 与 run 类似用户控制器之间的调用（系统钩子）
-	 * @comment 自动适配分组模式 优先适配普通模式的控制器
-	 * @param $routerStr  路由参数  
-	 * @param $param array 自定义参数
-	 */
-	public function hook($routerStr,$param=array()) {
-		$route = new Route();
-		if(is_array($routerStr)) $routerStr=implode("/",$routerStr);
-		$route->start($routerStr,$param);
-		return $this->dispatch($route);
-	}
-
-	/**
 	 * widget 小部件 按命名空间
 	 * @param $name  小部件名称（支持命名空间）  
 	 * @param $param array 自定义参数
@@ -133,6 +122,19 @@ final class Application extends CComponent {
 		}
 		$widget_obj = $ReflectedClass->newInstanceArgs();
 		return $this->_doMethod($widget_obj, "run", $param);
+	}
+
+	/**
+	 * hook 与 run 类似用户控制器之间的调用（系统钩子）
+	 * @comment 自动适配分组模式 优先适配普通模式的控制器
+	 * @param $routerStr  路由参数  
+	 * @param $param array 自定义参数
+	 */
+	public function hook($routerStr,$param=array()) {
+		$route = new Route();
+		if(is_array($routerStr)) $routerStr=implode("/",$routerStr);
+		$route->start($routerStr,$param);
+		return $this->dispatch($route);
 	}
 
 	/**
@@ -185,14 +187,14 @@ final class Application extends CComponent {
 		if($ReflectedClass->hasMethod("actionBefore")){
 			 $controller_obj->actionBefore();
 		}
-        $_before=str_replace('Action','Before',$action);
-        if($ReflectedClass->hasMethod($_before)){
-            $this->_doMethod($controller_obj, $_before, $param);
+		$_before=str_replace('Action','Before',$action);
+		if($ReflectedClass->hasMethod($_before)){
+			$this->_doMethod($controller_obj, $_before, $param);
 		}
-        $result = $this->_doMethod($controller_obj, $action, $param);
-        $_after=str_replace('Action','After',$action);
-        if($ReflectedClass->hasMethod($_after)){
-            $this->_doMethod($controller_obj, $_after, $param);
+		$result = $this->_doMethod($controller_obj, $action, $param);
+		$_after=str_replace('Action','After',$action);
+		if($ReflectedClass->hasMethod($_after)){
+			$this->_doMethod($controller_obj, $_after, $param);
 		}
 		if($ReflectedClass->hasMethod("actionAfter")){
 			 $controller_obj->actionAfter();
@@ -201,31 +203,28 @@ final class Application extends CComponent {
 	}
     
     
-    /**
-    * 自动适配参数 并且执行
-    * @param string $method
-    * @param array $args
-    * @return mixed
-    */
-    private function _doMethod($obj, $method, array $args = array())
-    {
-        $reflection = new \ReflectionMethod($obj, $method);
-        $pass = array();
-        foreach($reflection->getParameters() as $param)
-        {
-            if(isset($args[$param->getName()]))
-            {
-                $pass[] = $args[$param->getName()];
-            }else{
-                try{
-                    $pass[] = $param->getDefaultValue();
-                }catch(\ReflectionException $e){
-                    $pass[] = null;
-                }
-            }
-        }
-        return $reflection->invokeArgs($obj, $pass);
-    }
+	/**
+	* 自动适配参数 并且执行
+	* @param string $method
+	* @param array $args
+	* @return mixed
+	*/
+	private function _doMethod($obj, $method, array $args = array()) {
+		$reflection = new \ReflectionMethod($obj, $method);
+		$pass = array();
+		foreach($reflection->getParameters() as $param){
+			if(isset($args[$param->getName()])){
+				$pass[] = $args[$param->getName()];
+			}else{
+				try{
+					$pass[] = $param->getDefaultValue();
+				}catch(\ReflectionException $e){
+					$pass[] = null;
+				}
+			}
+		}
+		return $reflection->invokeArgs($obj, $pass);
+	}
 
 	/**
 	 * 后去runtime路径
@@ -239,7 +238,6 @@ final class Application extends CComponent {
 	 * 正常结束处理
 	 * @return [type] [description]
 	 */
-	public function finished() {
-	}
+	public function finished() {}
 	
 }

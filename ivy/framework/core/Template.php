@@ -9,7 +9,10 @@
  */
 namespace Ivy\core;
 class Template{
-
+	/**
+	 * 模版处理类
+	 * @var string
+	 */
 	static $view_name = "views";        //模板文件夹名
 	protected $data = array();          //仅存放assign的变量
 	protected $controller = NULL;
@@ -35,12 +38,15 @@ class Template{
 	public function render($template='',$data=array(),$ext='.phtml'){
 		$template_path = $this->getViewFile($template,$ext);
 		$data=array_merge($this->data,$data);
-		extract($data);
+		extract($data,EXTR_OVERWRITE);
 		ob_start();
-		$includeReturn = include $template_path;
+		include $template_path;
 		$str = ob_get_clean();
+		//表单token
+		$this->tagToken($str);
 		return $str;
 	}
+
 
 
 	/**
@@ -50,7 +56,7 @@ class Template{
 	 */
 	public function getViewFile($template,$ext = '.phtml'){
 		$template=rtrim($template);
-		$r = $this->controller->route->getRouter();
+		$r = $this->controller->getRouter();
 		if($template===''){
 			$template=$r['action'];
 		}
@@ -148,6 +154,45 @@ class Template{
 	 */
 	public function __set($k,$v){
 		$this->$k = $v;
+	}
+
+
+	/**
+	 * token注入
+	 * @param  [type] &$content [description]
+	 * @return [type]           [description]
+	 */
+	public function tagToken(&$content){
+		if(\Ivy::app()->C('token')) {
+			if(strpos($content,'{__TOKEN__}')) {
+                // 指定表单令牌隐藏域位置
+                $content = str_replace('{__TOKEN__}',$this->buildToken(),$content);
+            }elseif(preg_match('/<\/form(\s*)>/is',$content,$match)) {
+                // 智能生成表单令牌隐藏域
+                $content = str_replace($match[0],$this->buildToken().$match[0],$content);
+            }
+		}else{
+			$content = str_replace('{__TOKEN__}','',$content);
+		}
+	}
+
+	// 创建表单令牌
+	private function buildToken() {
+		$tokenName  = '__hash__';
+		$tokenType  = 'md5';
+		$tokenArr=\Ivy::app()->user->getState($tokenName);
+		
+		$tokenKey   =  md5($_SERVER['REQUEST_URI']); // 标识当前页面唯一性
+
+		if(isset($tokenArr[$tokenKey])) {// 相同页面不重复生成session
+			$tokenValue = $tokenArr[$tokenKey];
+		}else{
+			$tokenValue = $tokenType(microtime(TRUE));
+			$tokenArr[$tokenKey]   =  $tokenValue;
+		}
+		\Ivy::app()->user->setState($tokenName,$tokenArr);
+		$token      =  '<input type="hidden" name="'.$tokenName.'" value="'.$tokenKey.'_'.$tokenValue.'" />';
+		return $token;
 	}
 	
 	

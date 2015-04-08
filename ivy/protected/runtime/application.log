@@ -1,0 +1,41 @@
+2015/04/08 11:36:14 [notice] [application] [system-level-8] [Undefined variable: name] file:D:\wwwroot\beauty_admin\framework\core\CComponent.php->line:95
+2015/04/08 16:06:19 [notice] [application] [system-level-8] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Server 127.0.0.1 (tcp 11211) failed with: 由于目标计算机积极拒绝，无法连接。
+ (10061)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35
+2015/04/08 16:06:19 [warning] [application] [system-level-2] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Can't connect to 127.0.0.1:11211, 由于目标计算机积极拒绝，无法连接。
+ (10061)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35
+2015/04/08 16:06:21 [notice] [application] [system-level-8] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Server 127.0.0.1 (tcp 11211) failed with: 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。
+ (10060)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35
+2015/04/08 16:06:21 [warning] [application] [system-level-2] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Can't connect to 127.0.0.1:11211, 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。
+ (10060)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35
+2015/04/08 16:13:47 [notice] [application] [system-level-8] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Server 127.0.0.1 (tcp 11211) failed with: 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。
+ (10060)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35
+2015/04/08 16:13:47 [warning] [application] [system-level-2] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Can't connect to 127.0.0.1:11211, 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。
+ (10060)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35
+2015/04/08 16:19:11 [notice] [application] [system-level-8] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Server 127.0.0.1 (tcp 11211) failed with: 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。
+ (10060)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35
+2015/04/08 16:19:11 [warning] [application] [system-level-2] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Can't connect to 127.0.0.1:11211, 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。
+ (10060)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35
+2015/04/08 16:19:16 [notice] [application] [system-level-8] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Server 127.0.0.1 (tcp 11211) failed with: 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。
+ (10060)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35
+2015/04/08 16:19:16 [warning] [application] [system-level-2] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Can't connect to 127.0.0.1:11211, 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。
+ (10060)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35
+2015/04/08 16:19:26 [notice] [application] [system-level-8] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Server 127.0.0.1 (tcp 11211) failed with: 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。
+ (10060)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35
+2015/04/08 16:19:26 [warning] [application] [system-level-2] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Can't connect to 127.0.0.1:11211, 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。
+ (10060)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35
+2015/04/08 16:20:50 [notice] [application] [system-level-8] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Server 127.0.0.1 (tcp 11211) failed with: 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。
+ (10060)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35
+2015/04/08 16:20:50 [warning] [application] [system-level-2] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Can't connect to 127.0.0.1:11211, 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。
+ (10060)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35
+2015/04/08 16:21:01 [notice] [application] [system-level-8] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Server 127.0.0.1 (tcp 11211) failed with: 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。
+ (10060)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35
+2015/04/08 16:21:01 [warning] [application] [system-level-2] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Can't connect to 127.0.0.1:11211, 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。
+ (10060)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35
+2015/04/08 16:22:36 [notice] [application] [system-level-8] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Server 127.0.0.1 (tcp 11211) failed with: 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。
+ (10060)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35
+2015/04/08 16:22:36 [warning] [application] [system-level-2] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Can't connect to 127.0.0.1:11211, 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。
+ (10060)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35
+2015/04/08 16:22:55 [notice] [application] [system-level-8] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Server 127.0.0.1 (tcp 11211) failed with: 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。
+ (10060)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35
+2015/04/08 16:22:55 [warning] [application] [system-level-2] [Memcache::connect() [<a href='memcache.connect'>memcache.connect</a>]: Can't connect to 127.0.0.1:11211, 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。
+ (10060)] file:D:\wwwroot\beauty_admin\framework\cache\MCache.php->line:35

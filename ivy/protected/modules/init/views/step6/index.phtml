@@ -1,0 +1,180 @@
+<style>
+.start_man_women input[type="radio"]{ vertical-align:middle; }
+</style>
+<link href="<?php echo $this->basePath('public/js/Validform/Validform_style.css'); ?>"
+	rel="stylesheet">
+<script type="text/javascript"
+	src='<?php echo $this->basePath('public/js/Validform/Validform_v5.3.2_min.js'); ?>'></script>
+<div class="start_page">
+	<div class="start_page_content">
+		<div class="start_page_add">第六步：员工管理</div>
+		<div style="height:1px; line-height:1px; font-size:1px; border-bottom:solid 1px #eee;"></div>
+		<form action="<?php echo $this->controller->getRequestUri(); ?>" method="post">
+		<?php foreach($positionArr as $key => $val): ?>
+		<?php if($key < 100): ?>
+		<div class="room"><span><?php echo $deptArr[$key]; ?></span>-员工设置</div>
+		<div class="start_page_main">
+			<table width="100%" border="0" cellspacing="0" cellpadding="0" class="start_table">
+				<tbody>
+					<tr>
+						<th width="250" style="border-left:none;">姓名</th>
+						<th width="130">性别</th>
+						<th width="130">职位</th>
+						<th>登录用户名</th>
+						<th width="130">账号状态</th>
+					</tr>
+					<?php $i = 0; foreach($val as $p_id => $position): ?>
+					<?php if(in_array($p_id, $availablePosition)): ?>
+					<tr>
+						<td <?php if($i == 0) echo 'style="border:none"'; ?>>
+							<input datatype="*" name="netname[<?php echo $key; ?>][<?php echo $i; ?>]" type="text" class="input_1" placeholder="姓名" style="width:200px;">
+						</td>
+						<td <?php if($i == 0) echo 'style="border:none"'; ?>>
+							<span class="start_man_women">
+								<input name="sex[<?php echo $key; ?>][<?php echo $i; ?>]" type="radio" value="1">
+								男
+							</span>
+							<span class="start_man_women">
+								<input name="sex[<?php echo $key; ?>][<?php echo $i; ?>]" type="radio" value="2" checked="checked">
+								女
+							</span>
+						</td>
+						<td <?php if($i == 0) echo 'style="border:none"'; ?>>
+							<font class="blue"><?php echo $positionArr[$key][$p_id]; ?></font>
+							<input datatype="*" name="position_id[<?php echo $key; ?>][<?php echo $i; ?>]" type="hidden" value="<?php echo $p_id; ?>" />
+						</td>
+						<td <?php if($i == 0) echo 'style="border:none"'; ?>>
+							<input datatype="*" name="user_name[<?php echo $key; ?>][<?php echo $i; ?>]" type="text" class="input_1" placeholder="登录用户名" style="width:200px;">
+							默认登录密码：123456
+						</td>
+						<td <?php if($i == 0) echo 'style="border:none"'; ?>>
+							<span class="open_but" status="1">开启</span>
+							<span class="close_but" status="-1">关闭</span>
+							<input datatype="*" name="status[<?php echo $key; ?>][<?php echo $i; ?>]" type="hidden" value="1" />
+						</td>
+					</tr>
+					<?php $i++; endif; ?>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
+		<?php endif; ?>
+		<?php endforeach; ?>
+		<?php foreach($storeArr as $key => $val): ?>
+		<div class="room" store_id="<?php echo $val['id']; ?>"><span><?php echo $val['name']; ?></span>-员工设置</div>
+		<div class="start_page_main">
+			<table width="100%" border="0" cellspacing="0" cellpadding="0" class="start_table">
+				<tbody>
+					<tr>
+						<th width="250" style="border-left:none;">姓名</th>
+						<th width="130">性别</th>
+						<th width="130">职位</th>
+						<th>登录用户名</th>
+						<th width="130">账号状态</th>
+					</tr>
+					<tr number="0">
+						<td style="border:none">
+							<input datatype="*" name="netname[<?php echo $val['id']; ?>][0]" type="text" class="input_1" placeholder="姓名" style="width:200px;">
+						</td>
+						<td style="border:none">
+							<span class="start_man_women">
+								<input name="sex[<?php echo $val['id']; ?>][0]" type="radio" value="1">
+								男
+							</span>
+							<span class="start_man_women">
+								<input name="sex[<?php echo $val['id']; ?>][0]" type="radio" value="2" checked="checked"	>
+								女
+							</span>
+						</td>
+						<td style="border:none">
+							<select datatype="*" name="position_id[<?php echo $val['id']; ?>][0]" class="select_1" style="color:#666;">
+								<option value="">请选择</option>
+								<?php foreach($storePositionArr as $p_id => $position): ?>
+								<option value="<?php echo $p_id; ?>"><?php echo $position; ?></option>
+								<?php endforeach; ?>
+							</select></td>
+						<td style="border:none">
+							<input datatype="*" name="user_name[<?php echo $val['id']; ?>][0]" type="text" class="input_1" placeholder="登录用户名" style="width:200px;">
+							默认登录密码：123456
+						</td>
+						<td style="border:none">
+							<span class="open_but" status="1">开启</span>
+							<span class="close_but" status="-1">关闭</span>
+							<input datatype="*" name="status[<?php echo $val['id']; ?>][0]" type="hidden" value="1" />
+						</td>
+					</tr>
+					<tr>
+						<td colspan="5">
+							<span class="start_nothing_span add_btn">继续添加+</span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<?php endforeach; ?>
+		<div class="start_goto">
+			<a id="reset_btn" href="javascript:;" class="back_up">重置</a>
+			<a id="next_save_btn" class="xiayibu_a" href="javascript:;">保存并进入下一步</a>
+		</div>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+//点击 开启、关闭
+$(document).on('click', 'span[status]', function() {
+	var _self = $(this);
+	_self.siblings('.open_but').removeClass('open_but').addClass('close_but');
+	_self.removeClass('close_but').addClass('open_but');
+	var status = _self.attr('status');
+	_self.siblings('input[name^="status"]').val(status);
+});
+//添加
+$(document).on('click', '.add_btn', function() {
+	var _self = $(this);
+	var last_tr_obj = _self.parents('.start_table').find('tr:last-child').prev('tr');
+	var store_id = _self.parents('.start_page_main').prev('.room').attr('store_id');
+	var last_number = last_tr_obj.attr('number');
+	var new_number = parseInt(last_number) + 1;
+
+	var select_html = '<select datatype="*" name="position_id['+store_id+']['+new_number+']" class="select_1" style="color:#666;">';
+	select_html += '<option value="">请选择</option>';
+	var storePositionJson = '<?php echo json_encode($storePositionArr); ?>';
+	var storePositionArr=eval('('+storePositionJson+')');
+	for(var i in storePositionArr) {
+		select_html += '<option value="'+i+'">'+storePositionArr[i]+'</option>';
+	}
+	select_html += '</select>';
+	
+	var tr_html = '<tr number="'+new_number+'"><td>'
+				+ '<input datatype="*" name="netname['+store_id+']['+new_number+']" type="text" class="input_1" placeholder="姓名" style="width:200px;">'
+				+ '</td><td>'
+				+ '<span class="start_man_women">'
+				+ '<input name="sex['+store_id+']['+new_number+']" type="radio" value="1">'
+				+ ' 男'
+				+ '</span> <span class="start_man_women">'
+				+ '<input name="sex['+store_id+']['+new_number+']" type="radio" value="2" checked="checked">'
+				+ ' 女'
+				+ '</span></td><td>'
+				+ select_html
+				+'</td><td>'
+				+ '<input datatype="*" name="user_name['+store_id+']['+new_number+']" type="text" class="input_1" placeholder="登录用户名" style="width:200px;">'
+				+ ' 默认登录密码：123456'
+				+ '</td><td>'
+				+ '<span class="open_but" status="1">开启</span>'
+				+ ' <span class="close_but" status="-1">关闭</span>'
+				+ '<input datatype="*" name="status['+store_id+']['+new_number+']" type="hidden" value="1" />'
+				+ '</td></tr>';
+	last_tr_obj.after(tr_html);
+});
+$('#reset_btn').click(function() {
+	history.go(0);
+});
+$('#next_save_btn').click(function() {
+	$('form').submit();
+});
+//提交之前验证
+$('form').Validform({
+	tiptype:3,
+	ignoreHidden:true
+});
+</script>

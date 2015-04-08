@@ -1,0 +1,109 @@
+<div class="start_page">
+	<div class="start_page_content">
+		<div class="start_page_add">第四步：会员卡管理</div>
+		<div class="start_page_main">
+			<table width="100%" border="0" cellspacing="0" cellpadding="0" class="start_table">
+				<tbody>
+					<tr>
+						<th width="150" style="border-left:none;">会员卡名称</th>
+						<th width="100">卡级别</th>
+						<th>会员卡说明</th>
+						<th width="120">操作</th>
+					</tr>
+					<?php if(empty($model)):?>
+					<tr>
+						<td colspan="4" style="border:none;"><div class="start_nothing">无会员卡信息,请 <span class="start_nothing_span">添加会员卡</span></div></td>
+					</tr>
+					<?php else:?>
+						<?php foreach ($model as $key => $value):?>
+						<tr>
+							<td><?php echo $value['level_name'];?></td>
+							<td><?php echo $value['level'];?></td>
+							<td><?php echo $value['note']?$value['note']:'暂无说明';?></td>
+							<td><span class="hui_666"><a href="javascript:;"model_id="<?php echo $value['id'];?>" class="hui_666 edit_model">修改</a> | <a href="javascript:;" model_id="<?php echo $value['id'];?>" class="hui_666 del_model">删除</a></span></td>
+						</tr>
+						<?php endforeach;?>
+					<?php endif;?>
+					
+					<tr>
+						<td colspan="4"><span class="start_nothing_span">继续添加+</span></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="start_goto">
+			<a href="javascript:;" class="back_up">重置</a>
+			<a href="<?php echo $this->url('init/step5');?>" class="xiayibu_a">下一步</a>
+		</div>
+	</div>
+</div>
+<div class="plat_tan" style="width: 450px; display: none;">
+</div>
+<script type="text/javascript">
+
+//添加,修改
+$('.start_nothing_span,.edit_model').click(function() {
+	var model_id=$(this).attr('model_id');
+	$.ajax({
+		url: '<?php echo $this->url("update");?>',
+		//async:false,
+		data: {id: model_id},
+	})
+	.done(function(data) {
+		$('.plat_tan').html(data);
+		popDialog($('.plat_tan'));
+		console.log("success");
+	})
+	.fail(function() {
+		console.log("error");
+	})
+	
+	
+});
+//删除
+$('.del_model').click(function(event) {
+	var model_id=$(this).attr('model_id');
+	if(confirm('确定要删除指定数据吗?')){
+		$.ajax({
+			url: '<?php echo $this->url("delete");?>',
+			type: 'POST',
+			data: {id: model_id},
+		})
+		.done(function(data) {
+			json=eval("(" + data + ")");
+			$('body').append('<div class="back_ok" >'+json.message+'</div>');
+			setTimeout(function(){
+				$('.back_ok').remove();
+				window.location.reload();
+				clearInterval();
+			},1000)
+			console.log(json);
+		})
+		.fail(function() {
+			console.log("error");
+		})
+	}
+});
+//重置
+$('.back_up').click(function(event) {
+	if(confirm('确定要重置数据吗?')){
+		$.ajax({
+			url: '<?php echo $this->url("deleteAll");?>',
+			type: 'POST',
+		})
+		.done(function(data) {
+			json=eval("(" + data + ")");
+			$('body').append('<div class="back_ok" >'+json.message+'</div>');
+			setTimeout(function(){
+				$('.back_ok').remove();
+				window.location.reload();
+				clearInterval();
+			},3000)
+			console.log(json);
+		})
+		.fail(function() {
+			console.log("error");
+		})
+	}
+});
+</script>

@@ -1,0 +1,124 @@
+<?php
+$themePath = $this->basePath ( 'public' );
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>好哇连锁管控平台-登录</title>
+<link href="<?php echo $this->basePath('public'); ?>/css/login.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="<?php echo $this->basePath('public/js/jquery.js'); ?>"></script>
+<link href="<?php echo $this->basePath('public/js/Validform/Validform_style.css'); ?>" rel="stylesheet">
+<script type="text/javascript" src="<?php echo $this->basePath('public/js/Validform/Validform_v5.3.2_min.js'); ?>"></script>
+</head>
+<body class="denglu_body">
+	<div class="top">
+		<div class="top_center">
+			<span
+				id="go_back_home" style="float: right; background-color: #fff; border: solid 1px #ddd; display: inline-block; line-height: 25px; height: 25px; padding-left: 15px; padding-right: 15px; color: #666; font-size: 12px; margin-top: 25px; cursor: pointer;">返回首页</span>
+			<div class="logo">
+				<img src="<?php echo $themePath; ?>/images/howa_logo.png" width="170" height="42" />
+			</div>
+			<span class="logo_span">登录</span>
+		</div>
+	</div>
+	<div class="login_page">
+		<div class="login_page_main">
+			<form action="<?php echo $this->controller->getRequestUri(); ?>" method="post">
+			<div class="login_page_left">
+				<div class="login_page_left_tit">用户登录</div>
+				<div class="login_list">
+					<input datatype="*" name="company_name" type="text" class="input_login" placeholder="请输入公司名" />
+				</div>
+				<div class="login_list">
+					<input datatype="*" name="user_name" type="text" class="input_login" placeholder="账户" />
+				</div>
+				<div class="login_list">
+					<input datatype="*" name="password" type="password" class="input_login" placeholder="密码" />
+				</div>
+				<div class="login_list">
+					<input datatype="*" name="verifyCode" type="text" class="input_login" placeholder="请输入4位验证码" style="width: 150px; float: left; margin-right: 10px;" />
+						<span class="login_img">
+							<img src="<?php echo $this->controller->url('verify'); ?>" width="111" height="48" />
+						</span> 
+						<span style="float: left; font-size: 12px; line-height: 26px;">看不清<br />
+						<a href="javascript:changeVerify();" class="blue">换一张</a></span>
+					<div class="clear"></div>
+				</div>
+				<div class="login_list">
+					<span class="login_jizhu">
+						<input name="remember_me" type="checkbox" value="" />
+						记住密码
+					</span>
+				</div>
+				<div>
+					<a href="javascript:;">
+						<input type="submit" class="login_button" value="登 录" />
+					</a>
+				</div>
+			</div>
+			</form>
+			<div class="login_page_right">
+				<a href="<?php echo $this->controller->url('register1'); ?>" class="login_page_right_a">注册试用</a>
+				<div style="font-size: 12px; padding-top: 30px; padding-left: 30px;">安卓移动端下载</div>
+				<div style="line-height: 30px; padding-left: 30px; font-size: 12px;">
+					<a href="#" class="plat_color" style="margin-right: 30px;">手机APP下载</a><a
+						href="#" class="plat_color">平板APP下载</a>
+				</div>
+			</div>
+			<div class="clear"></div>
+		</div>
+	</div>
+
+	<div class="footer" style="background-color: #666;">
+		<div class="footer_center">© Copyright 2011-2014 武汉好哇商业技术有限公司
+			鄂ICP备14003221号</div>
+	</div>
+<script type="text/javascript">
+$('#go_back_home').click(function() {
+	var url = '<?php echo $this->controller->url('login'); ?>';
+	window.location.href = url;
+});
+//提交前验证
+$('form').Validform({
+	tiptype:3,
+	ignoreHidden:true,
+	beforeSubmit:function() {
+		var next = false;
+		var ajax_url = "<?php echo $this->controller->url('validate'); ?>";
+		var data = $('form').serialize();
+		var _html = "<div id='loading' style='position:fixed;left:0;width:100%;height:100%;top:0;background:rgb(0, 0, 0);opacity:0.5;filter:alpha(opacity=50);'><div style='position:absolute;  cursor1:wait;left:50%;top:50%;width:auto;height:16px;padding:13px 22px 28px 30px;background: url(<?php echo $this->basePath('public');?>/images/loading.gif) no-repeat scroll 5px 10px;text-indent: -99999px;color:#000;'>正在加载，请等待...</div></div>";
+	    $('body').append(_html);
+		$.ajax({
+			url : ajax_url,
+			data : data,
+			type : 'post',
+			async : false,
+			dataType : 'json',
+			complete : function() {
+				$('#loading').remove();
+			},
+			success : function(json) {
+				if(json.statusCode == '200') {
+					next = true;
+				}
+				else {
+					alert(json.message);
+				}
+			},
+			error : function(XMLHttpRequest, textStatus, errorThrown) {
+				alert(textStatus);
+			}
+		});
+		return next;
+	}
+});
+function changeVerify() {
+	var timestamp=new Date().getTime();
+	var url = "<?php echo $this->controller->url('verify'); ?>";
+	url += '&timestamp=' + timestamp;
+	$('.login_img').children('img').attr('src', url);
+}
+</script>
+</body>
+</html>

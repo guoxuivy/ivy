@@ -1,0 +1,98 @@
+<?php
+$user_name = '';
+$position_name = '';
+if(!Ivy::app()->user->getIsGuest()) {
+	$userinfo = Ivy::app()->user;
+	$user_name = $userinfo->netname;
+	$dept_id = $userinfo->dept_id;
+	$position_id = $userinfo->position_id;
+	$postionArr = \CommonConfig::getPositionArr();
+	if($dept_id == 0 || $position_id == 0) {
+		$position_name = '管理员';
+	}
+	else {
+		$position_name = $postionArr[$dept_id][$position_id];
+	}
+}
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<meta http-equiv="expires" content="0">
+<meta name="language" content="en" />
+<title><?php echo$this->controller->title; ?></title>
+<link href="<?php echo $this->basePath('public/css/style.css'); ?>"
+	rel="stylesheet">
+<script type="text/javascript"
+	src='<?php echo $this->basePath('public/js/jquery.js'); ?>'></script>
+<script type="text/javascript"
+	src='<?php echo $this->basePath('public/js/admin.js'); ?>'></script>
+<script type="text/javascript">
+
+$(document).on('click', '.plat_top_user', function() {
+	var logout_url = "<?php echo $this->controller->url('index/logout'); ?>";
+	window.location.href = logout_url;
+});
+</script>
+</head>
+<body>
+
+	<div class="plat_top">
+		<div class="plat_top_logo">
+			<a href="#"><img src="<?php echo $this->basePath('public'); ?>/images/logo.png" width="290" height="30"></a>
+		</div>
+		<div class="plat_top_user">
+			<div class="plat_top_user_img">
+				<img src="<?php echo $this->basePath('public'); ?>/images/photo.jpg" width="36" height="36"><span></span>
+			</div>
+			<div class="plat_top_user_name">
+				<p class="plat_font_14"><?php echo $user_name; ?></p>
+				<p class="plat_font_12 plat_color"><?php echo $position_name; ?></p>
+			</div>
+			<i></i>
+			<div class="plat_user_main" style="width: 140px;">
+				<div class="plat_user_main_ico"></div>
+				<ul>
+					<!-- <li><a href="#">我的资料</a></li>
+					<li><a href="#">修改密码</a></li> -->
+					<li><a href="<?php echo $this->controller->url('index/logout'); ?>">退出登录</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="plat_notice">
+			<ul>
+				<li class="plat_notice_one">
+					<div class="plat_notice_1">
+						<img src="<?php echo $this->basePath('public'); ?>/images/baojing_1.png" width="25" height="25"><span>2</span>
+					</div>
+				</li>
+				<li><div class="plat_notice_1">
+						<img src="<?php echo $this->basePath('public'); ?>/images/email_1.png" width="25" height="25"><span>3</span>
+					</div></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="start_menu">
+		<ul>
+			<?php
+				$current_step = str_ireplace('Step', '', $this->controller->route_arr['controller']);
+				$li_class = 'start_menu_now';
+				foreach(\CommonConfig::getInitStep() as $key => $val): 
+				if($key < $current_step) {
+					$li_class = 'start_menu_ok';
+				}
+				elseif($key == $current_step) {
+					$li_class = 'start_menu_now';
+				}
+				else {
+					$li_class = 'start_menu_visit';
+				}
+			?>
+			<li class="<?php echo $li_class; ?>"><em></em><span><?php echo $key; ?></span><?php echo $val; ?></li>
+			<?php endforeach; ?>
+		</ul>
+	</div>

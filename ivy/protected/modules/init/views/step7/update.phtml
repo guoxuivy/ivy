@@ -1,0 +1,120 @@
+<script type="text/javascript"
+	src='<?php echo $this->basePath('public/js/PCASClass.js'); ?>'></script>
+<link href="<?php echo $this->basePath('public/js/Validform/Validform_style.css'); ?>"
+	rel="stylesheet">
+<script type="text/javascript"
+	src='<?php echo $this->basePath('public/js/Validform/Validform_v5.3.2_min.js'); ?>'></script>
+<form action="<?php echo $this->url('update',array('id'=>(int)$_GET['id']));?>" method="post" id="form" >
+<div class="plat_tan_tit">
+		<span></span><?php echo empty($model)?'添加':'修改';?>商品
+	</div>
+	<div class="plat_tan_page">
+		<div class="plat_list">
+			<div class="plat_list_left">商品名称：</div>
+			<div class="plat_list_right">
+				<input datatype="*" type="text" class="input_1" value="<?php echo $model->product_name;?>" placeholder="请输入商品名称"
+					style="width: 280px;" name="data[product_name]">
+			</div>
+			<div class="clear"></div>
+		</div>
+		<div class="plat_list">
+			<div class="plat_list_left">商品编码：</div>
+			<div class="plat_list_right">
+				<input datatype="*" type="text" class="input_1" value="<?php echo $model->product_code;?>" placeholder="请输入商品编码"
+					style="width: 280px;" name="data[product_code]">
+			</div>
+			<div class="clear"></div>
+		</div>
+		<div class="plat_list">
+			<div class="plat_list_left">商品分类：</div>
+			<div class="plat_list_right">
+				<select name="data[product_level]" datatype="*" class="select_1">
+					<?php
+					 $variable=\CommonConfig::getProductLevel();
+					 foreach ($variable as $key => $value):
+					?>
+					<option value="<?php echo $key;?>"  <?php if($key==$model->product_level):?>selected="selected"<?php endif;?>><?php echo $value;?></option>
+					<?php endforeach;?>
+				</select>
+			</div>
+			<div class="clear"></div>
+		</div>
+		<div class="plat_list">
+			<div class="plat_list_left">商品单价：</div>
+			<div class="plat_list_right">
+				<input datatype="*" onkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')" type="text" class="input_1" value="<?php echo $model->price;?>" placeholder="请输入商品单价(不带单位,默认元)"
+					style="width: 280px;" name="data[price]">
+			</div>
+			<div class="clear"></div>
+		</div>
+		<div class="plat_list">
+			<div class="plat_list_left">商品单位：</div>
+			<div class="plat_list_right">
+				<select name="data[unit]" datatype="*" class="select_1">
+					<?php
+					 $variable=\CommonConfig::getProductUnit();
+					 foreach ($variable as $key => $value):
+					?>
+					<option value="<?php echo $key;?>"  <?php if($key==$model->unit):?>selected="selected"<?php endif;?>><?php echo $value;?></option>
+					<?php endforeach;?>
+				</select>
+			</div>
+			<div class="clear"></div>
+		</div>
+		<div class="plat_list">
+			<div class="plat_list_left">规格：</div>
+			<div class="plat_list_right">
+				<input datatype="*" type="text" class="input_1" value="<?php echo $model->page_size;?>" placeholder="请输入规格"
+					style="width: 280px;" name="data[page_size]">
+			</div>
+			<div class="clear"></div>
+		</div>
+		<div class="plat_list">
+			<div class="plat_list_left">用量：</div>
+			<div class="plat_list_right">
+				<input datatype="*" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"  type="text" class="input_1" value="<?php echo $model->number?$model->number:1;?>" placeholder="请输入用量"
+					style="width: 280px;" name="data[number]">
+			</div>
+			<div class="clear"></div>
+		</div>
+	</div>
+	<div class="plat_tan_footer">
+		<span class="cance2_button">取消</span><span class="save_button1 up_save">确定</span>
+	</div>
+</form>
+<script type="text/javascript">
+var is_submit=true;
+$('.up_save').click(function(event) {	
+	$('#form').submit();
+});
+//提交验证
+$('#form').Validform({
+tiptype:3,ignoreHidden:true,
+beforeSubmit:function(curform){
+		//在验证成功后，表单提交前执行的函数，curform参数是当前表单对象。
+		//这里明确return false的话表单将不会提交;
+		if(is_submit){
+			$('.save_button1').html('正在提交...');
+			$.ajax({
+					url: $('#form').attr('action'),
+					type: 'POST',
+					data: $('#form').serialize(),
+				})
+				.done(function(data) {
+					json=eval("(" + data + ")");
+					$('body').append('<div class="back_ok" style="z-index:10001">'+json.message+'</div>');
+					setTimeout(function(){
+						$('.back_ok').remove();
+						window.location.reload();
+						clearInterval();
+					},100)
+					console.log("success");
+				})
+				.fail(function() {
+					console.log("error");
+				})
+			return false;
+		}
+	}
+});
+</script>

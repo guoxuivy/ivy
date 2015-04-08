@@ -7,13 +7,14 @@
  * @link https://github.com/guoxuivy/ivy 
  * @since 1.0 
  * 页面小插件
- * 不支持布局文件 无路参数
+ * 最好不使用布局文件 当前主控制器路由对象注入
  */
 namespace Ivy\core;
 abstract class Widget extends Controller {
 	public function __construct() {
-		//当前的路由对象
-		$this->route = new Route();
+		//注入当前主控制器路由
+		$this->attachBehavior(\Ivy::app()->_route);
+		$this->init();//用于重写
 	}
 	abstract function run();
 }

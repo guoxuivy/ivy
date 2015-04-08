@@ -75,6 +75,24 @@ class User extends Model
 		}
 	}
 
+	/**
+	 * 表单令牌验证
+	 * @return [type] [description]
+	 */
+	public function checkToken()
+	{
+		if(\Ivy::app()->C('token')&&isset($_POST['__hash__'])) {
+			list($tokenKey,$tokenValue)=explode('_',$_POST['__hash__']);
+			$tokenArr=$this->getState('__hash__');
+			if($tokenArr[$tokenKey]===$tokenValue){
+				unset($tokenArr[$tokenKey]);
+				$this->setState('__hash__',$tokenArr);
+				return true;
+			}
+		}
+		throw new CException('表单令牌错误');
+	}
+
 
 	/**
 	 * 检测是否为登录用户 
