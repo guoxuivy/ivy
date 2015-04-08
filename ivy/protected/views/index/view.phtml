@@ -1,9 +1,0 @@
-<?php if(!empty($article)):?>
-	<h2><?php echo $article['title'];?></h2>
-	<div id='message_info'><?php echo $article['content'];?></div>
-<?php else:?>
-	<div id='message_info'>暂无内容！</div>
-<?php endif?>
-
-
-<?php Ivy::app()->widget('default/index',array('name'=>"我被覆盖了")); ?>
