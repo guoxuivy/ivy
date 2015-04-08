@@ -12,7 +12,9 @@
 namespace Ivy\db\pdo;
 use Ivy\core\CException;
 use Ivy\db\AbsoluteDB;
+use Ivy\logging\CLogger;
 class mysql extends AbsoluteDB {
+	const SQL_ERROR='sql_error';
 	//连接句柄池
 	private $pdo = null;
 	//事物标记
@@ -135,6 +137,7 @@ class mysql extends AbsoluteDB {
 			if(!$res) return null;
 			return $res->fetchAll(\PDO::FETCH_ASSOC);
 		} catch ( \PDOException $e ) {
+			\Ivy::log($sql,CLogger::LEVEL_ERROR,self::SQL_ERROR);
 			throw new CException ( $e->getMessage () );
 		}
 		
@@ -151,6 +154,7 @@ class mysql extends AbsoluteDB {
 			if(!$res) return null;
 			return $res->fetch(\PDO::FETCH_ASSOC);
 		} catch ( \PDOException $e ) {
+			\Ivy::log($sql,CLogger::LEVEL_ERROR,self::SQL_ERROR);
 			throw new CException ( $e->getMessage () );
 		}
 	}
@@ -165,6 +169,7 @@ class mysql extends AbsoluteDB {
 			$res = $this->pdo()->exec( $sql );
 			return $res;
 		} catch ( \PDOException $e ) {
+			\Ivy::log($sql,CLogger::LEVEL_ERROR,self::SQL_ERROR);
 			throw new CException ( $e->getMessage () );
 		}
 	}
