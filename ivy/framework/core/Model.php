@@ -145,6 +145,7 @@ class Model extends CComponent{
 	 */
 	public function page($page=null,$listRows=null){
 		if ($page===null && isset($_GET['page'])) $page=(int)$_GET['page'];
+		if ($page===null)$page=1;
 		if ($listRows===null && isset($_GET['row'])) $listRows=(int)$_GET['row'];
 	    $this->options['page'] = is_null($listRows)?$page:$page.','.$listRows;
 	    return $this;

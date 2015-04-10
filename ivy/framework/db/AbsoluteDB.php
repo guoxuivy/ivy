@@ -559,9 +559,11 @@ abstract class AbsoluteDB {
 	 * pageNums   总页数
 	 * currentPage 当前页数 从1开始
 	 * @param  [type] $data [description]
+	 * @param  [type] $nun [list 显示个数]
 	 * @return [type]       [description]
 	 */
-	public function generatePagener(&$data){
+	public function generatePagener(&$data,$nun=5){
+		$ban = ceil($nun/2);
 		$pagener = array();		
 		$page_num_arr = array();
 		
@@ -570,18 +572,18 @@ abstract class AbsoluteDB {
 		}
 		
 		$nowPage = $data['currentPage'];
-		if(count($page_num_arr) <= 5){
+		if(count($page_num_arr) <= $nun){
 			$pagener = $page_num_arr;
-		}else if($nowPage <= 3){
-			for($i = 0;$i<=4;$i++){
+		}else if($nowPage <= $ban){
+			for($i = 0;$i<=($nun-1);$i++){
 				$pagener[] = $page_num_arr[$i];
 			}
-		}else if(($nowPage-1) >= 3 && isset($page_num_arr[$nowPage+1])){
-			for($i = ($nowPage-3); $i <= ($nowPage + 1); $i++){
+		}else if(($nowPage-1) >= $ban && isset($page_num_arr[$nowPage+1])){
+			for($i = ($nowPage-$ban); $i <= ($nowPage + 1); $i++){
 				$pagener[] = $page_num_arr[$i];
 			}
 		}else{
-			for($i=($data['pageNums']-5);$i <= ($data['pageNums']-1); $i++){
+			for($i=($data['pageNums']-$nun);$i <= ($data['pageNums']-1); $i++){
 				$pagener[] = $page_num_arr[$i];
 			}
 		}
