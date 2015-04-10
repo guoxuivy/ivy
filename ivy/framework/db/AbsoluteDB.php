@@ -194,7 +194,7 @@ abstract class AbsoluteDB {
 		$joinStr = '';
 		if(!empty($join)) {
 			if(is_string($join)) {
-				$joinStr .= ' LEFT JOIN ' .$join;
+				$joinStr .= $join;
 			}
 		}
 		return $joinStr;

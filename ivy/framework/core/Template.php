@@ -29,6 +29,8 @@ class Template{
 		if($this->controller->layout!=null){
 			$output=$this->render($this->controller->layout,array('content'=>$output));
 		}
+		//表单token
+		$this->tagToken($output);
 		echo $output;
 	}
 
@@ -42,8 +44,6 @@ class Template{
 		ob_start();
 		include $template_path;
 		$str = ob_get_clean();
-		//表单token
-		$this->tagToken($str);
 		return $str;
 	}
 

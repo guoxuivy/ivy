@@ -87,8 +87,13 @@ class Model extends CComponent{
     public function where($map){
     	if(empty($map)) return $this;
     	$opt=array();
-    	if(is_string($map))
-    		$opt['_string']=$map;
+    	if(is_string($map)){
+    		if(@isset($this->options['where']['_string'])){
+    			$opt['_string']=$this->options['where']['_string']." and ".$map;
+    		}else{
+    			$opt['_string']=$map;
+    		}
+    	}
     	if(is_array($map))
     		$opt=$map;
 
@@ -98,6 +103,25 @@ class Model extends CComponent{
     		$this->options['where'] = $opt;
 
     	return $this;
+    }
+
+     /**
+     * 指定查询数量
+     * @access public
+     * @param mixed $offset 起始位置
+     * @param mixed $length 查询数量
+     * @return Model
+     * join('user as u on t.uid = u.id')
+     */
+    public function join($str,$t='LEFT JOIN'){
+    	$joinStr = " $t " .$str;
+    	if(isset($this->options['join'])){
+    		$this->options['join'].=$joinStr;
+    	}else{
+    		$this->options['join']=$joinStr;
+    	}
+
+        return $this;
     }
     
     /**
@@ -119,7 +143,9 @@ class Model extends CComponent{
 	 * @param mixed $listRows 每页数量
 	 * @return Model
 	 */
-	public function page($page,$listRows=null){
+	public function page($page=null,$listRows=null){
+		if ($page===null && isset($_GET['page'])) $page=(int)$_GET['page'];
+		if ($listRows===null && isset($_GET['row'])) $listRows=(int)$_GET['row'];
 	    $this->options['page'] = is_null($listRows)?$page:$page.','.$listRows;
 	    return $this;
 	}
@@ -226,6 +252,7 @@ class Model extends CComponent{
 		$data = array();
 		if(empty($this->options['table']))
 			$this->table();
+		if(!isset($this->options['page'])) $this->page();
 		//统计总数
 		$opt_count=$this->options;
 		unset($opt_count['page'],$opt_count['limit']);
@@ -253,6 +280,7 @@ class Model extends CComponent{
 		$pagener['currentPage'] = (int)$page;
 		$data['pagener']=$this->db->generatePagener($pagener);
 		$data['list'] = $this->findAllBySql($this->buildSelectSql());
+		$data['page_code']=\Ivy::app()->widget('page/page',array('data'=>$data));
 		return $data;
 	}
 

@@ -55,13 +55,13 @@ class Controller extends CComponent {
 	protected function ajaxReturn($statusCode, $message, $data = array()) {
 		if (empty ( $data )) {
 			die ( json_encode ( array (
-					'statusCode' => $statusCode,
-					'message' => $message 
+					'code' => $statusCode,
+					'msg' => $message 
 			) ) );
 		} else {
 			die ( json_encode ( array (
-					'statusCode' => $statusCode,
-					'message' => $message,
+					'code' => $statusCode,
+					'msg' => $message,
 					'data' => $data 
 			) ) );
 		}

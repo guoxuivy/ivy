@@ -16,5 +16,9 @@ abstract class Widget extends Controller {
 		$this->attachBehavior(\Ivy::app()->_route);
 		$this->init();//用于重写
 	}
-	abstract function run();
+
+	/**
+	 * widget必须包含run()方法，由于低php版本反射形参限制 无法定义为抽象方法
+	 */
+	//abstract function run();
 }

@@ -121,7 +121,8 @@ final class Application extends CComponent {
 			throw new CException ( $class . '-不存在此widget！'); 
 		}
 		$widget_obj = $ReflectedClass->newInstanceArgs();
-		return $this->_doMethod($widget_obj, "run", $param);
+		return $widget_obj->run($param);
+		//return $this->_doMethod($widget_obj, "run", $param);
 	}
 
 	/**
