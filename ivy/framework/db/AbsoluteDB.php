@@ -78,7 +78,7 @@ abstract class AbsoluteDB {
 				$page = $options['page'];
 			}
 			$page    =  $page?$page:1;//当前页
-			$listRows=  isset($listRows)?$listRows:(is_numeric($options['limit'])?$options['limit']:20);//每页记录数
+			$listRows=  isset($listRows)?$listRows:(isset($options['limit'])&&is_numeric($options['limit'])?$options['limit']:20);//每页记录数
 			$offset  =  $listRows*((int)$page-1);
 			$options['limit'] =  $offset.','.$listRows;
 		}

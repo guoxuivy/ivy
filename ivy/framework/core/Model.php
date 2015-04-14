@@ -53,6 +53,14 @@ class Model extends CComponent{
 	 */
 	public function init(){
 	}
+	/**
+	 * 错误信息出栈
+	 */
+	public function popErr(){
+		if(!empty($this->_error))
+			return array_pop($this->_error);
+		return '';
+	}
 
 	/**
 	 * 返回数据库对象句柄
@@ -272,7 +280,7 @@ class Model extends CComponent{
                 $page = $options['page'];
             }
             $page    =  $page?$page:1;//当前页
-            $listRows=  isset($listRows)?$listRows:(is_numeric($options['limit'])?$options['limit']:20);//每页记录数
+            $listRows=  isset($listRows)?$listRows:(isset($options['limit'])&&is_numeric($options['limit'])?$options['limit']:20);//每页记录数
             $offset  =  $listRows*((int)$page-1);
             $options['limit'] =  $offset.','.$listRows;
         }

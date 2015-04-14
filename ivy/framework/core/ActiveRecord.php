@@ -110,6 +110,14 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 		}
 		return parent::__set($proName,$value);
 	}
+	//_attributes中数据 判断
+	public function __isset($proName)
+	{
+		if(array_key_exists($proName , $this->_attributes)){
+			return true;
+		}
+		return parent::__isset($proName);
+	}
 
 	/**
 	 * 返回标准化的主键值数组
