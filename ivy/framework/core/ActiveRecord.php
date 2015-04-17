@@ -323,6 +323,16 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	}
 
 	/**
+	 * 删除指定记录
+	 * @param  [type] $where [description] 条件同 where 的结构
+	 * @return [type]            [description]
+	 */
+	public function deleteAll($where=null) {
+		if(empty($where)) return false;
+		return $this->deleteData($this->tableName(),$where);
+	}
+
+	/**
 	 * 刷新AR对象
 	 * @return [type] [description]
 	 */

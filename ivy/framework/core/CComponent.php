@@ -22,7 +22,8 @@ class CComponent
 		}elseif(isset($this->_m[$name])){
 			return $this->_m[$name];
 		}else{
-			throw new CException( 'Property "'.get_class($this).'.'.$name.'" is not defined.' );
+			return null;
+			//throw new CException( 'Property "'.get_class($this).'.'.$name.'" is not defined.' );
 		}
 	}
 	function __set($name,$value){

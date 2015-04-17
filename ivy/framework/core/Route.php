@@ -60,8 +60,8 @@ class Route {
 		$param_arr = array_filter($param);
 		if(!empty($param_arr)){
 			foreach($param_arr as $k=>$v){
-				$k=urlencode($k);
-				$v=urlencode($v);
+				$k=$k;
+				$v=$v;
 				$uri.="&{$k}={$v}";
 			}
 		}

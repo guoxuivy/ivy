@@ -10,6 +10,7 @@
  * 使用示例：
  * 
 * $map['t.id'] = array(array('gt',1),array('lt',10));
+* $map['t.myname'] = array('like','%水%')
 * $map['_logic'] = 'OR';
 * $map['info.company_name'] = array('neq','CCTV');
 * $sql = \CompanyAccount::model()
