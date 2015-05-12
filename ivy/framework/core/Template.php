@@ -8,6 +8,7 @@
  * @since 1.0 
  */
 namespace Ivy\core;
+use Ivy\core\CException;
 class Template{
 	/**
 	 * 模版处理类
@@ -85,16 +86,25 @@ class Template{
 		}else{
 			//相对路径查找
 			$template=implode(DIRECTORY_SEPARATOR, $template_arr);
-			if(1==count($template_arr)) $template=$r['controller'].DIRECTORY_SEPARATOR.$template_arr[0];
-			if(isset($r['module'])){
-				$template_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.$r['module'].DIRECTORY_SEPARATOR.self::$view_name.DIRECTORY_SEPARATOR.$template.$ext;
+			if(3===count($template_arr)){
+				$module=array_shift($template_arr);
+				$template=implode(DIRECTORY_SEPARATOR, $template_arr);
+				$template_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.$module.DIRECTORY_SEPARATOR.self::$view_name.DIRECTORY_SEPARATOR.$template.$ext;
 				if(!file_exists($template_path)){
 					throw new CException('模版-'.$template.'-不存在!');
 				}
 			}else{
-				$template_path=__PROTECTED__.DIRECTORY_SEPARATOR.self::$view_name.DIRECTORY_SEPARATOR.$template.$ext;
-				if(!file_exists($template_path)){
-					throw new CException('模版-'.$template.'-不存在!');
+				if(1==count($template_arr)) $template=$r['controller'].DIRECTORY_SEPARATOR.$template_arr[0];
+				if(isset($r['module'])){
+					$template_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.$r['module'].DIRECTORY_SEPARATOR.self::$view_name.DIRECTORY_SEPARATOR.$template.$ext;
+					if(!file_exists($template_path)){
+						throw new CException('模版-'.$template.'-不存在!');
+					}
+				}else{
+					$template_path=__PROTECTED__.DIRECTORY_SEPARATOR.self::$view_name.DIRECTORY_SEPARATOR.$template.$ext;
+					if(!file_exists($template_path)){
+						throw new CException('模版-'.$template.'-不存在!');
+					}
 				}
 			}
 			return $template_path;
@@ -194,6 +204,41 @@ class Template{
 		$token      =  '<input type="hidden" name="'.$tokenName.'" value="'.$tokenKey.'_'.$tokenValue.'" />';
 		return $token;
 	}
-	
+	/**
+	 * HTML select 简写
+	 * @param [type] $arr    [description]
+	 * @param [type] $get    [description]
+	 * @param [type] $config [description]
+	 */
+	public function dropDownList($name=null,$arr,$get,$config=null)
+	{
+		if($name)
+			$config['name']=$name;
+		$sel_html='<select {sel_config}>
+				    {op_html}
+					</select>';
+		$op_html='<option value="">--请选择--</option>';
+		foreach ((array)$arr as $key => $value) {
+			$op_html.="<option value=\"{$key}\" ".(($get==$key)?'selected':'')." {op_config}>{$value}</option>";
+		}
+		$op_config='';
+		if (isset($config['op_config'])) {
+			foreach ((array)$config['op_config'] as $key => $value) {
+				$op_config.=$key.'="'.$value.'" ';
+			}
+			unset($config['op_config']);
+		}
+		$op_html=@str_replace('{op_config}',$op_config,$op_html);
+		$sel_config='';
+		if (isset($config)) {
+			foreach ((array)$config as $key => $value) {
+				$sel_config.=$key.'="'.$value.'" ';
+			}
+			unset($config);
+		}
+		$sel_html=@str_replace('{sel_config}',$sel_config,$sel_html);
+		$sel_html=@str_replace('{op_html}',$op_html,$sel_html);
+		return $sel_html;
+	}
 	
 }

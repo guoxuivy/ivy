@@ -113,9 +113,9 @@ final class Application extends CComponent {
 	 * @param $param array 自定义参数
 	 */
 	public function widget($name,$param=array()) {
-		\Ivy::importWidget($name);
-		$class = str_replace('/', '\\', $name);
 		try{
+			\Ivy::importWidget($name);
+			$class = str_replace('/', '\\', $name);
 			$ReflectedClass = new \ReflectionClass($class."Widget"); // 2级控制器检测 非分组模式
 		}catch(CException $e){
 			throw new CException ( $class . '-不存在此widget！'); 

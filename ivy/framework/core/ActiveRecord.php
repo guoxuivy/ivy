@@ -256,11 +256,28 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 
 	
 	/**
+	 * 给主键添加别名前缀 byPk时可以兼容
+	 * @return [type] [description]
+	 */
+	protected function aliasPk($pk=null){
+		if(empty($pk)) throw new CException('无主键！');
+		$arr=array();
+		foreach($pk as $p=>$v){
+			if(substr($p,0,2)!=$this->_alias.'.')
+				$arr[$this->_alias.'.'.$p]=$v;
+			else
+				$arr[$p]=$v;
+		}
+		return $arr;
+	}
+
+
+	/**
 	 *仅仅支持int行主键 
 	 * @return object tableModel
 	 **/
 	public function findByPk($pk){
-		$map=$this->getPk($pk);
+		$map=$this->aliasPk($this->getPk($pk));
 		return $this->find($map);
 	}
 	/**

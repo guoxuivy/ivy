@@ -264,10 +264,18 @@ class Model extends CComponent{
 		if(!isset($this->options['page'])) $this->page();
 		//统计总数
 		$opt_count=$this->options;
-		unset($opt_count['page'],$opt_count['limit']);
+		//删除影响统计的option
+		unset($opt_count['page'],$opt_count['limit'],$opt_count['order']);
 		$opt_count['field']='count(1) as `count`';
 		$sql_count = $this->db->buildSelectSql($opt_count);
-		$count = $this->findBySql($sql_count);
+		//按分组需求来统计总记录数
+		if($opt_count['group']){
+			$count_str=' COUNT(*) AS `count` ';
+		}else{
+			$count_str=' SUM(ivy_count.`count`) as `count` ';
+		}
+		$count = $this->findBySql("select ".$count_str." from (".$sql_count.") AS ivy_count" );
+		//\Ivy::log("select sum(ivy_count.`count`) as `count` from (".$sql_count.") AS ivy_count");
 		$pagener['recordsTotal'] = (int)$count['count'];
 
 		if(!isset($this->options['page'])) $this->options['page']=1;
@@ -275,6 +283,7 @@ class Model extends CComponent{
         if(isset($options['page'])) {
             // 根据页数计算limit
             if(strpos($options['page'],',')) {
+
                 list($page,$listRows) =  explode(',',$options['page']);
             }else{
                 $page = $options['page'];

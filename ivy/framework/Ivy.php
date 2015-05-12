@@ -20,6 +20,7 @@ defined('IVY_BEGIN_TIME') or define('IVY_BEGIN_TIME',microtime(true));
 defined('IVY_DEBUG') or define('IVY_DEBUG',false);  
 use Ivy\core\Application;
 use Ivy\logging\CLogger;
+use Ivy\core\CException;
 class Ivy
 {
 	private static $_app;
@@ -143,7 +144,7 @@ class Ivy
 	{
 		if(substr($path,0,1)=='/') $path=substr($path,1);
 		
-		$file_path=__PROTECTED__.DIRECTORY_SEPARATOR.'widget'.DIRECTORY_SEPARATOR.$path."Widget".$ext;
+		$file_path=__PROTECTED__.DIRECTORY_SEPARATOR.'widgets'.DIRECTORY_SEPARATOR.$path."Widget".$ext;
 		
 		if(is_file($file_path))
 			return include_once $file_path;
