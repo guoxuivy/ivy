@@ -8,7 +8,6 @@
  * @since 1.0 
  */
 namespace Ivy\core;
-use Ivy\core\CException;
 class Template{
 	/**
 	 * 模版处理类

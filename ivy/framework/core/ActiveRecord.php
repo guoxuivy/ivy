@@ -209,7 +209,13 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 			return false;
 		}
 		if(!$runValidation || $this->validate()){
-			return $this->getIsNewRecord() ? $this->insert() : $this->update();
+			try {
+				$res = $this->getIsNewRecord() ? $this->insert() : $this->update();
+				$this->lastSql=$this->db->lastSql;
+				return $res;
+			} catch (CException $e) {
+				return false;
+			}
 		}else{
 			return false;
 		}

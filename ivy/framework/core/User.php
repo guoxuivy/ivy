@@ -82,7 +82,9 @@ class User extends Model
 	public function checkToken()
 	{
 		if(\Ivy::app()->C('token')&&isset($_POST['__hash__'])) {
-			list($tokenKey,$tokenValue)=explode('_',$_POST['__hash__']);
+			$hash=$_POST['__hash__'];
+			unset($_POST['__hash__']);
+			list($tokenKey,$tokenValue)=explode('_',$hash);
 			$tokenArr=$this->getState('__hash__');
 			if($tokenArr[$tokenKey]===$tokenValue){
 				unset($tokenArr[$tokenKey]);

@@ -11,7 +11,9 @@
 namespace Ivy\core;
 class CComponent
 {
-	//数据存储
+	//行为组件存储
+	protected $_b = array();
+	//扩展数据存储
 	protected $_m = array();
 	function __get($name){
 		$method="get".ucfirst($name);
@@ -83,11 +85,11 @@ class CComponent
 	 * @return [type]              [description]
 	 */
 	public function attachBehavior($behaviorObj){
-		$this->_m[] = $behaviorObj;
+		$this->_b[] = $behaviorObj;
 	}
 
 	public function __call($method,$param){
-		foreach($this->_m as $obj){
+		foreach($this->_b as $obj){
 			if(is_object($obj) && method_exists($obj,$method)){
 				$res = call_user_func_array(array($obj,$method),$param);
 				return $res;
