@@ -32,6 +32,11 @@ abstract class AbsoluteDB {
 	// 查询表达式 option 处理
 	protected $selectSql  = 'SELECT%DISTINCT% %FIELD% FROM %TABLE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%COMMENT%';
 
+	//约定为非查询入口
+	abstract protected function _exec($sql);
+	//约定为查询入口 方便读写分离
+	abstract protected function _query($sql);
+
 
 	/**
 	 * 取得数据库类实例

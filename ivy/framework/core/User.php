@@ -77,7 +77,7 @@ class User extends Model
 
 	/**
 	 * 表单令牌验证
-	 * @return [type] [description]
+	 * @return bool
 	 */
 	public function checkToken()
 	{
@@ -92,7 +92,8 @@ class User extends Model
 				return true;
 			}
 		}
-		throw new CException('表单令牌错误');
+		return false;
+		//throw new CException('表单令牌错误');
 	}
 
 

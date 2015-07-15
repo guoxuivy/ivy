@@ -105,13 +105,9 @@ class mysql extends AbsoluteDB {
 	 * @return int id;
 	 */
 	public function insertData($tableName, $data) {
-		try {
-			$sql = $this->getInsertSql($tableName, $data);
-			$this->exec( $sql );
-			return $this->pdo()->lastInsertId();
-		} catch ( \PDOException $e ) {
-			throw new CException ( $e->getMessage () );
-		}
+		$sql = $this->getInsertSql($tableName, $data);
+		$this->_exec( $sql );
+		return $this->pdo()->lastInsertId();
 	}
 
 
@@ -121,14 +117,9 @@ class mysql extends AbsoluteDB {
 	 * @return array;
 	 */
 	public function findAllBySql($sql){
-		try {
-			$res = $this->pdo()->query($sql);
-			if(!$res) return null;
-			return $res->fetchAll(\PDO::FETCH_ASSOC);
-		} catch ( \PDOException $e ) {
-			\Ivy::log($sql,CLogger::LEVEL_ERROR,self::SQL_ERROR);
-			throw new CException ( $e->getMessage () );
-		}
+		$res = $this->_query($sql);
+		if(!$res) return null;
+		return $res->fetchAll(\PDO::FETCH_ASSOC);
 		
 	}
 
@@ -138,32 +129,42 @@ class mysql extends AbsoluteDB {
 	 * @return array;
 	 */
 	public function findBySql($sql){
-		try {
-			$res = $this->pdo()->query($sql);
-			if(!$res) return null;
-			return $res->fetch(\PDO::FETCH_ASSOC);
-		} catch ( \PDOException $e ) {
-			\Ivy::log($sql,CLogger::LEVEL_ERROR,self::SQL_ERROR);
-			throw new CException ( $e->getMessage () );
-		}
+		$res = $this->_query( $sql );
+		if(!$res) return null;
+		return $res->fetch(\PDO::FETCH_ASSOC);
 	}
 
 	/**
-	 * 执行sql
-	 * @param string $sql
-	 * @return  返回影响行数 可能为 0
+	 * 执行查询类sql
+	 * @param 		string $sql
+	 * @return  	pdo->res
+	 * @throws   	CException
 	 */
-	public function exec($sql){
+	protected function _query($sql){
 		try {
-			$res = $this->pdo()->exec( $sql );
 			$this->lastSql = $sql;
-			return $res;
+			return $this->pdo()->query( $sql );
 		} catch ( \PDOException $e ) {
-			\Ivy::log($e->getMessage (),CLogger::LEVEL_ERROR,self::SQL_ERROR);
-			throw new CException ( "sql exec error" );
+			\Ivy::log($sql,CLogger::LEVEL_ERROR,self::SQL_ERROR);
+			throw new CException ( $e->getMessage() );
 		}
 	}
-
+	/**
+	 * 执行非查询类sql
+	 * @param 		string $sql
+	 * @return  	pdo->res
+	 * @throws  	CException
+	 */
+	protected function _exec($sql){
+		try {
+			$this->lastSql = $sql;
+			return $this->pdo()->exec( $sql );
+		} catch ( \PDOException $e ) {
+			\Ivy::log($sql,CLogger::LEVEL_ERROR,self::SQL_ERROR);
+			throw new CException ( $e->getMessage() );
+		}
+		
+	}
 
 	/**
 	 * 根据条件更新数据
@@ -173,7 +174,7 @@ class mysql extends AbsoluteDB {
 	 */
 	public function updateDataByCondition($tableName,$Condition,$data){
 		$sql = $this->getUpdataSql($tableName,$Condition,$data);
-		return $this->exec( $sql );
+		return $this->_exec( $sql );
 	}
 
 	/**
@@ -181,7 +182,7 @@ class mysql extends AbsoluteDB {
 	 */
 	public function deleteDataByCondition($tableName,$Condition){
 		$sql = $this->getDeltetSql($tableName,$Condition);
-		return $this->exec( $sql );
+		return $this->_exec( $sql );
 	}
 
 
