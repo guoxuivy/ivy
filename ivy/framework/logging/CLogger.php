@@ -91,6 +91,10 @@ class CLogger extends CComponent
 	*/
 	private $_processing=false;
 
+	public function __construct(){
+        //$res = \Ivy::app()->C('log');
+    }
+
 	/**
 	 * Logs a message.
 	 * Messages logged by this method may be retrieved back via {@link getLogs}.
@@ -299,7 +303,7 @@ class CLogger extends CComponent
 	}
 
 	/**
-	 * Profile 暂时未实现
+	 * sql 性能日志Profile
 	 *
 	 */
 	private function calculateTimings()
@@ -309,27 +313,27 @@ class CLogger extends CComponent
 		$stack=array();
 		foreach($this->_logs as $log)
 		{
-
-			continue;	//暂不实现 Profile功能
 			if($log[1]!==CLogger::LEVEL_PROFILE)
 				continue;
 			list($message,$level,$category,$timestamp)=$log;
-			if(!strncasecmp($message,'begin:',6))
-			{
+			if(!strncasecmp($message,'begin:',6)){
 				$log[0]=substr($message,6);
 				$stack[]=$log;
-			}
-			elseif(!strncasecmp($message,'end:',4))
-			{
+			}elseif(!strncasecmp($message,'end:',4)){
+
 				$token=substr($message,4);
+
 				if(($last=array_pop($stack))!==null && $last[0]===$token)
 				{
+
 					$delta=$log[3]-$last[3];
-					$this->_timings[]=array($message,$category,$delta);
+					$this->_timings[]=array($token,$category,$delta);
 				}
 				else
 					throw new CException('CProfileLogRoute found a mismatching code block "'.$token.'". Make sure the calls to Ivy::beginProfile() and Ivy::endProfile() be properly nested.');
 			}
+
+
 		}
 
 		$now=microtime(true);
@@ -340,7 +344,9 @@ class CLogger extends CComponent
 		}
 	}
 
+
 	/**
+	 * 日志输出处理
 	 * Removes all recorded messages from the memory.
 	 * This method will raise an {@link onFlush} event.
 	 * The attached event handlers can process the log messages before they are removed.
@@ -349,11 +355,18 @@ class CLogger extends CComponent
 	 */
 	public function flush($dumpLogs=true)
 	{
+		//数据库sql性能日志显示
+		$logRoute = new CProfileLogRoute();
+        $logRoute->collectLogs($this,$dumpLogs);
+
+        //其他文件日志
         $logRoute = new CFileLogRoute();
         $logRoute->collectLogs($this,$dumpLogs);
 		$this->_logs=array();
 		$this->_logCount=0;
 	}
+
+	
 
 
 }

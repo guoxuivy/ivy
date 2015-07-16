@@ -32,7 +32,6 @@
  * @since 1.0 
  */
 namespace Ivy\logging;
-use Ivy\core\CComponent;
 use Ivy\core\CException;
 class CFileLogRoute extends CLogRoute
 {
@@ -65,6 +64,7 @@ class CFileLogRoute extends CLogRoute
 		parent::init();
 		if($this->getLogPath()===null)
 			$this->setLogPath(\Ivy::app()->getRuntimePath());
+		//$this->levels=CLogger::LEVEL_WARNING.",".CLogger::LEVEL_WARNING; //默认所有级别
 	}
 
 	/**

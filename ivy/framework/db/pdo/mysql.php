@@ -21,6 +21,8 @@ class mysql extends AbsoluteDB {
 	private $_transaction_level = 0;
 
 	public $lastSql="";
+	//sql性能分析
+	public $enableProfiling=false;
 
 
 	public function __construct($config=null) {
@@ -28,6 +30,8 @@ class mysql extends AbsoluteDB {
 			throw new CException ( 'no DB config' );
 		$this->config=$config;
 		$this->pdo = $this->connect($config);
+		if(IVY_DEBUG && $config['profile'])
+			$this->enableProfiling = true;
 	}
 
 	/**
@@ -140,10 +144,17 @@ class mysql extends AbsoluteDB {
 	 * @return  	pdo->res
 	 * @throws   	CException
 	 */
-	protected function _query($sql){
+	public function _query($sql){
 		try {
 			$this->lastSql = $sql;
-			return $this->pdo()->query( $sql );
+			if($this->enableProfiling){
+				\Ivy::log('begin:'.$sql, CLogger::LEVEL_PROFILE, "query");
+				$res = $this->pdo()->query( $sql );
+				\Ivy::log('end:'.$sql, CLogger::LEVEL_PROFILE, "query");
+			}else{
+				$res = $this->pdo()->query( $sql );
+			}
+			return $res;
 		} catch ( \PDOException $e ) {
 			\Ivy::log($sql,CLogger::LEVEL_ERROR,self::SQL_ERROR);
 			throw new CException ( $e->getMessage() );
@@ -155,10 +166,17 @@ class mysql extends AbsoluteDB {
 	 * @return  	pdo->res
 	 * @throws  	CException
 	 */
-	protected function _exec($sql){
+	public function _exec($sql){
 		try {
 			$this->lastSql = $sql;
-			return $this->pdo()->exec( $sql );
+			if($this->enableProfiling){
+				\Ivy::log('begin:'.$sql, CLogger::LEVEL_PROFILE, "exec");
+				$res = $this->pdo()->exec( $sql );
+				\Ivy::log('end:'.$sql, CLogger::LEVEL_PROFILE, "exec");
+			}else{
+				$res = $this->pdo()->exec( $sql );
+			}
+			return $res;
 		} catch ( \PDOException $e ) {
 			\Ivy::log($sql,CLogger::LEVEL_ERROR,self::SQL_ERROR);
 			throw new CException ( $e->getMessage() );

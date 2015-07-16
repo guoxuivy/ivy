@@ -112,11 +112,7 @@ class Controller extends CComponent {
 	 * 判断是否为ajax请求
 	 */
 	public function getIsAjax(){
-		if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'){
-			return true;
-		}else{
-			return false;
-		}
+		return \Ivy::isAjax();
 	}
 	
 	/**

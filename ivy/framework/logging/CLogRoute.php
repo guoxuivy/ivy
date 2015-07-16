@@ -81,8 +81,7 @@ abstract class CLogRoute extends CComponent
         $this->init();
     }
     
-	public function init()
-	{
+	public function init(){
 	}
 
 	/**
@@ -113,6 +112,8 @@ abstract class CLogRoute extends CComponent
 			$this->logs=array();
 		}
 	}
+
+	
 
 	/**
 	 * Processes log messages and sends them to specific destination.

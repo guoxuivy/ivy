@@ -208,7 +208,7 @@ class Model extends CComponent{
 	 * @return array   三维数组
 	 */
 	public function exec($sql){
-		return $this->db->exec($sql);
+		return $this->db->_exec($sql);
 	}
 
 	/**

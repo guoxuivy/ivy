@@ -16,7 +16,7 @@ defined('__ROOT__') or define('__ROOT__', dirname(__DIR__));                    
 defined('__PROTECTED__') or define('__PROTECTED__',__ROOT__.DIRECTORY_SEPARATOR."protected");   //定义项目文件根目录 D:\wwwroot\veecar\protected
 defined('SITE_URL') or define('SITE_URL', dirname($_SERVER['SCRIPT_NAME']));                    //定义访问相对路径  /veecar
 defined('IVY_PATH') or define('IVY_PATH',dirname(__FILE__));                                    //定义框架根目录 D:\wwwroot\veecar\ivy\framework
-defined('IVY_BEGIN_TIME') or define('IVY_BEGIN_TIME',microtime(true));
+defined('IVY_BEGIN_TIME') or define('IVY_BEGIN_TIME',microtime(true));							//开始时间
 defined('IVY_DEBUG') or define('IVY_DEBUG',false);  
 use Ivy\core\Application;
 use Ivy\logging\CLogger;
@@ -65,7 +65,7 @@ class Ivy
 	public static function logger()
 	{
 		if(self::$_logger===null){
-		   self::$_logger=new CLogger;
+			self::$_logger=new CLogger;
 		}
 		return self::$_logger;
 	}
@@ -74,20 +74,21 @@ class Ivy
 	**/
 	public static function log($msg,$level=CLogger::LEVEL_INFO,$category='application')
 	{
-		if($level===CLogger::LEVEL_PROFILE)
-		{
+		//不属于数据库性能分析的日志
+		if(IVY_DEBUG && $level!==CLogger::LEVEL_PROFILE){
 			$traces=debug_backtrace();
 			$count=0;
 			foreach($traces as $trace)
 			{
-				if(isset($trace['file'],$trace['line']))
+				if(isset($trace['file'],$trace['line']) && strpos($trace['file'],IVY_PATH)!==0)
 				{
-					$msg.=" in->".$trace['file'].' ('.$trace['line'].")";
+					$msg.="\nin ".$trace['file'].' ('.$trace['line'].')';
 					if(++$count>=CLogger::REPORT_TRACE_LEVEL)
 						break;
 				}
 			}
 		}
+
 		self::logger()->log($msg,$level,$category);
 	}
 
@@ -151,6 +152,21 @@ class Ivy
 		else
 			throw new CException("import $path error");
 	}
+
+	/**
+	 * ajax判断 需要jquery支持
+	 * @return boolean [description]
+	 */
+	public static function isAjax(){
+		if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+
+
 }
 
 
