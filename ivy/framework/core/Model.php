@@ -298,7 +298,7 @@ class Model extends CComponent{
 		$pagener['currentPage'] = (int)$page;
 		$data['pagener']=$this->db->generatePagener($pagener);
 		$data['list'] = $this->findAllBySql($this->buildSelectSql());
-		$data['page_code']=\Ivy::app()->widget('page/page',array('data'=>$data));
+		$data['page_code']=\Ivy::app()->widget('page/page',array('data'=>$data));//核心无此widget 自行扩展
 		return $data;
 	}
 

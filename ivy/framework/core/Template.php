@@ -17,7 +17,7 @@ class Template{
 	protected $data = array();          //仅存放assign的变量
 	protected $controller = NULL;
 
-	public function __construct($controller){
+	public function __construct(&$controller){
 		$this->controller = $controller;
 	}
 
@@ -239,5 +239,28 @@ class Template{
 		$sel_html=@str_replace('{op_html}',$op_html,$sel_html);
 		return $sel_html;
 	}
-	
+	/**
+	 * HTML checkBox 简写
+	 * @param [type] $arr    [description]
+	 * @param [type] $get    [description]
+	 * @param [type] $config [description]
+	 */
+	public function checkBox($name=null,$arr,$get,$config=null)
+	{
+		if($name)
+			$config['name']=$name;
+		$in_html='';
+		foreach ((array)$arr as $key => $value) {
+			$in_html.="<input value=\"{$key}\"  type=\"radio\" ".(($get==$key)?'checked="checked"':'')." {html_config}>{$value}";
+		}
+		$html_config='';
+		if (isset($config)) {
+			foreach ((array)$config as $key => $value) {
+				$html_config.=$key.'="'.$value.'" ';
+			}
+			unset($config);
+		}
+		$in_html=@str_replace('{html_config}',$html_config,$in_html);
+		return $in_html;
+	}
 }

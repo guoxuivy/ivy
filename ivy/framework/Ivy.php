@@ -157,15 +157,20 @@ class Ivy
 	 * ajax判断 需要jquery支持
 	 * @return boolean [description]
 	 */
-	public static function isAjax(){
-		if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'){
-			return true;
-		}else{
-			return false;
-		}
+	public static function isAjax()
+	{
+		return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH']==='XMLHttpRequest';
 	}
 
-
+	/**
+	 * Returns whether this is an Adobe Flash or Adobe Flex request.
+	 * @return boolean 
+	 * @since 1.1.11
+	 */
+	public static function isFlash()
+	{
+		return isset($_SERVER['HTTP_USER_AGENT']) && (stripos($_SERVER['HTTP_USER_AGENT'],'Shockwave')!==false || stripos($_SERVER['HTTP_USER_AGENT'],'Flash')!==false);
+	}
 
 }
 

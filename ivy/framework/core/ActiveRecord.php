@@ -66,13 +66,13 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 */
 	private function checkNewRecord(){
 		try{
-			$pri=$this->getPk();
+			$pri=$this->aliasPk($this->getPk());
 			$where ='';
 			foreach ($pri as $key=>$val) {
 				$where.=" `".$key."`='".$val."' ";
 				if($val !== end($pri)) $where.=" AND ";
 			}
-			$sql="SELECT * FROM `".$this->tableName()."` WHERE ".$where;
+			$sql="SELECT * FROM `".$this->tableName()."` `".$this->_alias."` WHERE ".$where;
 			$record = $this->findBySql($sql);
 			if($record!=null){
 				$this->setIsNewRecord(false);
@@ -198,6 +198,12 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 		return new \ArrayIterator($this->_attributes);
 	}
 
+	public function beforeSave(){
+		return true;
+	}
+	public function afterSave(){
+		return true;
+	}
 
 	/**
 	 * 更新、插入 自动验证
@@ -210,8 +216,12 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 		}
 		if(!$runValidation || $this->validate()){
 			try {
+				if(!$this->beforeSave())
+					return false;
 				$res = $this->getIsNewRecord() ? $this->insert() : $this->update();
 				$this->lastSql=$this->db->lastSql;
+				if(!$this->afterSave())
+					return false;
 				return $res;
 			} catch (CException $e) {
 				return false;
@@ -242,7 +252,8 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 			}else{
 				$this->setIsNewRecord(false);
 			}
-			return $this;
+			$obj= unserialize(serialize($this));
+			return $obj;
 		}else{
 			throw new CException('这不是一个新数据，无法插入！');
 		}
@@ -256,7 +267,8 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 			throw new CException('这是一个新数据，无法更新！');
 		}else{
 			$this->updateData($this->tableName(),$this->getPk(),$this->getAttributes());
-			return $this;
+			$obj= unserialize(serialize($this));
+			return $obj;
 		}
 	}
 
@@ -301,7 +313,8 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 		if($res){
 			$this->setAttributes($res);
 			$this->setIsNewRecord(false);
-			return $this;
+			$obj= unserialize(serialize($this));
+			return $obj;
 		}else{
 			return null;
 		}
@@ -370,15 +383,9 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 		}
 	}
 
-
-	
-	
-
 	/**
 	 * 抽象方法 获取表名
 	 * @return string database table name
 	 */
 	abstract function tableName();
-	
-
 }
