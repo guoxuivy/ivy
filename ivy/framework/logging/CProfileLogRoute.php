@@ -60,7 +60,8 @@ class CProfileLogRoute extends CLogRoute
 	 * @return [type]        [description]
 	 */
 	public function push_profile($tmp,&$list){
-		$md5sql=md5($tmp['sql']);
+		$sql=trim($tmp['sql']);
+		$md5sql=md5($sql);
 		foreach ($list as $k=>$v) {
 			if($v['key']==$md5sql){
 				$list[$k]['num']++;
@@ -70,7 +71,7 @@ class CProfileLogRoute extends CLogRoute
 				return;
 			}
 		}
-		$list[]=array('key'=>$md5sql,'sql'=>$tmp['sql'],'time'=>$tmp['time'],'avg_time'=>$tmp['time'],'all_time'=>$tmp['time'],'num'=>1);
+		$list[]=array('key'=>$md5sql,'sql'=>$sql,'time'=>$tmp['time'],'avg_time'=>$tmp['time'],'all_time'=>$tmp['time'],'num'=>1);
 	}
 
 	/**

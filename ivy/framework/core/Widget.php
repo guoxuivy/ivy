@@ -30,7 +30,8 @@ abstract class Widget extends Controller {
 	 */
 	public function render($data=array(),$ext='.phtml'){
 		$className = get_class($this);
-		$filename= substr(strtolower($className),0,-6).$ext;
+		$classfile = str_replace("\\",DIRECTORY_SEPARATOR,$className);//命名空间寻址 兼容linux
+		$filename= substr(strtolower($classfile),0,-6).$ext;
 		$filename_arr = explode(DIRECTORY_SEPARATOR, $filename);
 		$last = array_pop($filename_arr);
 		array_push($filename_arr,'view',$last);

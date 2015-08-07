@@ -19,7 +19,10 @@ class Template{
 
 	public function __construct(&$controller){
 		$this->controller = $controller;
+		$this->init();
 	}
+
+	public function init(){}
 
 	/**
 	 * 显示输出 加载布局文件

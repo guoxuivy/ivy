@@ -67,13 +67,13 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	private function checkNewRecord(){
 		try{
 			$pri=$this->aliasPk($this->getPk());
-			$where ='';
-			foreach ($pri as $key=>$val) {
-				$where.=" `".$key."`='".$val."' ";
-				if($val !== end($pri)) $where.=" AND ";
-			}
-			$sql="SELECT * FROM `".$this->tableName()."` `".$this->_alias."` WHERE ".$where;
+
+			$where = $this->db->parseWhere($pri);
+
+			$sql="SELECT * FROM `".$this->tableName()."` `".$this->_alias."` ".$where;
+	
 			$record = $this->findBySql($sql);
+		
 			if($record!=null){
 				$this->setIsNewRecord(false);
 			}else{
@@ -166,10 +166,10 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 * _attributes赋值 fields安全
 	 * @param [type] $attributes [description]
 	 */
-	public function setAttributes($attributes){
+	public function setAttributes($attributes,$check=true){
 		foreach ($attributes as $key => $value) {
 			$this->_attributes[$key]=$value;
-            if(array_key_exists($key, $this->_fields)){
+            if($check && array_key_exists($key, $this->_fields)){
 				//如果传入主键 则检测刷新new
 				if(in_array($key, $this->_pk)&&$value!==NULL){
 					$this->checkNewRecord();
@@ -311,7 +311,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
         $this->where($condition);
 		$res = $this->findBySql($this->buildSelectSql());
 		if($res){
-			$this->setAttributes($res);
+			$this->setAttributes($res,false);
 			$this->setIsNewRecord(false);
 			$obj= unserialize(serialize($this));
 			return $obj;
@@ -375,7 +375,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	public function refresh(){
 		$where=$this->getPk();
 		if(($record=$this->find($where))!==null){
-			$this->setAttributes($record);
+			$this->setAttributes($record,false);
 			$this->setIsNewRecord(false);
 			return true;
 		}else{
