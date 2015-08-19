@@ -25,7 +25,7 @@ abstract class Widget extends Controller {
 	//abstract function run()
 	
 	/**
-	 * render 返回渲染好的html
+	 * render 返回渲染好的html 模版文件名只能小写
 	 * 当前目录下 view 中寻址
 	 */
 	public function render($data=array(),$ext='.phtml'){

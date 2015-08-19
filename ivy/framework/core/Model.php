@@ -315,8 +315,7 @@ class Model extends CComponent{
 			}
 			$page	=  $page?$page:1;//当前页
 			$listRows=  isset($listRows)?$listRows:(isset($options['limit'])&&is_numeric($options['limit'])?$options['limit']:20);//每页记录数
-			$offset  =  $listRows*((int)$page-1);
-			$options['limit'] =  $offset.','.$listRows;
+			$this->options['limit'] = $listRows;
 		}
 		$pagener['pageSize'] = (int)$listRows;
 		$pagener['pageNums'] = (int)ceil($count['count']/$listRows);

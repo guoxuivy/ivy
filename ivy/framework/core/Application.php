@@ -164,9 +164,12 @@ final class Application extends CComponent {
 	public function dispatch($routerObj) {
 		$param=$routerObj->param;
 		$router=$routerObj->getRouter();
-		$module=isset($router['module'])?strtolower($router['module']):"";
-		$class=ucfirst(strtolower($router['controller']))."Controller";
-		$action=strtolower($router['action']).'Action';
+		// $module=isset($router['module'])?strtolower($router['module']):"";
+		// $class=ucfirst(strtolower($router['controller']))."Controller";
+		// $action=strtolower($router['action']).'Action';
+		$module=isset($router['module'])?$router['module']:"";
+		$class=ucfirst($router['controller'])."Controller";	//系统类名首字母大写
+		$action=$router['action'].'Action';
 		if(''==$module){
 			try{
 				$ReflectedClass = new \ReflectionClass($class); // 2级控制器检测 非分组模式
