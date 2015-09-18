@@ -20,7 +20,7 @@ model提供'table','distinct','field','join','where','group','having','union','o
 
 项目本身就是一个demo，核心框架文件夹为framework文件夹。
 
-————————————————————————
+————————————————————————<br>
 以下为简单的性能对比测试结果：
 3框架仅使用控制器+模版
 运行耗时单位（毫秒）
@@ -28,8 +28,8 @@ model提供'table','distinct','field','join','where','group','having','union','o
 	Ivy 666（毫秒）
 	YII1.3 1837（毫秒）
 	ThinkPHP3.1 4534（毫秒）
-[ D:/mygo/src/ ] # 
-——————————————————————————
+[ D:/mygo/src/ ] # <br>
+——————————————————————————<br>
 测试代码：
 
 package main
