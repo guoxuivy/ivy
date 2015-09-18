@@ -22,11 +22,13 @@ model提供'table','distinct','field','join','where','group','having','union','o
 以下为简单的性能对比测试结果：<br>
 3框架仅使用控制器+模版<br>
 运行耗时单位（毫秒）<br>
-[ `go run test1.go` | done: 7.6334366s ]<br>
-    Ivy 666（毫秒）<br>
-    YII1.3 1837（毫秒）<br>
-    ThinkPHP3.1 4534（毫秒）<br>
-[ D:/mygo/src/ ] # <br>
+```Go
+[ `go run test1.go` | done: 7.6334366s ]
+    Ivy 666（毫秒）
+    YII1.3 1837（毫秒）
+    ThinkPHP3.1 4534（毫秒）
+[ D:/mygo/src/ ] # 
+```
 ——————————————————————————<br>
 测试代码：<br>
 ```Go
