@@ -217,4 +217,11 @@ class mysql extends AbsoluteDB {
 		}
 		return $key;
 	}
+
+	/**
+	 * 释放
+	 */
+	public function close() {
+		$this->pdo=null;
+	}
 }

@@ -61,6 +61,14 @@ final class Application extends CComponent {
 			return $this->dbs[$key];
 		}
 	}
+	/**
+	 * 数据库释放
+	 */
+	public function dbClose() {
+		foreach ($this->dbs as $db) {
+			$db->close();
+		}
+	}
 
 
 	/**

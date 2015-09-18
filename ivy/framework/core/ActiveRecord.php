@@ -224,6 +224,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 					return false;
 				return $res;
 			} catch (CException $e) {
+				$this->_error[]=$e->getMessage();
 				return false;
 			}
 		}else{

