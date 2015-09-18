@@ -30,8 +30,8 @@ model提供'table','distinct','field','join','where','group','having','union','o
 	ThinkPHP3.1 4534（毫秒）<br>
 [ D:/mygo/src/ ] # <br>
 ——————————————————————————<br>
-测试代码：
-
+测试代码：<br>
+<code>
 package main
 
 import (
@@ -79,4 +79,4 @@ func main() {
 	test_f("http://localhost/beauty/index.php?r=site/test")
 	test_f("http://localhost/HJRCMS/index.php/index/test")
 }
-
+</code>
