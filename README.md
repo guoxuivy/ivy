@@ -24,9 +24,9 @@ model提供'table','distinct','field','join','where','group','having','union','o
 运行耗时单位（毫秒）<br>
 ```Go
 [ `go run test1.go` | done: 7.6334366s ]
-    Ivy 666（毫秒）
-    YII1.3 1837（毫秒）
-    ThinkPHP3.1 4534（毫秒）
+    Ivy （666毫秒）
+    YII1.3 （1837毫秒）
+    ThinkPHP3.1 （4534毫秒）
 [ D:/mygo/src/ ] # 
 ```
 ——————————————————————————<br>
