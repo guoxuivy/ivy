@@ -64,7 +64,7 @@ func Get(url string) (content string, statusCode int) {
 func test_f(url string) {
     //时间戳
     t1 := time.Now().UnixNano()
-    //保证所有并发处理完成后回归主程序
+   
     t := ""
     for i := 0; i < 100; i++ {
         content, _ := Get(url)
