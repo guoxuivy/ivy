@@ -163,10 +163,12 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	}
 
 	/**
-	 * _attributes赋值 fields安全
+	 * _attributes赋值 fields安全 重置模型属性
 	 * @param [type] $attributes [description]
 	 */
 	public function setAttributes($attributes,$check=true){
+		$this->_attributes=array();
+		$this->setIsNewRecord(true);//默认新数据
 		foreach ($attributes as $key => $value) {
 			$this->_attributes[$key]=$value;
             if($check && array_key_exists($key, $this->_fields)){
