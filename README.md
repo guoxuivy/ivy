@@ -29,7 +29,7 @@ model提供'table','distinct','field','join','where','group','having','union','o
 [ D:/mygo/src/ ] # <br>
 ——————————————————————————<br>
 测试代码：<br>
-
+* Go
 package main
 
 import (
