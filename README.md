@@ -29,7 +29,7 @@ model提供'table','distinct','field','join','where','group','having','union','o
 [ D:/mygo/src/ ] # <br>
 ——————————————————————————<br>
 测试代码：<br>
-* Go
+```Go
 package main
 
 import (
@@ -77,4 +77,4 @@ func main() {
     test_f("http://localhost/beauty/index.php?r=site/test")
     test_f("http://localhost/HJRCMS/index.php/index/test")
 }
-
+```
