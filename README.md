@@ -16,8 +16,6 @@ model提供'table','distinct','field','join','where','group','having','union','o
 
 提供可扩展的日志系统，默认文件日志方式。
 
-
-
 项目本身就是一个demo，核心框架文件夹为framework文件夹。
 
 ————————————————————————<br>
