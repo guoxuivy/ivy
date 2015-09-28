@@ -292,28 +292,27 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 
 
 	/**
-	 *仅仅支持int行主键 
+	 *支持多维主键 
 	 * @return object tableModel
 	 **/
-	public function findByPk($pk){
+	public function findByPk($pk,$fresh=true){
 		$map=$this->aliasPk($this->getPk($pk));
-		return $this->find($map);
+		return $this->find($map,$fresh);
 	}
 	/**
 	 * 定点查询
-	 * @param  [type] $condition [description]
-	 * @param  array  $colmnus   [description]
-	 * @param  array  $order     [description]
-	 * @param  [type] $limit     [description]
-	 * @param  [type] $offset    [description]
-	 * @return [objModel]        [对象返回]
+	 * @param  [map] $condition [查询条件]
+	 * @param  boolen  $fresh   [是否刷新this对象属性]
+	 * @return [objModel]       [对象复制返回]
 	 */
-	public function find($condition = NULL){
+	public function find($condition=NULL,$fresh=true){
         $this->where($condition);
 		$res = $this->findBySql($this->buildSelectSql());
 		if($res){
-			$this->setAttributes($res,false);
-			$this->setIsNewRecord(false);
+			if($fresh){
+				$this->setAttributes($res,false);
+				$this->setIsNewRecord(false);
+			}
 			$obj= unserialize(serialize($this));
 			return $obj;
 		}else{
