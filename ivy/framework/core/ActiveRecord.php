@@ -198,37 +198,42 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 		return new \ArrayIterator($this->_attributes);
 	}
 
+	//前置操作会影响save的执行
 	public function beforeSave(){
 		return true;
 	}
+	//后置操作不影响save的执行
 	public function afterSave(){
 		return true;
 	}
 
 	/**
 	 * 更新、插入 自动验证
+	 * 修改为报错失败直接抛出异常
 	 * @param  boolean $runValidation [description]
 	 * @return [type]                 [description]
 	 */
 	public function save($runValidation=true){
 		if($this->getAttributes()==null){
-			return false;
+			//return false;
+			throw new CException('保存失败！');
 		}
 		if(!$runValidation || $this->validate()){
 			try {
 				if(!$this->beforeSave())
-					return false;
+					throw new CException('前置保存失败！');
 				$res = $this->getIsNewRecord() ? $this->insert() : $this->update();
 				$this->lastSql=$this->db->lastSql;
-				if(!$this->afterSave())
-					return false;
+				$this->afterSave();
 				return $res;
 			} catch (CException $e) {
 				$this->_error[]=$e->getMessage();
-				return false;
+				throw new CException('保存失败！');
+				//return false;
 			}
 		}else{
-			return false;
+			throw new CException('保存失败！');
+			//return false;
 		}
 	}
 	/**
@@ -236,7 +241,35 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 * @return boolen
 	 */
 	public function validate(){
+		$rules = $this->rules();
+		if($rules){
+			foreach ($this->getAttributes() as $key => $value) {
+				foreach ($rules as $rule) {
+					$check_keys=explode(',', preg_replace("/\s/","",$rule[0]));//带空格过滤
+					if(in_array($key,$check_keys)){
+						$check = $this->regex($value,$rule[1]);
+						if($check===false){
+							$this->_error[]="验证失败，属性{$key}不符合规则{$rule[1]}";
+							return false;
+						}
+					}
+				}
+			}
+		}
 		return true;
+	}
+
+	/**
+	 * 验证规则 (可自定义正则验证)
+	 * @return boolen
+	 *  demo:
+	 * 	return array(
+	 *		array('room_id, name', 'require'),
+	 *	 	array('room_id', 'number'),
+	 *  );
+	 */
+	public function rules(){
+		return false;
 	}
 	
 	/**
@@ -250,9 +283,8 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 				//自曾主键
 				$key=$this->_pk[0];
 				$this->_attributes[$key]=$lastId;
-			}else{
-				$this->setIsNewRecord(false);
 			}
+			$this->setIsNewRecord(false);//插入成功标记为非新记录
 			$obj= unserialize(serialize($this));
 			return $obj;
 		}else{
@@ -381,6 +413,16 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 		}else{
 			return false;
 		}
+	}
+
+	/**
+	 * 将对象强制刷新为新对象 防止插入数据时模型被查询结果污染
+	 * @return [type] [description]
+	 */
+	protected function _new(){
+		$this->_new = true; 
+		$this->_attributes = array();
+		return $this;
 	}
 
 	/**

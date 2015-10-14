@@ -323,7 +323,7 @@ class Model extends CComponent{
 		$opt_count['field']='count(1) as `count`';
 		$sql_count = $this->db->buildSelectSql($opt_count);
 		//按分组需求来统计总记录数
-		if($opt_count['group']){
+		if(isset($opt_count['group'])){
 			$count_str=' COUNT(*) AS `count` ';
 		}else{
 			$count_str=' SUM(ivy_count.`count`) as `count` ';

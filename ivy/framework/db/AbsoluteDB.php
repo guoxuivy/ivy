@@ -190,8 +190,7 @@ abstract class AbsoluteDB {
 	}
 
 	/**
-	 * join分析 仅支持字符串 LEFT JOIN 待扩展 
-	 * join('user as u on t.uid = u.id')
+	 * join分析 
 	 * @access protected
 	 * @param mixed $join
 	 * @return string
