@@ -14,8 +14,8 @@
 		<th>Total(s)</th>
 	</tr>
 <?php
-
-foreach($data as $index=>$entry)
+$index=0;
+foreach($data as $entry)
 {
 	$color=($index%2)?'#EBEBEB':'#FFFFFF';
 	$proc=$entry['sql'];
@@ -31,6 +31,7 @@ foreach($data as $index=>$entry)
 		<td align="center">{$total}</td>
 	</tr>
 EOD;
+$index++;
 }
 ?>
 </table>

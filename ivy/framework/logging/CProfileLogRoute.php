@@ -61,17 +61,15 @@ class CProfileLogRoute extends CLogRoute
 	 */
 	public function push_profile($tmp,&$list){
 		$sql=trim($tmp['sql']);
-		$md5sql=md5($sql);
-		foreach ($list as $k=>$v) {
-			if($v['key']==$md5sql){
-				$list[$k]['num']++;
-				$list[$k]['time'].=",".$v['time'];
-				$list[$k]['all_time']+=$v['time'];
-				$list[$k]['avg_time'] = round($list[$k]['all_time']/$list[$k]['num'],4);
-				return;
-			}
+		$md5sql=md5(preg_replace("/\s/","",$sql));
+		if(isset($list[$md5sql])){
+			$list[$md5sql]['num']++;
+			$list[$md5sql]['time'].=",".$tmp['time'];
+			$list[$md5sql]['all_time']+=$tmp['time'];
+			$list[$md5sql]['avg_time'] = round($list[$md5sql]['all_time']/$list[$md5sql]['num'],4);
+		}else{
+			$list[$md5sql]=array('key'=>$md5sql,'sql'=>$sql,'time'=>$tmp['time'],'avg_time'=>$tmp['time'],'all_time'=>$tmp['time'],'num'=>1);
 		}
-		$list[]=array('key'=>$md5sql,'sql'=>$sql,'time'=>$tmp['time'],'avg_time'=>$tmp['time'],'all_time'=>$tmp['time'],'num'=>1);
 	}
 
 	/**
@@ -87,7 +85,4 @@ class CProfileLogRoute extends CLogRoute
 		$viewFile=IVY_PATH.DIRECTORY_SEPARATOR.'views'.DIRECTORY_SEPARATOR.$view.'.php';
 		include($viewFile);
 	}
-
-
-	
 }
