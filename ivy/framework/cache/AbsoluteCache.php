@@ -31,7 +31,7 @@ class AbsoluteCache {
 		// 读取数据库配置
 		if(empty($cache_config)){
 			//文件缓存驱动 待扩展
-			$cache=null;
+			$cache = new NullCache ;
 			
 		}else{
 			$class = '\\Ivy\\cache\\'."MCache";
@@ -90,4 +90,25 @@ interface ICache{
 	 * @return boolean whether the flush operation was successful.
 	 */
 	public function flush();
+}
+
+/**
+ * 兼容无cache模式
+ */
+class NullCache extends AbsoluteCache implements ICache{
+	public function get($key){
+		return false;
+	}
+	public function set($key, $value, $expire=0){
+		return true;
+	}
+	public function add($key, $value, $expire=0){
+		return true;
+	}
+	public function delete($key){
+		return true;
+	}
+	public function flush(){
+		return true;
+	}
 }
