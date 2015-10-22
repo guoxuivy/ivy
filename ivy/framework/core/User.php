@@ -91,9 +91,10 @@ class User extends Model
 				$this->setState('__hash__',$tokenArr);
 				return true;
 			}
+			throw new CException("表单令牌验证失败！");
+			//return false;
 		}
-		return false;
-		//throw new CException('表单令牌错误');
+		return true; //直接跳过
 	}
 
 
