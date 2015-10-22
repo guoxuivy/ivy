@@ -10,7 +10,7 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 namespace Ivy\core\lib;
-class String {
+class IvyString {
 
     /**
      * 生成UUID 单机使用

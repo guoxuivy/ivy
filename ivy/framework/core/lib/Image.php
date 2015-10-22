@@ -290,7 +290,7 @@ class Image {
      */
     static function buildImageVerify($length=4, $mode=1, $type='png', $width=48, $height=22, $verifyName='verify') {
         //import('ORG.Util.String');
-        $randval = String::randString($length, $mode);
+        $randval = IvyString::randString($length, $mode);
         //session($verifyName, md5($randval));
         \Ivy::app()->user->setState($verifyName, md5($randval));//session存储
         $width = ($length * 10 + 10) > $width ? $length * 10 + 10 : $width;
@@ -325,7 +325,7 @@ class Image {
     // 中文验证码
     static function GBVerify($length=4, $type='png', $width=180, $height=50, $fontface='simhei.ttf', $verifyName='verify') {
         //import('ORG.Util.String');
-        $code = String::randString($length, 4);
+        $code = IvyString::randString($length, 4);
         $width = ($length * 45) > $width ? $length * 45 : $width;
         session($verifyName, md5($code));
         $im = imagecreatetruecolor($width, $height);
@@ -347,7 +347,7 @@ class Image {
         }
         for ($i = 0; $i < $length; $i++) {
             $fontcolor = imagecolorallocate($im, mt_rand(0, 120), mt_rand(0, 120), mt_rand(0, 120)); //这样保证随机出来的颜色较深。
-            $codex = String::msubstr($code, $i, 1);
+            $codex = IvyString::msubstr($code, $i, 1);
             imagettftext($im, mt_rand(16, 20), mt_rand(-60, 60), 40 * $i + 20, mt_rand(30, 35), $fontcolor, $fontface, $codex);
         }
         self::output($im, $type);
