@@ -80,32 +80,11 @@ class Controller extends CComponent {
 		header('Location: '.$uri, true, 302);exit;
 	}
 	/**
-	 * 获取当前主机
+	 * 获取当前主机域名
 	 * @return string 主机字符串
 	 */
 	public function getHostInfo(){
-		if($secure=$this->getIsSecureConnection())
-			$http='https';
-		else
-			$http='http';
-		if(isset($_SERVER['HTTP_HOST']))
-			$hostInfo=$http.'://'.$_SERVER['HTTP_HOST'];
-		else
-		{
-			$hostInfo=$http.'://'.$_SERVER['SERVER_NAME'];
-			$port=isset($_SERVER['SERVER_PORT']) ? (int)$_SERVER['SERVER_PORT'] : 80;
-			if($port!==80)
-				$hostInfo.=':'.$port;
-		}
-		return $hostInfo;
-	}
-
-	/**
-	 * https 判断
-	 * @return [type] [description]
-	 */
-	public function getIsSecureConnection(){
-		return !empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'],'off');
+		return \Ivy::getHostInfo();
 	}
 
 	/**

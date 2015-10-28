@@ -14,10 +14,14 @@ date_default_timezone_set('Asia/Shanghai');
 defined('__ROOT__') or define('__ROOT__', dirname(__DIR__));                                    //定义网站根目录 D:\wwwroot\veecar   veecar为项目目录
 defined('__PROTECTED__') or define('__PROTECTED__',__ROOT__.DIRECTORY_SEPARATOR."protected");   //定义项目文件根目录 D:\wwwroot\veecar\protected
                    
-defined('SITE_URL') or define('SITE_URL',dirname($_SERVER['SCRIPT_NAME'])==DIRECTORY_SEPARATOR?"":dirname($_SERVER['SCRIPT_NAME'])); //定义访问相对路径  /veecar
+//defined('SITE_URL') or define('SITE_URL',dirname($_SERVER['SCRIPT_NAME'])==DIRECTORY_SEPARATOR?"":dirname($_SERVER['SCRIPT_NAME'])); //定义访问相对路径  /veecar
 defined('IVY_PATH') or define('IVY_PATH',dirname(__FILE__));                                    //定义框架根目录 D:\wwwroot\veecar\ivy\framework
 defined('IVY_BEGIN_TIME') or define('IVY_BEGIN_TIME',microtime(true));							//开始时间
 defined('IVY_DEBUG') or define('IVY_DEBUG',false);  
+
+defined('SITE_URL') or define('SITE_URL',Ivy::getBaseUrl());
+
+
 use Ivy\core\Application;
 use Ivy\logging\CLogger;
 use Ivy\core\CException;
@@ -178,6 +182,59 @@ class Ivy
 	{
 		return isset($_SERVER['HTTP_USER_AGENT']) && (stripos($_SERVER['HTTP_USER_AGENT'],'Shockwave')!==false || stripos($_SERVER['HTTP_USER_AGENT'],'Flash')!==false);
 	}
+
+	/**
+	 * 获取当前主机
+	 * @return string 主机字符串
+	 */
+	public static function getHostInfo(){
+		if(!empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'],'off'))
+			$http='https';
+		else
+			$http='http';
+		if(isset($_SERVER['HTTP_HOST']))
+			$hostInfo=$http.'://'.$_SERVER['HTTP_HOST'];
+		else
+		{
+			$hostInfo=$http.'://'.$_SERVER['SERVER_NAME'];
+			$port=isset($_SERVER['SERVER_PORT']) ? (int)$_SERVER['SERVER_PORT'] : 80;
+			if($port!==80)
+				$hostInfo.=':'.$port;
+		}
+		return $hostInfo;
+	}
+
+	/**
+	 * 网站基础url（移除脚本路径）
+	 * @param  boolean $absolute [description]
+	 * @return [type]            [description]
+	 */
+	public static function getBaseUrl($absolute=false){
+		$baseUrl=rtrim(dirname(Ivy::getScriptUrl()),'\\/');
+			
+		return $absolute ? Ivy::getHostInfo() . $baseUrl : $baseUrl;
+	}
+	/**
+	 * 当前脚本url
+	 * @return [type] [description]
+	 */
+	public static function getScriptUrl(){
+		$scriptName=basename($_SERVER['SCRIPT_FILENAME']);
+		if(basename($_SERVER['SCRIPT_NAME'])===$scriptName)
+			$scriptUrl=$_SERVER['SCRIPT_NAME'];
+		elseif(basename($_SERVER['PHP_SELF'])===$scriptName)
+			$scriptUrl=$_SERVER['PHP_SELF'];
+		elseif(isset($_SERVER['ORIG_SCRIPT_NAME']) && basename($_SERVER['ORIG_SCRIPT_NAME'])===$scriptName)
+			$scriptUrl=$_SERVER['ORIG_SCRIPT_NAME'];
+		elseif(($pos=strpos($_SERVER['PHP_SELF'],'/'.$scriptName))!==false)
+			$scriptUrl=substr($_SERVER['SCRIPT_NAME'],0,$pos).'/'.$scriptName;
+		elseif(isset($_SERVER['DOCUMENT_ROOT']) && strpos($_SERVER['SCRIPT_FILENAME'],$_SERVER['DOCUMENT_ROOT'])===0)
+			$scriptUrl=str_replace('\\','/',str_replace($_SERVER['DOCUMENT_ROOT'],'',$_SERVER['SCRIPT_FILENAME']));
+		else
+			throw new CException("ERROR");
+		return $scriptUrl;
+	}
+
 
 }
 
