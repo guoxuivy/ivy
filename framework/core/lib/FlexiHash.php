@@ -33,7 +33,7 @@ class FlexiHash{
 	//真实节点
 	private $_realNode = array();
 	// 每个真实节点生成虚拟节点的个数 值越大 速度越慢
-	private $_virtualNodeNum = 200;
+	private $_virtualNodeNum = 100;
 
 	public function __construct($nodes){
 		if (!$nodes){

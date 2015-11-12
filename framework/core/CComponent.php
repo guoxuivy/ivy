@@ -12,7 +12,7 @@ namespace Ivy\core;
 class CComponent
 {
 	//行为组件存储
-	protected $_b = array();
+	private $_b = array();
 	//扩展数据存储
 	protected $_m = array();
 	function __get($name){
@@ -74,20 +74,30 @@ class CComponent
 	}
 
 
-	// public function __call($name,$parameters)
-	// {
-	// 	throw new CException( 'method "'.get_class($this).':'.$name.'" is not exist.' );
-	// }
-
 	/**
 	 * 提供对象行为注入 留待扩展实现AOP
-	 * @param  [type] $behaviorObj [description]
-	 * @return [type]              [description]
+	 * @param  [obj] $behaviorObj 		[注入对象实例]
+	 * @param  [string] $name        	[实例名称]
 	 */
-	public function attachBehavior($behaviorObj){
-		$this->_b[] = $behaviorObj;
+	public function attachBehavior($behaviorObj,$name=null){
+		if(is_null($name)) $name=get_class($behaviorObj);
+		$this->_b[$name] = $behaviorObj;
 	}
 
+	/**
+	 * 对象行为实例提取
+	 * @return [string] $name        	[实例名称]
+	 */
+	public function getBehavior($name){
+		return $this->_b[$name];
+	}
+
+	/**
+	 * 自持注入对象方法搜索
+	 * @param  [type] $method [description]
+	 * @param  [type] $param  [description]
+	 * @return [type]         [description]
+	 */
 	public function __call($method,$param){
 		foreach($this->_b as $obj){
 			if(is_object($obj) && method_exists($obj,$method)){

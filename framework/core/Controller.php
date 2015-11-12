@@ -13,7 +13,7 @@ class Controller extends CComponent {
 	public $layout=NULL;
 
 	public function __construct($route=NULL) {
-		$this->attachBehavior($route);//路由方法注入
+		$this->attachBehavior($route,'route');//路由注入
 		$this->init();
 	}
 
