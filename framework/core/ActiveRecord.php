@@ -15,18 +15,17 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	private $_fields = array();                 // meta data 存储数据库表对应字段名  数字索引数组
 	private $_new=false;                        // whether this instance is new or not
 	private $_attributes=array();               // attribute name => attribute value 字符串索引数组
-	// private $_related=array();                  // attribute name => related objects
 	private $_pk=array();                       // 主键字段名数组
-    
-	protected $_alias='t';                        // the table alias being used for query
+	protected $_alias='t';                      // the table alias being used for query
 
-    
+
 	/**
 	 * 初始化AR
 	 * 完成 _fields、_attributes、初始化
 	 */
 	public function __construct($config=null){
 		parent::__construct($config);
+		$this->attachBehavior(new ActiveRecordCache($this),'ARcache');//缓存扩展功能注入
 		$this->initTableFields();
 		$this->setIsNewRecord(true);
 	}
@@ -49,7 +48,9 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 **/
 	protected function initTableFields(){
 		$tableName=$this->tableName();
+		//表结构不缓存
 		$fields = $this->findAllBySql("DESCRIBE `{$tableName}`");
+		//var_dump($fields);die;
 		if(!$fields){
 			throw new CException("模型-{$tableName}-初始化失败");
 		}
@@ -71,8 +72,8 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 			$where = $this->db->parseWhere($pri);
 
 			$sql="SELECT * FROM `".$this->tableName()."` `".$this->_alias."` ".$where;
-	
-			$record = $this->findBySql($sql);
+			
+			$record = $this->findBySqlCache($sql);
 		
 			if($record!=null){
 				$this->setIsNewRecord(false);
@@ -215,7 +216,6 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 */
 	public function save($runValidation=true){
 		if($this->getAttributes()==null){
-			//return false;
 			throw new CException('保存失败！');
 		}
 		if(!$runValidation || $this->validate()){
@@ -229,11 +229,9 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 			} catch (CException $e) {
 				$this->_error[]=$e->getMessage();
 				throw new CException('保存失败！');
-				//return false;
 			}
 		}else{
 			throw new CException('保存失败！');
-			//return false;
 		}
 	}
 	/**
@@ -275,14 +273,16 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	/**
 	* 插入 AR插入
 	* 返回 lastInsertId();
+	* 隐藏此方法 统一由save提供
 	*/
-	public function insert(){
+	protected function insert(){
 		if($this->getIsNewRecord()){
 			$lastId = $this->insertData($this->tableName(),$this->getAttributes());
 			if($lastId>0){
 				//自曾主键
 				$key=$this->_pk[0];
 				$this->_attributes[$key]=$lastId;
+				$this->flushSelectCache();
 			}
 			$this->setIsNewRecord(false);//插入成功标记为非新记录
 			$obj= unserialize(serialize($this));
@@ -294,12 +294,14 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 
 	/**
 	* 更新 AR对象
+	* 隐藏此方法 统一由save提供
 	*/
-	public function update(){
+	protected function update(){
 		if($this->getIsNewRecord()){
 			throw new CException('这是一个新数据，无法更新！');
 		}else{
 			$this->updateData($this->tableName(),$this->getPk(),$this->getAttributes());
+			$this->flushSelectCache();
 			$obj= unserialize(serialize($this));
 			return $obj;
 		}
@@ -339,7 +341,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 */
 	public function find($condition=NULL,$fresh=true){
         $this->where($condition);
-		$res = $this->findBySql($this->buildSelectSql());
+		$res = $this->findBySqlCache($this->buildSelectSql());
 		if($res){
 			if($fresh){
 				$this->setAttributes($res,false);
@@ -363,9 +365,90 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 */
 	public function findAll($condition = NULL) {
 		$this->where($condition);
-		return $this->findAllBySql($this->buildSelectSql());
+		return $this->findAllBySqlCache($this->buildSelectSql());
 	}
 	
+	/**
+	 * 获取翻页信息  配合 page(),方法使用
+	 * @param string $tableName	表名
+	 * @param array $order 排序
+	 * @param int $limit 每页显示条数
+	 * @param int $page 页码
+	 * @return array
+	 */
+	public function count(){
+		$data = array();
+		if(empty($this->options['table']))
+			$this->table();
+		if(!isset($this->options['page'])) $this->page();
+		//统计总数
+		$opt_count=$this->options;
+		//删除影响统计的option
+		unset($opt_count['page'],$opt_count['limit'],$opt_count['order']);
+		$opt_count['field']='count(1) as `count`';
+		$sql_count = $this->db->buildSelectSql($opt_count);
+		//按分组需求来统计总记录数
+		if($opt_count['group']){
+			$count_str=' COUNT(*) AS `count` ';
+		}else{
+			$count_str=' SUM(ivy_count.`count`) as `count` ';
+		}
+		$count = $this->findBySqlCache("select ".$count_str." from (".$sql_count.") AS ivy_count" );
+		return (int)$count['count'];
+	}
+
+	/**
+	 * 获取翻页信息  配合 page(),方法使用
+	 * @param string $tableName	表名
+	 * @param array $order 排序
+	 * @param int $limit 每页显示条数
+	 * @param int $page 页码
+	 * @return array
+	 */
+	public function getPagener(){
+		$data = array();
+		if(empty($this->options['table']))
+			$this->table();
+		if(!isset($this->options['page'])) $this->page();
+		//统计总数
+		$opt_count=$this->options;
+		//删除影响统计的option
+		unset($opt_count['page'],$opt_count['limit'],$opt_count['order']);
+		$opt_count['field']='count(1) as `count`';
+		$sql_count = $this->db->buildSelectSql($opt_count);
+		//按分组需求来统计总记录数
+		if(isset($opt_count['group'])){
+			$count_str=' COUNT(*) AS `count` ';
+		}else{
+			$count_str=' SUM(ivy_count.`count`) as `count` ';
+		}
+		$count = $this->findBySqlCache("select ".$count_str." from (".$sql_count.") AS ivy_count" );
+		$pagener['recordsTotal'] = (int)$count['count'];
+
+		if(!isset($this->options['page'])) $this->options['page']=1;
+		$options = $this->options;
+		if(isset($options['page'])) {
+			// 根据页数计算limit
+			if(strpos($options['page'],',')) {
+				list($page,$listRows) =  explode(',',$options['page']);
+			}else{
+				$page = $options['page'];
+			}
+			$page	=  $page?$page:1;//当前页
+			$listRows=  isset($listRows)?$listRows:(isset($options['limit'])&&is_numeric($options['limit'])?$options['limit']:20);//每页记录数
+			$this->options['limit'] = $listRows;
+		}
+		$pagener['pageSize'] = (int)$listRows;
+		$pagener['pageNums'] = (int)ceil($count['count']/$listRows);
+		$pagener['currentPage'] = (int)$page;
+		$data['pagener']=$this->db->generatePagener($pagener);
+		$data['list'] = $this->findAllBySqlCache($this->buildSelectSql());
+		$data['page_code']=\Ivy::app()->widget('page/page',array('data'=>$data));//核心无此widget 自行扩展分页
+		return $data;
+	}
+
+
+
 
 	/**
 	 * 删除本记录

@@ -52,7 +52,7 @@ class MCache extends AbsoluteCache implements ICache{
 	 **/
 	public function set($key, $value, $expire=0){
 		if($this->_connectMemcache($key)){
-			return $this->_connectMemcache($key)->set($key, json_encode($value), 0, $expire);
+			return $this->_connectMemcache($key)->set($key, serialize($value), 0, $expire);
 		}
 		return false;
 	}
@@ -61,7 +61,7 @@ class MCache extends AbsoluteCache implements ICache{
 		if($this->_connectMemcache($key)){
 			$value = $this->_connectMemcache($key)->get($key, true);
 			if($value!==false)
-				$value=json_decode($value);
+				$value=unserialize($value);
 			return $value;
 		}
 		return false;
@@ -69,7 +69,7 @@ class MCache extends AbsoluteCache implements ICache{
 
 	public function add($key, $vakue, $expire=0){
 		if($this->_connectMemcache($key)){
-			return $this->_connectMemcache($key)->add($key, json_encode($value), 0, $expire);
+			return $this->_connectMemcache($key)->add($key, serialize($value), 0, $expire);
 		}
 		return false;
 	}
