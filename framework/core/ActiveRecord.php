@@ -44,12 +44,18 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 
 
 	/**
-	 *获取表信息 更类属性
+	 *获取表信息 更类属性 缓存1小时
 	 **/
 	protected function initTableFields(){
 		$tableName=$this->tableName();
 		//表结构不缓存
-		$fields = $this->findAllBySql("DESCRIBE `{$tableName}`");
+		$DNS=\Ivy::getBaseUrl(true);
+		$key=md5($DNS."@talbe_fields@".$tableName);
+		$fields = \Ivy::app()->cache->get($key);
+		if($fields===false){
+			$fields = $this->findAllBySql("DESCRIBE `{$tableName}`");
+			\Ivy::app()->cache->set($key,$fields,3600);//缓存1小时
+		}
 		//var_dump($fields);die;
 		if(!$fields){
 			throw new CException("模型-{$tableName}-初始化失败");
@@ -216,7 +222,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 */
 	public function save($runValidation=true){
 		if($this->getAttributes()==null){
-			throw new CException('保存失败！');
+			throw new CException('无属性，保存失败！');
 		}
 		if(!$runValidation || $this->validate()){
 			try {
@@ -231,7 +237,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 				throw new CException('保存失败！');
 			}
 		}else{
-			throw new CException('保存失败！');
+			throw new CException('属性验证失败，保存失败！');
 		}
 	}
 	/**

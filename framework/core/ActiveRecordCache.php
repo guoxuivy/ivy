@@ -25,15 +25,18 @@ class ActiveRecordCache{
 	protected $_cache = false;					//AR级别的自动缓存  针对 model的select （findBySql、findAllBySql）相关自动维护缓存
 	protected $_cacheTime = 600;				//缓存时间 单位秒 缓存开启时有效
 	
-	private static $all_tables = false;		//数据库的所有表名称
+	private static $all_tables = false;			//数据库的所有表名称
 	
-
-	//连表查询缓存会有误差 必须配置缓存时间
 	/**
-	 * 获取缓存sql查询结果缓存对应的key值列表
-	 * 考虑到memcache无法进行key模糊搜索，使用2层缓存结构。
-	 * @return [array] [sql_key 数组]
+	 * 初始化AR
+	 * 完成 _fields、_attributes、初始化
 	 */
+	public function __construct($AR){
+		$this->AR=$AR;
+		$this->DNS=\Ivy::getBaseUrl(true);
+		if($AR->_config['ARcache']===true)
+			$this->_cache=true;
+	}
 
 	/**
 	 * 添加查询结果缓存 缓存时间单位秒
@@ -133,19 +136,11 @@ class ActiveRecordCache{
 		}
 	}
 
-
 	/**
-	 * 初始化AR
-	 * 完成 _fields、_attributes、初始化
+	 * 获取数据库所有表集合
+	 * 异地表可能失效
+	 * @return [array] 
 	 */
-	public function __construct($AR){
-		$this->AR=$AR;
-		$this->DNS=\Ivy::getBaseUrl(true);
-		if($AR->_config['ARcache']===true)
-			$this->_cache=true;
-	}
-
-	//异地表可能失效
 	private function showTablse(){
 		if(self::$all_tables === false){	
 			$key  = md5($this->DNS."@all_tables");
@@ -162,8 +157,9 @@ class ActiveRecordCache{
 		}
 		return self::$all_tables;
 	}
+
 	/**
-	 * 匹配sql查询语句中的表明
+	 * 分析 查询SQL 获取所有关联的表名
 	 * @return [array] [description]
 	 */
 	private function getTables($sql){
@@ -192,6 +188,11 @@ class ActiveRecordCache{
 		}
 		return $res;
 	}
+	/**
+	 * join 相关分析
+	 * 以form 为分隔符 
+	 * @return [array] [description] 自然排序
+	 */
 	private function getJoinTables($sql){
 		$res = $list = array();
 		preg_match_all("/join(.*?)on/ism",$sql,$list);//匹配 join 中的表名

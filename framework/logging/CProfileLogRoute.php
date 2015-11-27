@@ -26,8 +26,8 @@ class CProfileLogRoute extends CLogRoute
 	{
 		$logs=$logger->getProfilingResults();
 		$this->logs=empty($this->logs) ? $logs : array_merge($this->logs,$logs);
-		if($processLogs && !empty($this->logs))
-		{
+		//if($processLogs && !empty($this->logs))
+		if(IVY_DEBUG){
 			$this->processLogs($this->logs);
 			$this->logs=array();
 		}
@@ -47,9 +47,7 @@ class CProfileLogRoute extends CLogRoute
 			$tmp['time']=round($value[2],4);
 			$this->push_profile($tmp,$list);
 		}
-
-		if($list)
-    		$this->render('profile-summary',$list);
+    	$this->render('profile-summary',$list);
 		
 	}
 
