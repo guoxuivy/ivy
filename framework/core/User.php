@@ -77,13 +77,12 @@ class User extends Model
 
 	/**
 	 * 表单令牌验证
-	 * @return bool
+	 * @return 如果验证失败必须抛出异常
 	 */
 	public function checkToken()
 	{
 		if(\Ivy::app()->C('token')&&isset($_POST['__hash__'])) {
 			$hash=$_POST['__hash__'];
-			unset($_POST['__hash__']);
 			list($tokenKey,$tokenValue)=explode('_',$hash);
 			$tokenArr=$this->getState('__hash__');
 			if($tokenArr[$tokenKey]===$tokenValue){
@@ -95,6 +94,28 @@ class User extends Model
 			//return false;
 		}
 		return true; //直接跳过
+	}
+	/**
+	 * 重置表单令牌验证
+	 * @return string
+	 */
+	public function rebuildToken()
+	{
+		if(\Ivy::app()->C('token')&&isset($_POST['__hash__'])) {
+
+			$tokenArr=$this->getState('__hash__');
+
+			list($tokenKey,$tokenValue)=explode('_',$_POST['__hash__']);
+
+			$tokenValue = md5(microtime(TRUE));//重置value
+
+			$tokenArr[$tokenKey]   =  $tokenValue;
+
+			$this->setState('__hash__',$tokenArr);
+
+			return  '<input type="hidden" name="__hash__" value="'.$tokenKey.'_'.$tokenValue.'" />';
+		}
+		return ''; 
 	}
 
 
