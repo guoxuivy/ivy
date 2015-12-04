@@ -22,7 +22,6 @@ class ActiveRecordCache{
 	protected $AR=NULL;
 	protected $DNS=NULL;
 
-	protected $_cache = false;					//AR级别的自动缓存  针对 model的select （findBySql、findAllBySql）相关自动维护缓存
 	protected $_cacheTime = 600;				//缓存时间 单位秒 缓存开启时有效
 	
 	private static $all_tables = false;			//数据库的所有表名称
@@ -34,8 +33,6 @@ class ActiveRecordCache{
 	public function __construct($AR){
 		$this->AR=$AR;
 		$this->DNS=\Ivy::getBaseUrl(true);
-		if($AR->_config['ARcache']===true)
-			$this->_cache=true;
 	}
 
 	/**
@@ -74,7 +71,6 @@ class ActiveRecordCache{
 	 * @return [array] [description]
 	 */
 	private function getSelectCache($sql){
-		//$this->flushSelectCache();
 		$md5sql=md5($sql);
 		$res = \Ivy::app()->cache->get($md5sql);
 		return $res;
@@ -85,55 +81,53 @@ class ActiveRecordCache{
 	 * @return [array] [description]
 	 */
 	private function flushSelectCache(){
-		if($this->_cache){
-			//第一级 所有的表组合获取
-			$group_key=md5($this->DNS."@talbe_groups");
-			$group_tables = \Ivy::app()->cache->get($group_key);
-			foreach($group_tables as $tables_key){
-				$group = explode('@', $tables_key);
-				array_shift($group);
-				//如果影响此分组
-				if(in_array($this->AR->tableName(),$group)){
-					//获取该分组所有的sql 并清空
-					$group_slq_md5 = \Ivy::app()->cache->get($tables_key);
-					foreach ($group_slq_md5 as $md5sql) {
-						\Ivy::app()->cache->delete($md5sql); //删除第三级别
-					}
-					//删除该分组(可以不删除 影响不大)
-					\Ivy::app()->cache->delete($tables_key);
+		//第一级 所有的表组合获取
+		$group_key=md5($this->DNS."@talbe_groups");
+		$group_tables = \Ivy::app()->cache->get($group_key);
+		foreach($group_tables as $tables_key){
+			$group = explode('@', $tables_key);
+			array_shift($group);
+			//如果影响此分组
+			if(in_array($this->AR->tableName(),$group)){
+				//获取该分组所有的sql 并清空
+				$group_slq_md5 = \Ivy::app()->cache->get($tables_key);
+				foreach ($group_slq_md5 as $md5sql) {
+					\Ivy::app()->cache->delete($md5sql); //删除第三级别
 				}
+				//删除该分组(可以不删除 影响不大)
+				\Ivy::app()->cache->delete($tables_key);
 			}
 		}
 	}
 
+	//无缓存查询
+	public function find($sql){
+		return $this->AR->getDb()->findBySql($sql);
+	}
+	//无缓存查询
+	public function findAll($sql){
+		return $this->AR->getDb()->findAllBySql($sql);
+	}
+
 	//兼容cache的单记录查询
 	public function findBySqlCache($sql){
-		if($this->_cache){
-			$res = $this->getSelectCache($sql);
-			if($res===false){
-				$res = $this->AR->findBySql($sql);
-				if($res!==null)
-					$this->addSelectCache($sql,$res);
-			}
-			return $res;
-		}else{
-			return $this->AR->findBySql($sql);
+		$res = $this->getSelectCache($sql);
+		if($res===false){
+			$res = $this->find($sql);
+			if($res!==null)
+				$this->addSelectCache($sql,$res);
 		}
-		
+		return $res;
 	}
 	//兼容cache的多记录查询
 	public function findAllBySqlCache($sql){
-		if($this->_cache){
-			$res = $this->getSelectCache($sql);
-			if($res===false){
-				$res = $this->AR->findAllBySql($sql);
-				if($res!==null)
-					$this->addSelectCache($sql,$res);
-			}
-			return $res;
-		}else{
-			return $this->AR->findAllBySql($sql);
+		$res = $this->getSelectCache($sql);
+		if($res===false){
+			$res = $this->findAll($sql);
+			if($res!==null)
+				$this->addSelectCache($sql,$res);
 		}
+		return $res;
 	}
 
 	/**
@@ -146,7 +140,7 @@ class ActiveRecordCache{
 			$key  = md5($this->DNS."@all_tables");
 			$tables = \Ivy::app()->cache->get($key); 
 			if($tables===false){
-				$list = $this->AR->findAllBySql("SHOW TABLES");
+				$list = $this->findAll("SHOW TABLES");
 				$tables = array();
 				foreach($list as $value){
 					$tables[]=array_shift($value);
