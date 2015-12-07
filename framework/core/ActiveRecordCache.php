@@ -30,7 +30,7 @@ class ActiveRecordCache{
 	 * 初始化AR
 	 * 完成 _fields、_attributes、初始化
 	 */
-	public function __construct($AR){
+	public function __construct(&$AR){
 		$this->AR=$AR;
 		$this->DNS=\Ivy::getBaseUrl(true);
 	}
@@ -107,6 +107,10 @@ class ActiveRecordCache{
 	//无缓存查询
 	public function findAll($sql){
 		return $this->AR->getDb()->findAllBySql($sql);
+	}
+	//释放缓存
+	public function flush(){
+		return $this->flushSelectCache();
 	}
 
 	//兼容cache的单记录查询

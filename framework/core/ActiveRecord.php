@@ -25,13 +25,13 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 * 完成 _fields、_attributes、初始化
 	 */
 	public function __construct($config=null){
-		parent::__construct($config);
 		if($config&&$config['ARcache']){
 			$this->_cache=true;
 			$this->attachBehavior(new ActiveRecordCache($this),'ARcache');//缓存扩展功能注入
 		}
 		$this->initTableFields();
 		$this->setIsNewRecord(true);
+		parent::__construct($config);
 	}
 
 	/**
@@ -312,7 +312,8 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 				//自曾主键
 				$key=$this->_pk[0];
 				$this->_attributes[$key]=$lastId;
-				$this->flushSelectCache();
+				if($this->_cache)
+					$this->getBehavior('ARcache')->flush();
 			}
 			$this->setIsNewRecord(false);//插入成功标记为非新记录
 			$obj= unserialize(serialize($this));
@@ -331,7 +332,8 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 			throw new CException('这是一个新数据，无法更新！');
 		}else{
 			$this->updateData($this->tableName(),$this->getPk(),$this->getAttributes());
-			$this->flushSelectCache();
+			if($this->_cache)
+				$this->getBehavior('ARcache')->flush();
 			$obj= unserialize(serialize($this));
 			return $obj;
 		}
@@ -416,20 +418,26 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	/**
 	 * 删除指定记录
 	 * @param  [type] $condition [description]
-	 * @return [type]            [description]
+	 * @return [type]            [影响行数]
 	 */
 	public function deleteByPk($pk=null) {
-		return $this->deleteData($this->tableName(),$this->getPk($pk));
+		$num = $this->deleteData($this->tableName(),$this->getPk($pk));
+		if($this->_cache&&$num)
+			$this->getBehavior('ARcache')->flush();
+		return $num;
 	}
 
 	/**
 	 * 删除指定记录
 	 * @param  [type] $where [description] 条件同 where 的结构
-	 * @return [type]            [description]
+	 * @return [type]            [影响行数]
 	 */
 	public function deleteAll($where=null) {
 		if(empty($where)) return false;
-		return $this->deleteData($this->tableName(),$where);
+		$num = $this->deleteData($this->tableName(),$where);
+		if($this->_cache&&$num)
+			$this->getBehavior('ARcache')->flush();
+		return $num;
 	}
 
 	/**
