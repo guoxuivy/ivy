@@ -36,6 +36,8 @@ abstract class AbsoluteDB {
 	abstract protected function _exec($sql);
 	//约定为查询入口 方便读写分离
 	abstract protected function _query($sql);
+	//关闭连接
+	abstract protected function close();
 
 
 	/**
@@ -58,7 +60,7 @@ abstract class AbsoluteDB {
 	protected static function factory($db_pdo_config='') {
 		// 读取数据库配置
 		if(empty($db_pdo_config))
-			throw new CException ('数据库配置错误！');
+			throw new CException ('数据库配置为空！');
 		$class_arr=explode(":",$db_pdo_config['dsn']);
 		$class="\\Ivy\\db\\pdo\\".$class_arr[0];
 		if(class_exists($class)) {

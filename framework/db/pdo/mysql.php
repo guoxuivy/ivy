@@ -10,8 +10,8 @@
  * 所有PDO异常转换为CException 异常
  */
 namespace Ivy\db\pdo;
-use Ivy\core\CException;
 use Ivy\db\AbsoluteDB;
+use Ivy\db\DBException;
 use Ivy\logging\CLogger;
 class mysql extends AbsoluteDB {
 	const SQL_ERROR='sql_error';
@@ -27,8 +27,9 @@ class mysql extends AbsoluteDB {
 
 	public function __construct($config=null) {
 		if(empty($config))
-			throw new CException ( 'no DB config' );
+			throw new DBException( 'no DB config' );
 		$this->config=$config;
+		throw new DBException( 'no DB config' );
 		$this->pdo = $this->connect($config);
 		if(IVY_DEBUG && $config['profile'])
 			$this->enableProfiling = true;
@@ -42,12 +43,17 @@ class mysql extends AbsoluteDB {
 	public function connect($config=null) {
 		$config=is_null($config)?$this->config:$config;
 		try {
-			$pdo = new \PDO ( $config ['dsn'], $config ['user'], $config ['password'] );
-			$pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-			$pdo->exec('set names utf8');
+			$params = array (
+				\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\'' ,
+				\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+				//\PDO::ATTR_PERSISTENT => true //持久连接配置
+			);
+			$pdo = new \PDO ( $config ['dsn'], $config ['user'], $config ['password'], $params);
+			//$pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+			//$pdo->exec('set names utf8');
 			return $pdo;
 		} catch ( \PDOException $e ) {
-			throw new CException ( $e->getMessage () );
+			throw new DBException ( $e->getMessage(),$e->getCode(),$e);
 		}
 	}
 
@@ -157,7 +163,7 @@ class mysql extends AbsoluteDB {
 			return $res;
 		} catch ( \PDOException $e ) {
 			\Ivy::log($sql,CLogger::LEVEL_ERROR,self::SQL_ERROR);
-			throw new CException ( $e->getMessage() );
+			throw new DBException ( $e->getMessage(),$e->getCode(),$e);
 		}
 	}
 	/**
@@ -179,7 +185,7 @@ class mysql extends AbsoluteDB {
 			return $res;
 		} catch ( \PDOException $e ) {
 			\Ivy::log($sql,CLogger::LEVEL_ERROR,self::SQL_ERROR);
-			throw new CException ( $e->getMessage() );
+			throw new DBException ( $e->getMessage(),$e->getCode(),$e);
 		}
 		
 	}

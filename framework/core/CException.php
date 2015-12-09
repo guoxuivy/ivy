@@ -19,9 +19,9 @@ class CException extends \Exception
 	 * @param string $message error message
 	 * @param integer $code error code
 	 */
-	public function __construct($message=null,$code=0)
+	public function __construct($message=null,$code=0,$previous=null)
 	{
-		parent::__construct($message,$code);
+		parent::__construct($message,$code,$previous);
 	}
 
 	/**
@@ -102,28 +102,28 @@ class CException extends \Exception
 			$str.= '<b>Fatal error</b>:  未捕获的异常\'' . get_class($exception) . '\'  ';
 			$str_log.= "\n<!--Fatal error-->\n未捕获的异常" . get_class($exception) . "  \n";
 			$str.= '<br>异常消息：<font color="red">'.$message.'</font><br>';
-			$str_log.= "异常消息：".$message."  \n";
-			$str.= 'Stack trace:<div>';
-			foreach($exception->getTrace() as $key=>$t){
-				$str.= '<div class="exception-trace-index">trace->'.$key.'</div>';
-				$str.= '<pre>';
-				foreach($t as $k=>$v){
-					if($k=='args'){
-						$str.= "<p>args:";
-							$str.=var_export($v,true);
-							$str_log.= "args:".var_export($v,true)."  \n";
-						$str.= "</p>";
-					}else{
-					   $str.= "<p>{$k}:{$v}</p>";
-					   $str_log.= "{$k}:{$v}  \n";
-					}
-					
-				}
-				$str.= '</pre>';
-			}
-			$str.= '</div>';
 			$str.= '异常抛出点：<b>' . $exception->getFile() . '</b> on line <b>' . $exception->getLine() . '</b><br>';
 			$str_log.= '异常抛出点：' . $exception->getFile() . ' on line ' . $exception->getLine() ."\n<!--Fatal error end-->\n";
+			$str_log.= "异常消息：".$message."  \n";
+				$str.= 'Stack trace:<div>';
+				foreach($exception->getTrace() as $key=>$t){
+					$str.= '<div class="exception-trace-index">trace->'.$key.'</div>';
+					$str.= '<pre>';
+					foreach($t as $k=>$v){
+						if($k=='args'){
+							$str.= "<p>args:";
+								$str.=var_export($v,true);
+								$str_log.= "args:".var_export($v,true)."  \n";
+							$str.= "</p>";
+						}else{
+						   $str.= "<p>{$k}:{$v}</p>";
+						   $str_log.= "{$k}:{$v}  \n";
+						}
+						
+					}
+					$str.= '</pre>';
+				}
+				$str.= '</div>';
 			$str.= '</div>';
 		} 
 		catch (\Exception $e) {
@@ -159,4 +159,4 @@ class CException extends \Exception
 }
 set_error_handler(array("Ivy\core\CException", "error_handler")); //是否启用框架自定义错误处理
 set_exception_handler(array("Ivy\core\CException", "exception_handler"));
-register_shutdown_function (array ('Ivy\core\CException', 'shutdown_handler'));
+register_shutdown_function(array('Ivy\core\CException', 'shutdown_handler'));

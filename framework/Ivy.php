@@ -15,7 +15,7 @@ defined('__ROOT__') or define('__ROOT__', dirname(__DIR__));                    
 defined('__PROTECTED__') or define('__PROTECTED__',__ROOT__.DIRECTORY_SEPARATOR."protected");   //定义项目文件根目录 D:\wwwroot\veecar\protected
 defined('IVY_PATH') or define('IVY_PATH',dirname(__FILE__));                                    //定义框架根目录 D:\wwwroot\veecar\ivy\framework
 defined('IVY_BEGIN_TIME') or define('IVY_BEGIN_TIME',microtime(true));							//开始时间
-defined('IVY_DEBUG') or define('IVY_DEBUG',false);  
+defined('IVY_DEBUG') or define('IVY_DEBUG',false);
 
 defined('SITE_URL') or define('SITE_URL',Ivy::getBaseUrl());									//定义网站根url 相对路径
 
