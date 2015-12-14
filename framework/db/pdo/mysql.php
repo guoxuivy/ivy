@@ -29,7 +29,6 @@ class mysql extends AbsoluteDB {
 		if(empty($config))
 			throw new DBException( 'no DB config' );
 		$this->config=$config;
-		throw new DBException( 'no DB config' );
 		$this->pdo = $this->connect($config);
 		if(IVY_DEBUG && $config['profile'])
 			$this->enableProfiling = true;
@@ -124,24 +123,25 @@ class mysql extends AbsoluteDB {
 	/**
 	 * 执行sql返回结果集
 	 * @param string $sql;
-	 * @return array;
+	 * @return array or null
 	 */
 	public function findAllBySql($sql){
 		$res = $this->_query($sql);
+		$res = $res->fetchAll(\PDO::FETCH_ASSOC);
 		if(!$res) return null;
-		return $res->fetchAll(\PDO::FETCH_ASSOC);
-		
+		return $res;
 	}
 
 	/**
 	 * 执行sql返回单条结果
 	 * @param string $sql;
-	 * @return array;
+	 * @return array or null
 	 */
 	public function findBySql($sql){
 		$res = $this->_query( $sql );
+		$res = $res->fetch(\PDO::FETCH_ASSOC);
 		if(!$res) return null;
-		return $res->fetch(\PDO::FETCH_ASSOC);
+		return $res;
 	}
 
 	/**

@@ -6,6 +6,7 @@
  * @package framework
  * @link https://github.com/guoxuivy/ivy 
  * @since 1.0 
+ * 不可存取布尔类型的true和false 无法识别 返回值
  */
 namespace Ivy\cache;
 use Ivy\core\lib\FlexiHash;

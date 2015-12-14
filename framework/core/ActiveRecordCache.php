@@ -94,8 +94,6 @@ class ActiveRecordCache{
 				foreach ($group_slq_md5 as $md5sql) {
 					\Ivy::app()->cache->delete($md5sql); //删除第三级别
 				}
-				//删除该分组(可以不删除 影响不大)
-				\Ivy::app()->cache->delete($tables_key);
 			}
 		}
 	}
@@ -118,8 +116,7 @@ class ActiveRecordCache{
 		$res = $this->getSelectCache($sql);
 		if($res===false){
 			$res = $this->find($sql);
-			if($res!==null)
-				$this->addSelectCache($sql,$res);
+			$this->addSelectCache($sql,$res);
 		}
 		return $res;
 	}
@@ -128,8 +125,7 @@ class ActiveRecordCache{
 		$res = $this->getSelectCache($sql);
 		if($res===false){
 			$res = $this->findAll($sql);
-			if($res!==null)
-				$this->addSelectCache($sql,$res);
+			$this->addSelectCache($sql,$res);
 		}
 		return $res;
 	}

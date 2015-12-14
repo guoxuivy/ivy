@@ -110,7 +110,7 @@ class CException extends \Exception
 					$str.= '<div class="exception-trace-index">trace->'.$key.'</div>';
 					$str.= '<pre>';
 					foreach($t as $k=>$v){
-						if($k=='args'){
+						if($k==='args'){
 							$str.= "<p>args:";
 								$str.=var_export($v,true);
 								$str_log.= "args:".var_export($v,true)."  \n";
