@@ -112,8 +112,8 @@ class CException extends \Exception
 					foreach($t as $k=>$v){
 						if($k==='args'){
 							$str.= "<p>args:";
-								$str.=var_export($v,true);
-								$str_log.= "args:".var_export($v,true)."  \n";
+								$str.=print_r($v,true);
+								$str_log.= "args:".print_r($v,true)."  \n";
 							$str.= "</p>";
 						}else{
 						   $str.= "<p>{$k}:{$v}</p>";
@@ -135,6 +135,9 @@ class CException extends \Exception
 		}else{
 			\Ivy::log($str_log,CLogger::LEVEL_TRACE);
 			if(isset(\Ivy::app()->config['errorHandler']['errorAction'])){
+				//生产环境屏蔽数据库异常提示信息
+				if($exception instanceof \Ivy\db\DBException)
+					$message = "DBException！";
 				\Ivy::app()->hook(\Ivy::app()->config['errorHandler']['errorAction'],array('code'=>$exception->getCode(),'msg'=>$message));die();
 			}
 			die('发生错误！');

@@ -18,16 +18,18 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	private $_pk=array();                       // 主键字段名数组
 	protected $_alias='t';                      // the table alias being used for query
 
-	protected $_cache = false;					//AR级别的自动缓存  针对 model的select （findBySql、findAllBySql）相关自动维护缓存
+	protected $_cache = true;					//AR级别的自动缓存  针对 model的select （findBySql、findAllBySql）相关自动维护缓存
 
 	/**
 	 * 初始化AR
 	 * 完成 _fields、_attributes、初始化
 	 */
 	public function __construct($config=null){
-		if($config&&$config['ARcache']){
-			$this->_cache=true;
+		$config=is_null($config)?\Ivy::app()->C('db_pdo'):$config;
+		if($this->_cache&&$config['ARcache']){
 			$this->attachBehavior(new ActiveRecordCache($this),'ARcache');//缓存扩展功能注入
+		}else{
+			$this->_cache=false;
 		}
 		$this->initTableFields();
 		$this->setIsNewRecord(true);
