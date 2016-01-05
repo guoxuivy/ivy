@@ -22,7 +22,7 @@ class ActiveRecordCache{
 	protected $AR=NULL;
 	protected $DNS=NULL;
 
-	protected $_cacheTime = 600;				//缓存时间 单位秒 缓存开启时有效
+	protected $_cacheTime = 3600;				//缓存时间 单位秒 缓存开启时有效
 	
 	private static $all_tables = false;			//数据库的所有表名称
 	
