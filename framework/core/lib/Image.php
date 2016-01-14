@@ -24,7 +24,7 @@ class Image {
         $imageInfo = getimagesize($img);
         if ($imageInfo !== false) {
             $imageType = strtolower(substr(image_type_to_extension($imageInfo[2]), 1));
-            $imageSize = filesize($img);
+            $imageSize = @filesize($img);
             $info = array(
                 "width" => $imageInfo[0],
                 "height" => $imageInfo[1],
@@ -88,7 +88,7 @@ class Image {
         imagedestroy($sImage);
     }
 
-    function showImg($imgFile, $text='', $x='10', $y='10', $alpha='50') {
+    static function showImg($imgFile, $text='', $x='10', $y='10', $alpha='50') {
         //获取图像文件信息
         //2007/6/26 增加图片水印输出，$text为图片的完整路径即可
         $info = self::getImageInfo($imgFile);
@@ -105,16 +105,14 @@ class Image {
                         $textInfo = self::getImageInfo($text);
                         $createFun2 = str_replace('/', 'createfrom', $textInfo['mime']);
                         $waterMark = $createFun2($text);
-                        //$waterMark=imagecolorallocatealpha($text,255,255,0,50);
                         $imgW = $info["width"];
                         $imgH = $info["width"] * $textInfo["height"] / $textInfo["width"];
-                        //$y	=	($info["height"]-$textInfo["height"])/2;
+                        imagecopy($im, $waterMark, $x, $y, 0, 0, $textInfo['width'], $textInfo['height']);
                         //设置水印的显示位置和透明度支持各种图片格式
-                        imagecopymerge($im, $waterMark, $x, $y, 0, 0, $textInfo['width'], $textInfo['height'], $alpha);
+                        //imagecopymerge($im, $waterMark, $x, $y, 0, 0, $textInfo['width'], $textInfo['height'], $alpha);
                     } else {
                         imagestring($im, 80, $x, $y, $text, $tc);
                     }
-                    //ImageDestroy($tc);
                 }
                 //水印结束
                 if ($info['type'] == 'png' || $info['type'] == 'gif') {

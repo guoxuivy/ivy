@@ -95,13 +95,17 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 **/
 	protected function initTableFields(){
 		$tableName=$this->tableName();
-		//表结构不缓存
-		$DNS=\Ivy::getBaseUrl(true);
-		$key=md5($DNS."@talbe_fields@".$tableName);
-		$fields = \Ivy::app()->cache->get($key);
-		if($fields===false){
+		if($this->_cache){
+			//表结构缓存
+			$DNS=\Ivy::getBaseUrl(true);
+			$key=md5($DNS."@talbe_fields@".$tableName);
+			$fields = \Ivy::app()->cache->get($key);
+			if($fields===false){
+				$fields = $this->findAllBySql("DESCRIBE `{$tableName}`");
+				\Ivy::app()->cache->set($key,$fields,3600);//缓存1小时
+			}
+		}else{
 			$fields = $this->findAllBySql("DESCRIBE `{$tableName}`");
-			\Ivy::app()->cache->set($key,$fields,3600);//缓存1小时
 		}
 		if(!$fields){
 			throw new CException("模型-{$tableName}-初始化失败");

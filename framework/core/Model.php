@@ -35,8 +35,7 @@ class Model extends CComponent{
 	 * 支持数据库配置文件自定义
 	 * @return obj 
 	 */
-	public static function model($config=null)
-	{
+	public static function model($config=null){
 		$config=is_null($config)?\Ivy::app()->C('db_pdo'):$config;
 		$className = get_called_class();
 		$key=md5(serialize($config));
