@@ -34,6 +34,12 @@ final class Application extends CComponent {
 	 */
 	protected $_route = NULL;
 
+	/**
+	 * 默认不生效 配合 IVY_DEBUG
+	 * 用于flash、编辑器等插件 在调试模式下强制不输出sql性能信息
+	 */
+	protected $noProfile = false;
+
 
 	/**
 	 * 加载全局配置文件

@@ -26,6 +26,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 */
 	public function __construct($config=null){
 		$config=is_null($config)?\Ivy::app()->C('db_pdo'):$config;
+		$this->_config=$config;
 		if($this->_cache&&$config['ARcache']){
 			$this->attachBehavior(new ActiveRecordCache($this),'ARcache');//缓存扩展功能注入
 		}else{
@@ -33,7 +34,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 		}
 		$this->initTableFields();
 		$this->setIsNewRecord(true);
-		parent::__construct($config);
+		parent::__construct();
 	}
 
 	/**
@@ -259,8 +260,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 				if(!$this->beforeSave())
 					throw new CException('前置保存失败！');
 				$res = $this->getIsNewRecord() ? $this->insert() : $this->update();
-				$this->lastSql=$this->db->lastSql;
-				$this->afterSave();
+				$res->afterSave();
 				return $res;
 			} catch (CException $e) {
 				$this->_error[]=$e->getMessage();
@@ -322,6 +322,8 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 					$this->getBehavior('ARcache')->flush();
 			}
 			$this->setIsNewRecord(false);//插入成功标记为非新记录
+			$this->lastSql=$this->db->lastSql;
+			$this->refresh();
 			$obj= unserialize(serialize($this));
 			return $obj;
 		}else{
@@ -340,6 +342,8 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 			$this->updateData($this->tableName(),$this->getPk(),$this->getAttributes());
 			if($this->_cache)
 				$this->getBehavior('ARcache')->flush();
+			$this->lastSql=$this->db->lastSql;
+			$this->refresh();
 			$obj= unserialize(serialize($this));
 			return $obj;
 		}
@@ -448,17 +452,23 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 
 	/**
 	 * 刷新AR对象
+	 * 无主键的表无需刷新
 	 * @return [type] [description]
 	 */
 	public function refresh(){
-		$where=$this->getPk();
-		if(($record=$this->find($where))!==null){
-			$this->setAttributes($record,false);
-			$this->setIsNewRecord(false);
+		try {
+			$this->where($this->getPk());
+			$record = $this->findBySql($this->buildSelectSql(false));
+			if($record!==null){
+				$this->setAttributes($record,false);
+				$this->setIsNewRecord(false);
+				return true;
+			}else{
+				return false;
+			}
+		} catch (CException $e) {
 			return true;
-		}else{
-			return false;
-		}
+		}	
 	}
 
 	/**

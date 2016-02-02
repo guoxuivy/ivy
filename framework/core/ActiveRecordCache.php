@@ -33,6 +33,8 @@ class ActiveRecordCache{
 	public function __construct(&$AR){
 		$this->AR=$AR;
 		$this->DNS=\Ivy::getBaseUrl(true);
+		if(isset($AR->_config['ARcacheTime'])) 
+			$this->_cacheTime=$AR->_config['ARcacheTime'];
 	}
 
 	/**
@@ -81,21 +83,27 @@ class ActiveRecordCache{
 	 * @return [array] [description]
 	 */
 	private function flushSelectCache(){
+		//\Ivy::app()->cache->flush(); //清空所有缓存 慎用
 		//第一级 所有的表组合获取
 		$group_key=md5($this->DNS."@talbe_groups");
 		$group_tables = \Ivy::app()->cache->get($group_key);
-		foreach($group_tables as $tables_key){
-			$group = explode('@', $tables_key);
-			array_shift($group);
-			//如果影响此分组
-			if(in_array($this->AR->tableName(),$group)){
-				//获取该分组所有的sql 并清空
-				$group_slq_md5 = \Ivy::app()->cache->get($tables_key);
-				foreach ($group_slq_md5 as $md5sql) {
-					\Ivy::app()->cache->delete($md5sql); //删除第三级别
+		if ($group_tables) {
+			foreach($group_tables as $tables_key){
+				$group = explode('@', $tables_key);
+				array_shift($group);
+				//如果影响此分组
+				if(in_array($this->AR->tableName(),$group)){
+					//获取该分组所有的sql 并清空
+					$group_slq_md5 = \Ivy::app()->cache->get($tables_key);
+					if($group_slq_md5){
+						foreach ($group_slq_md5 as $md5sql) {
+							\Ivy::app()->cache->delete($md5sql); //删除第三级别
+						}
+					}
 				}
 			}
 		}
+		
 	}
 
 	//无缓存查询

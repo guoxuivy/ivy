@@ -27,7 +27,7 @@ class CProfileLogRoute extends CLogRoute
 		$logs=$logger->getProfilingResults();
 		$this->logs=empty($this->logs) ? $logs : array_merge($this->logs,$logs);
 		//if($processLogs && !empty($this->logs))
-		if(IVY_DEBUG){
+		if(IVY_DEBUG && !\Ivy::app()->noProfile){
 			$this->processLogs($this->logs);
 			$this->logs=array();
 		}

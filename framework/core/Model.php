@@ -27,7 +27,8 @@ class Model extends CComponent{
 
 
 	public function __construct($config=null){
-		$this->_config=$config;
+		if($config)
+			$this->_config=$config;
 		$this->init();
 	}
 	/**
@@ -192,12 +193,14 @@ class Model extends CComponent{
 	/**
 	 * 构建查询sql
 	 **/
-	public function buildSelectSql() {
+	public function buildSelectSql($last=true) {
 		if(empty($this->options['table']))
 			$this->table();
 		$sql = $this->db->buildSelectSql($this->options);
 		$this->options=array();
-		$this->lastSql=$sql;
+		if ($last) {
+			$this->lastSql=$sql;
+		}
 		return $sql;
 	}
 	/**
