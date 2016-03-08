@@ -52,8 +52,8 @@ class Controller extends CComponent {
 	 * @param  array  $data       [数据]
 	 * @return json             [json返回值]
 	 */
-	protected function ajaxReturn($statusCode, $message, $data = array()) {
-		if (empty ( $data )) {
+	protected function ajaxReturn($statusCode, $message = '', $data = array()) {
+		if (empty( $data )) {
 			die ( json_encode ( array (
 					'code' => $statusCode,
 					'msg' => $message 

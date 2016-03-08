@@ -32,7 +32,8 @@ class ActiveRecordCache{
 	 */
 	public function __construct(&$AR){
 		$this->AR=$AR;
-		$this->DNS=\Ivy::getBaseUrl(true);
+		//$this->DNS=\Ivy::getBaseUrl(true);
+		$this->DNS=md5($AR->_config['dsn']);
 		if(isset($AR->_config['ARcacheTime'])) 
 			$this->_cacheTime=$AR->_config['ARcacheTime'];
 	}

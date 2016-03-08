@@ -15,7 +15,7 @@ class Model extends CComponent{
 	private static $_models=array();
 	//错误搜集
 	protected	$_error = array();
-	//数据源个性配置，可覆盖默认配置
+	//数据源个性配置，可覆 全局config文件配置
 	protected	$_config = null;
 
 	// 查询表达式参数
@@ -27,8 +27,11 @@ class Model extends CComponent{
 
 
 	public function __construct($config=null){
+		if( is_null($config) && is_null($this->_config) ){
+			$config = \Ivy::app()->C('db_pdo');
+		}
 		if($config)
-			$this->_config=$config;
+			$this->_config = $config;
 		$this->init();
 	}
 	/**
@@ -37,10 +40,9 @@ class Model extends CComponent{
 	 * @return obj 
 	 */
 	public static function model($config=null){
-		$config=is_null($config)?\Ivy::app()->C('db_pdo'):$config;
 		$className = get_called_class();
-		$key=md5(serialize($config));
-		$classKey=$className.'_'.$key;
+		$key = md5(serialize($config));
+		$classKey = $className.'_'.$key;
 		if(isset(self::$_models[$classKey])){
 			return self::$_models[$classKey]; 
 		}else{

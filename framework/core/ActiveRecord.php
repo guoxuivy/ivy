@@ -25,8 +25,12 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 * 完成 _fields、_attributes、初始化
 	 */
 	public function __construct($config=null){
-		$config=is_null($config)?\Ivy::app()->C('db_pdo'):$config;
-		$this->_config=$config;
+		if( is_null($config) && is_null($this->_config) ){
+			$config = \Ivy::app()->C('db_pdo');
+		}
+		if($config)
+			$this->_config = $config;
+
 		if($this->_cache&&$config['ARcache']){
 			$this->attachBehavior(new ActiveRecordCache($this),'ARcache');//缓存扩展功能注入
 		}else{
@@ -372,7 +376,11 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 * @return object tableModel
 	 **/
 	public function findByPk($pk,$fresh=true){
-		$map=$this->aliasPk($this->getPk($pk));
+		try {
+			$map=$this->aliasPk($this->getPk($pk));
+		} catch (CException $e) {
+			return null;
+		}
 		return $this->find($map,$fresh);
 	}
 	/**
