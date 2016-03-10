@@ -500,24 +500,17 @@ abstract class AbsoluteDB {
 		if (! isset ( $tableName )) {
 			throw new CException ( '无效的表' );
 		}
-		$sql = 'insert into `'.$tableName.'` (';
-
-		$kStr = null;
-		$vStr = null;
+		$sql = 'insert into '.$this->parseKey($tableName).' (';
+		$kStr = $vStr= array();
+		
 		if(!empty($data)){
-			$count = 0;
+			//$count = 0;
 			foreach ($data as $k => $v){
-				if($count == 0){
-					$kStr .= '`'.$k.'`';
-					$vStr .= "'".$v."'";
-				}else{
-					$kStr .= ',`'.$k.'`';
-					$vStr .= ",'".$v."'";
-				}
-				$count++;
+				$kStr[] = $this->parseKey($k);
+				$vStr[] = $this->parseValue($v);
 			}
 		}
-		$sql .= $kStr.') values('.$vStr.')';
+		$sql .= implode(',',$kStr).') values('.implode(',',$vStr).')';
 		return $sql;
 	}
 
@@ -529,19 +522,16 @@ abstract class AbsoluteDB {
 			throw new CException ( '无效的表' );
 		}
 		
-		$sql = 'update `'.$tableName.'` set ';
+		$sql = 'update '.$this->parseKey($tableName).' set ';
+		$arr = array();
 		if(empty($data)){
 			throw new CException('无效的更新语句');
 		}
-		$count = 0;
 		foreach ($data as $k=>$v){
-			if($count == 0)
-				$sql .= '`'.$k."` = '".$v."'";
-			else 
-				$sql .= ' , `'.$k."` = '".$v."' ";
-			$count++;
+			$arr[] = $this->parseKey($k).' = '.$this->parseValue($v);
 		}
-		$sql .= $this->parseWhere($where);
+		$sql .= implode(',',$arr);
+		$sql .= ' '.$this->parseWhere($where);
 		return $sql;
 	}
 
@@ -552,7 +542,7 @@ abstract class AbsoluteDB {
 		if (! isset ( $tableName )) {
 			throw new CException ( '无效的表' );
 		}
-		$sql = 'delete from `'.$tableName.'` ';
+		$sql = 'delete from '.$this->parseKey($tableName).' ';
 		$sql .= $this->parseWhere($where);
 		return $sql;
 	}
