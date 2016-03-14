@@ -9,13 +9,12 @@
  * DBException 级别的异常不要主动捕获
  */
 namespace Ivy\db;
-class DBException extends \Exception
+use Ivy\core\CException;
+class DBException extends CException
 {
 	public function __construct($message=null,$code=0,$previous=null)
 	{
 		parent::__construct($message,$code,$previous);
-		//判断是否有DB级别的异常，用于主动释放db连接
-		\Ivy::app()->dbClose();
 	}
 
 }

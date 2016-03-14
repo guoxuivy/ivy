@@ -506,6 +506,7 @@ abstract class AbsoluteDB {
 		if(!empty($data)){
 			//$count = 0;
 			foreach ($data as $k => $v){
+				$v = is_null($v)?'':$v;
 				$kStr[] = $this->parseKey($k);
 				$vStr[] = $this->parseValue($v);
 			}
@@ -528,6 +529,7 @@ abstract class AbsoluteDB {
 			throw new CException('无效的更新语句');
 		}
 		foreach ($data as $k=>$v){
+			$v = is_null($v)?'':$v;
 			$arr[] = $this->parseKey($k).' = '.$this->parseValue($v);
 		}
 		$sql .= implode(',',$arr);
