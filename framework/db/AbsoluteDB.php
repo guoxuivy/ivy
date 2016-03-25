@@ -41,7 +41,7 @@ abstract class AbsoluteDB {
 
 
 	/**
-	 * 取得数据库类实例
+	 * 取得master数据库类实例（主库）
 	 * @static
 	 * @access public
 	 * @return mixed 返回数据库驱动类
@@ -69,6 +69,12 @@ abstract class AbsoluteDB {
 			throw new CException ('数据库驱动错误：'. $class);
 		}
 		return $db;
+	}
+	
+	//删除字符串所有空格
+	public function trimall($str) {
+		$qian=array(" ","　","\t","\n","\r");$hou=array("","","","","");
+		return str_replace($qian,$hou,$str);    
 	}
 
 	/**
