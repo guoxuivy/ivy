@@ -15,8 +15,7 @@ use Ivy\db\DBException;
 use Ivy\logging\CLogger;
 class mysql extends AbsoluteDB {
 	const SQL_ERROR='sql_error';
-	//连接句柄
-	private $pdo = null;
+	
 	//事物标记 多层嵌套 只有最外层有效 参考laravel方案
 	private $_transaction_level = 0;
 
@@ -55,33 +54,7 @@ class mysql extends AbsoluteDB {
 		}
 	}
 
-	/**
-	 * 主库连接句柄
-	 * @return pdo
-	 */
-	protected function pdo(){
-		return $this->pdo;
-	}
-	/**
-	 * 从连接句柄 salve_pdo 查询query方法使用
-	 * @return pdo
-	 */
-	protected function spdo(){
-		$mconfig = $this->config;//当前对象数据库配置
-		$gconfig = \Ivy::app()->C('db_pdo');//主库数据库配置
-		$slave = $gconfig['slave'];
-		if($slave && $this->trimall($mconfig['dsn']) === $this->trimall($gconfig['dsn'])){
-			//随机读取从库配置
-			$index = rand(0,count($slave));
-			$new_conf = array (
-				'dsn' => $slave[$index],
-				'password' => $gconfig['password'],
-				'user' => $gconfig['user'],
-			);
-			return $this->connect($new_conf); //事物问题还未解决 从库不设计事物 没有写入操作 数据是否及时同步有带考证
-		}
-		return $this->pdo;
-	}
+
 
 	/**
 	 * 事务开始
