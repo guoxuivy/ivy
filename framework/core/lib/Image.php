@@ -303,7 +303,7 @@ class Image {
         $key = mt_rand(0, 3);
 
         $backColor = imagecolorallocate($im, $r[$key], $g[$key], $b[$key]);    //背景色（随机）
-        $borderColor = imagecolorallocate($im, 100, 100, 100);                    //边框色
+        $borderColor = imagecolorallocate($im, 225, 225, 225);                    //边框色
         imagefilledrectangle($im, 0, 0, $width - 1, $height - 1, $backColor);
         imagerectangle($im, 0, 0, $width - 1, $height - 1, $borderColor);
         $stringColor = imagecolorallocate($im, mt_rand(0, 200), mt_rand(0, 120), mt_rand(0, 120));
