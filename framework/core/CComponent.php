@@ -81,6 +81,10 @@ class CComponent
 	 */
 	public function attachBehavior($behaviorObj,$name=null){
 		if(is_null($name)) $name=get_class($behaviorObj);
+		if(isset($this->_b[$name])){
+			//不重复注入
+			return ;
+		} 
 		$this->_b[$name] = $behaviorObj;
 	}
 

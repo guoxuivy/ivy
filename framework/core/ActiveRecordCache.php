@@ -42,11 +42,12 @@ class ActiveRecordCache{
 	 * 添加查询结果缓存 缓存时间单位秒
 	 * @return [array] [description]
 	 */
-	private function addSelectCache($sql,$value){
+	private function addSelectCache($sql,$value,$cacheTime=null){
+		$cacheTime = $cacheTime?$cacheTime:$this->_cacheTime;
 		$tables = $this->getTables($sql);
 		$md5sql=md5($sql);
 		//sql查询值缓存 第三级别
-		\Ivy::app()->cache->set($md5sql,$value,$this->_cacheTime);
+		\Ivy::app()->cache->set($md5sql,$value,$cacheTime);
 		
 		//更新表组合中的sql索引缓存 第二级别
 		$tables_key=$tables;
@@ -56,7 +57,7 @@ class ActiveRecordCache{
 		if(!$tables_md5sqls) $tables_md5sqls=array();
 		if(!in_array($md5sql, $tables_md5sqls)){
 			$tables_md5sqls[]=$md5sql;
-			\Ivy::app()->cache->set($tables_key,$tables_md5sqls,$this->_cacheTime); 
+			\Ivy::app()->cache->set($tables_key,$tables_md5sqls,$cacheTime); 
 		}
 
 		//将该表组合映射到当前AR的表管理器缓存  第一级别
@@ -65,7 +66,7 @@ class ActiveRecordCache{
 		if(!$ar_tables) $ar_tables=array();
 		if(!in_array($tables_key, $ar_tables)){
 			$ar_tables[]=$tables_key;
-			\Ivy::app()->cache->set($ar_key,$ar_tables,$this->_cacheTime); 
+			\Ivy::app()->cache->set($ar_key,$ar_tables,$cacheTime); 
 		}
 	}
 
@@ -121,20 +122,20 @@ class ActiveRecordCache{
 	}
 
 	//兼容cache的单记录查询
-	public function findBySqlCache($sql){
+	public function findBySqlCache($sql,$time=null){
 		$res = $this->getSelectCache($sql);
 		if($res===false){
 			$res = $this->find($sql);
-			$this->addSelectCache($sql,$res);
+			$this->addSelectCache($sql,$res,$time);
 		}
 		return $res;
 	}
 	//兼容cache的多记录查询
-	public function findAllBySqlCache($sql){
+	public function findAllBySqlCache($sql,$time=null){
 		$res = $this->getSelectCache($sql);
 		if($res===false){
 			$res = $this->findAll($sql);
-			$this->addSelectCache($sql,$res);
+			$this->addSelectCache($sql,$res,$time);
 		}
 		return $res;
 	}

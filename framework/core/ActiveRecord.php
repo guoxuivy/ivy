@@ -20,6 +20,8 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 
 	protected $_cache = true;					//AR级别的自动缓存  针对 model的select （findBySql、findAllBySql）相关自动维护缓存
 
+	private $_one_cache = array();				//针对连贯操作 单次是否使用缓存,具有最高优先级  array('open'=>true,'time'=>3600)
+
 	/**
 	 * 初始化AR
 	 * 完成 _fields、_attributes、初始化
@@ -42,11 +44,39 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	}
 
 	/**
+	 * 缓存开关的 连贯操作扩展 单次查询开关
+	 * @param  [boonle] $open [description]
+	 * @return [obj]        [description]
+	 */
+	public function cache($open=true,$time=null){
+		$this->_one_cache['open'] = $open;
+		if($open===true){
+			$time = (int)$time;
+			$ARcacheTime = $this->_config['ARcache']?$this->_config['ARcache']:3600;
+			$this->_one_cache['time'] = $time?$time:$ARcacheTime;
+		}
+		return $this;
+	}
+
+	/**
 	 * 重写 单条记录查询 兼容cache
 	 * @param  [type] $sql [description]
 	 * @return array	  二维数组
 	 */
 	public function findBySql($sql){
+		if(!empty($this->_one_cache)){
+			if($this->_one_cache['open']===true){
+				$this->_one_cache = array();
+				$this->attachBehavior(new ActiveRecordCache($this),'ARcache');//强制检查缓存扩展功能注入 
+				return $this->getBehavior('ARcache')->findBySqlCache($sql,$this->_one_cache['time']);
+			}
+			if($this->_one_cache['open']===false){
+				$this->_one_cache = array();
+				return parent::findBySql($sql);
+			}
+			$this->_one_cache = array();
+		}
+
 		if($this->_cache)
 			return $this->getBehavior('ARcache')->findBySqlCache($sql);
 		return parent::findBySql($sql);
@@ -58,6 +88,19 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 * @return array   三维数组
 	 */
 	public function findAllBySql($sql){
+		if(!empty($this->_one_cache)){
+			if($this->_one_cache['open']===true){
+				$this->_one_cache = array();
+				$this->attachBehavior(new ActiveRecordCache($this),'ARcache');//强制检查缓存扩展功能注入 
+				return $this->getBehavior('ARcache')->findAllBySqlCache($sql,$this->_one_cache['time']);
+			}
+			if($this->_one_cache['open']===false){
+				$this->_one_cache = array();
+				return parent::findAllBySqlCache($sql);
+			}
+			$this->_one_cache = array();
+		}
+		
 		if($this->_cache)
 			return $this->getBehavior('ARcache')->findAllBySqlCache($sql);
 		return parent::findAllBySql($sql);
