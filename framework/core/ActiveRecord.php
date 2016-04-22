@@ -102,7 +102,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 		$tableName=$this->tableName();
 		if($this->_cache){
 			//表结构缓存
-			$DNS=\Ivy::getBaseUrl(true);
+			$DNS=md5($this->_config['dsn']);
 			$key=md5($DNS."@talbe_fields@".$tableName);
 			$fields = \Ivy::app()->cache->get($key);
 			if($fields===false){
