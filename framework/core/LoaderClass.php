@@ -48,18 +48,6 @@ class LoaderClass{
 				return include_once $file_path;
 		}
 		
-		//old 无命名空间加载（平面加载） 已经过期
-		// $file_path=__PROTECTED__.DIRECTORY_SEPARATOR."components";
-		// $files=array();
-		// self::allScandir($file_path,$files);
-		// if(!empty($files)){
-		// foreach($files as $f){
-		// 		if( (strtolower($className))==strtolower(basename($f,".php")) ){
-		// 			return include_once $f;
-		// 		}
-		// }
-		// }
-		
 		//加载应用  控制器、模型文件  路由分发专用  //业务层 model controllers文件载入
 		if("Controller"===substr($className,-10)){
 			$dispatch="controllers";

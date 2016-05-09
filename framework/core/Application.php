@@ -136,7 +136,6 @@ final class Application extends CComponent {
 		}
 		$widget_obj = $ReflectedClass->newInstanceArgs();
 		return $widget_obj->run($param);
-		//return $this->_doMethod($widget_obj, "run", $param);
 	}
 
 	/**

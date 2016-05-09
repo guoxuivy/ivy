@@ -20,9 +20,9 @@ abstract class Widget extends Controller {
 	}
 
 	/**
-	 * widget必须包含run()方法，由于低php版本反射形参限制 无法定义为抽象方法
+	 * widget必须包含run()方法，只允许一个参数
 	 */
-	//abstract function run()
+	abstract function run($data);
 	
 	/**
 	 * render 返回渲染好的html 模版文件名只能小写
