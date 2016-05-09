@@ -14,10 +14,6 @@ class LoaderClass{
 	 * @comment 框架自动类加载 依次寻找路径列表 次路径只能在 framework范围内
 	 * @link https://github.com/guoxuivy/ivy * @since 1.0 
 	 */
-	// static $load_dir = array(
-	//     "0"=>"db",
-	//     "1"=>"db/pdo"
-	// );
 
 	/**
 	 * 自动加载函数
@@ -72,12 +68,13 @@ class LoaderClass{
 		}
 		$className=array_filter(explode("\\",$className));
 		if(count($className)==1){
-			//无命名空间
+			//根命名空间
 			$file_path=__PROTECTED__.DIRECTORY_SEPARATOR.$dispatch.DIRECTORY_SEPARATOR.$className[0].'.php';
 			if(is_file($file_path)){
 				return include_once $file_path;
 			}
 		}else{
+			//分组命名空间
 			$module=array_shift($className);
 			$dir = implode(DIRECTORY_SEPARATOR ,$className);
 			$file_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.$module.DIRECTORY_SEPARATOR.$dispatch.DIRECTORY_SEPARATOR.$dir.'.php';

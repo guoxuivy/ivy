@@ -13,6 +13,7 @@ class Route {
 
 	//默认路由
 	static $_route= array(
+		'module' =>'',
 		'controller' =>'index',
 		'action'	=> 'index'
 	);
@@ -51,10 +52,10 @@ class Route {
 	public function url($uri="",$param=array()){
 		if($uri==='/') return SITE_URL.'/index.php';
 		if(strpos($uri,'/')===false){
-			// 如 'list' 不包含分隔符 或者为空
+			// 如 'list' 不包含分隔符 只指定方法名称
 			$r=$this->getRouter();
 			if(!empty($uri)) $r['action']=$uri;
-			$uri=implode('/', $r);
+			$uri=implode('/', array_filter($r));
 		}
 		$uri = SITE_URL.'/index.php?r='.rtrim($uri);
 		$param_arr = array_filter($param);
@@ -81,10 +82,7 @@ class Route {
 	public function setRouter($route){
 		$c_route=$this->getConfigRouter();
 		if(is_array($route)){
-			$r=array();
-			if(isset($route['module'])) $r['module']=$route['module'];
-			$r['controller']=isset($route['controller'])?$route['controller']:$c_route['controller'];
-			$r['action']=isset($route['action'])?$route['action']:$c_route['action'];
+			$r = array_merge($c_route,$route);
 			$this->route=$r;
 		}
 		if(is_string($route)){
@@ -94,13 +92,19 @@ class Route {
 
 	/**
 	 * 获取路由配置
+	 * array(
+		'module' =>'',
+		'controller' =>'index',
+		'action'	=> 'index'
+	)
 	 */
 	private function getConfigRouter(){
-		$_config = \Ivy::app()->config;
-		if(isset($_config['route'])&&!empty($_config['route'])){
-			return $_config['route'];
+		$res = self::$_route;
+		$_global_route=\Ivy::app()->C('route');
+		if($_global_route){
+			$res = array_merge($res,$_global_route);
 		}
-		return self::$_route;
+		return $res;
 	}
 
 	/**
@@ -136,7 +140,7 @@ class Route {
 			}
 		}
 		if(!empty($route_info)){
-			$this->route=$route_info;
+			$this->setRouter($route_info);
 		}else{
 			throw new CException('路由错误');
 		}

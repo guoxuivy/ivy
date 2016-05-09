@@ -178,27 +178,26 @@ final class Application extends CComponent {
 	public function dispatch($routerObj) {
 		$param=$routerObj->param;
 		$router=$routerObj->getRouter();
-		// $module=isset($router['module'])?strtolower($router['module']):"";
-		// $class=ucfirst(strtolower($router['controller']))."Controller";
-		// $action=strtolower($router['action']).'Action';
-		$module=isset($router['module'])?$router['module']:"";
-		$class=ucfirst($router['controller'])."Controller";	//系统类名首字母大写
+		$module=$router['module'];
+		$class=ucfirst($router['controller'])."Controller";	//控制器类名首字母大写
 		$action=$router['action'].'Action';
 		if(''==$module){
 			try{
+				//优先适配2级，不存在则适配3级
 				$ReflectedClass = new \ReflectionClass($class); // 2级控制器检测 非分组模式
 			}catch(CException $e){
 				//试图适配分组模式
 				$routerObj->setRouter(array('module'=>$router['controller'],'controller'=>$router['action']));
 				return $this->dispatch($routerObj);
 			}
-		}
-		try{
-			//两级或者三级 2级则必定存在此控制器，3级则不一定
-			if(''!==$module) $class=$module."\\".$class; 
-			$ReflectedClass = new \ReflectionClass($class);
-		}catch(CException $e){
-			throw new CException ( $router['module'].'/'.$router['controller'] . '-不存在！'); 
+		}else{
+			try{
+				//检测3层分组模式下是否存在控制器，只在3级下抛出异常
+				$class=$module."\\".$class; 
+				$ReflectedClass = new \ReflectionClass($class);
+			}catch(CException $e){
+				throw new CException ( $router['module'].'/'.$router['controller'] . '-不存在！'); 
+			}
 		}
 		
 		$controller_obj = $ReflectedClass->newInstanceArgs(array($routerObj));
@@ -245,7 +244,7 @@ final class Application extends CComponent {
 	}
 
 	/**
-	 * 后去runtime路径
+	 * 获去runtime路径
 	 * @return string
 	 */
 	public function getRuntimePath() {
