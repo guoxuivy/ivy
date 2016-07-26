@@ -1,4 +1,4 @@
-ivy(test1)
+ivy
 ===
 a PHP micro-framework
 
