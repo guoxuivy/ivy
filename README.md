@@ -80,3 +80,24 @@ func main() {
     test_f("http://localhost/HJRCMS/index.php/index/test")
 }
 ```
+
+
+
+__________________简单教程____________________
+单一入口文件
+<?php
+//如果框架在其他目录则需要自定义__ROOT__常量
+defined('__ROOT__') or define('__ROOT__', dirname(__FILE__)); 
+$ivy=dirname(__DIR__).'/ivyFramework/framework/Ivy.php';
+require_once($ivy);
+//defined('IVY_DEBUG') or define('IVY_DEBUG',true);
+//error_reporting(E_ALL & ~E_NOTICE);
+$app = Ivy::createApplication()->run();
+
+
+URL示例 
+http://www.test.com/index.php?r=admin/index/index
+参数r为路由规则 智能适配分组模式  分组名/控制器/方法 或者 根控制器/方法名
+
+项目目录结构请参看
+https://github.com/guoxuivy/veecar

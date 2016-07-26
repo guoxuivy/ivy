@@ -11,6 +11,8 @@ namespace Ivy\core;
 class Controller extends CComponent {
 	//默认布局文件
 	public $layout=NULL;
+	//逻辑层池
+	private $_logics=array();
 
 	public function __construct($route=NULL) {
 		$this->attachBehavior($route,'route');//路由注入
@@ -28,6 +30,30 @@ class Controller extends CComponent {
 	 */
 	public function getView() {
 		return new Template($this);
+	}
+
+	/**
+	 * 获取逻辑层实例
+	 * @return [type] [obj]
+	 */
+	public function logic($className) {
+		//目录形式兼容
+		$className = str_replace('/', '\\', $className);
+		if(substr($className,0,1)=='\\'){
+			$className = $className."Logic";
+		}else{
+			$className = ucfirst($className);
+			$r = $this->getRouter();
+			$module = $r['module'];
+			$className = $module."\\".$className."Logic";
+		}
+		if (isset($this->_logics[$className])) {
+			$logic = $this->_logics[$className];
+		}else{
+			$logic = new $className;
+			$this->_logics[$className] = $logic;
+		}
+		return $logic;
 	}
 
 	/**
