@@ -585,10 +585,6 @@ abstract class AbsoluteDB {
 		return $sql;
 	}
 
-
-
-
-
 	/**
 	 * 生产翻页器
 	 * pageNums   总页数
