@@ -23,9 +23,9 @@
 namespace Ivy\core;    
 class GModel extends Model   
 {
-    //分表时间间隔 （天） //时间间隔10天，组容量4（即最近40天数据） 每10天更创建新表1，删除旧表4
+    //分表时间间隔 （天）  适用于标准间距分层
     protected $_period = 10;
-    //分表数量
+    //分表数量 适用于标准间距分层
     protected $_group_num = 4;
     //分表时间字段名称
     protected $_period_col = "create_time";
@@ -35,7 +35,16 @@ class GModel extends Model
 
     //服务器的更新时间 即order_list_1的开始时间，当间隔到期时需要更新 order_list_1 的开始时间，以便计算每个分表的时间周期
     protected $_period_start_time = null;
+
+    protected $_period_group = null;
  
+    //可直接配置(非标准间距分层) time值 按照 小-》大 原则
+    // protected $_period_group = array(
+    //     ["name"=>"table1","time"=>[1470988355,1470124355]]
+    //     ["name"=>"table2","time"=>[1470188355,1470988355]]
+    // );
+
+
     /**
      * 根据综合条件查询订单列表（带分页参数反回）
      * 横向时间轴分库自动查询
@@ -86,6 +95,26 @@ class GModel extends Model
         return $data;
     }
 
+
+    /**
+     * 获取分片数组
+     * return array
+     */
+    private function _get_group_conf(){
+        if(empty($this->_period_group)){
+            $max_time = $this->_period_start_time+$this->_period*3600*24;
+            $group_time=[];
+            for ($i=1; $i <= $this->_group_num; $i++) {
+                $t1 = $max_time - ($i-1)*$this->_period*3600*24;
+                $t2 = $max_time -     $i*$this->_period*3600*24;
+                $group_time[] = ["name"=>$this->_period_table.$i , "time"=>[$t1,$t2]];////大-》小  其值 小-》大
+            }
+            $this->_period_group = $group_time;
+        }
+        return $this->_period_group;
+    }
+
+
     /**
      * 转换为时间戳
      */
@@ -110,15 +139,11 @@ class GModel extends Model
         $where['time_where'] = array('gt',$stime);
      */
     private function _period_group_where($time_where){
-    	//默认整个时间段
-    	$period_start_time = $this->_period_start_time;
-        if(empty($period_start_time))
-        	throw new CException("分表初始时间无效！");
-        //分表最大时间为
-        $max_time = $period_start_time+$this->_period*3600*24;
 
-    	$b_time = $max_time - $this->_period*$this->_group_num*3600*24;
-    	$e_time = $max_time;
+        $group_tables = $this->_get_group_conf();
+        $last_index = count($group_tables)-1;
+        $b_time = $group_tables[$last_index]["time"][0];
+        $e_time = $group_tables[0]["time"][1];
 
     	if(is_string($time_where[0])){
     		//一维数组模式 单边条件
@@ -144,22 +169,14 @@ class GModel extends Model
 			throw new CException("分表查询参数错误！");
     	}
 
-
-    	//生成分组时间段
-        $group_time=[];
-        for ($i=1; $i <= $this->_group_num; $i++) { 
-            $t1 = $max_time - ($i-1)*$this->_period*3600*24;
-            $t2 = $max_time -     $i*$this->_period*3600*24;
-            $group_time[$i]=[$t1,$t2]; //大-》小
-        }
         //本次查询涉及的分组表 安时间确定
-        $group_tables = [];
-        foreach ($group_time as $i => $v) {
-            if($this->_getMix([$b_time,$e_time],[$v[1],$v[0]])){
-                $group_tables[$i]=array("name"=>$this->_period_table.$i );
+        $res = [];
+        foreach ($group_tables as $v) {
+            if($this->_getMix([$b_time,$e_time],[$v["time"][1],$v["time"][0]])){
+                $res[] = $v;
             }
         }
-        return $group_tables;
+        return $res;
     }
 
     /**
