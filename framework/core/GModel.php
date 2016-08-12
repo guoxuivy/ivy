@@ -128,7 +128,7 @@ class GModel extends Model
     }
 
     /**
-     * 分表主条件分析 获得分组表
+     * 分表主条件分析 获得本次查询相关的分组表
      * @param $array $time_where 
      	//支持格式
      	$where['time_where'] = array(
