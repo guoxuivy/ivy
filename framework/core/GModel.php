@@ -172,7 +172,7 @@ class GModel extends Model
         //本次查询涉及的分组表 安时间确定
         $res = [];
         foreach ($group_tables as $v) {
-            if($this->_getMix([$b_time,$e_time],[$v["time"][1],$v["time"][0]])){
+            if($this->_getMix([$b_time,$e_time],[$v["time"][0],$v["time"][1]])){
                 $res[] = $v;
             }
         }
