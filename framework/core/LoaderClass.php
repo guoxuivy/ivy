@@ -51,10 +51,10 @@ class LoaderClass{
 		//加载应用  控制器、模型文件  路由分发专用  //业务层 model controllers文件载入
 		if("Controller"===substr($className,-10)){
 			$dispatch="controllers";
-		}elseif("Model"===substr($className,-5)){
-			$dispatch="models";
-		}else{
+		}elseif("Logic"===substr($className,-5)){
 			$dispatch="logics";
+		}else{
+			$dispatch="models";
 		}
 		$className=array_filter(explode("\\",$className));
 		if(count($className)==1){
