@@ -27,6 +27,7 @@ $SolrDB = new SolrDb('http://127.0.0.1:8983/solr/', 'core1');
 */
 namespace Ivy\db;
 use Ivy\core\CException;
+use Ivy\logging\CLogger;
 class SolrDB {
 	private $solrserver = '';
 	private $core = '';
@@ -39,14 +40,14 @@ class SolrDB {
 	public function __construct($solrserver, $core = null)
 	{
 		$this->solrserver = $solrserver;
-		if(isset($core) == true)
-		{
+		if(isset($core) == true){
 			$this->core = $core;
 		}
 	}
 	
 	public function setCore($core){
 		$this->core = $core;
+		return $this;
 	}
 	public function getCore(){
 		return $this->core;
@@ -72,6 +73,7 @@ class SolrDB {
 	 * @param unknown_type $format 直接输出查询结果集合
 	 * @param unknown_type $data
 	 * $data['q'] 查询关键词
+	 * $data['fq'] 过滤条件  array("cate:郭旭","id:[300 TO *]") or "cate:weiguan"
 	 * $data['page'] 当前页
 	 * $data['pageSize'] 每页数据量
 	 * $data['fl'] 查询结果返回的字段,
@@ -89,6 +91,18 @@ class SolrDB {
 		}else{
 			$parame = array();
 			$parame['q'] = urlencode($data['q']);
+
+			if(empty($data['fq']) == false){
+				if(is_array($data['fq'])){
+					foreach ($data['fq'] as &$v) {
+						$v = urlencode($v);
+					}
+					$fqstr = implode("&fq=", $data['fq']);
+				}else{
+					$fqstr = urlencode($data['fq']);
+				}
+				$parame['fq'] = $fqstr;
+			}
 			$rows = isset($data['pageSize']) == true ? intval($data['pageSize']) : 25;
 			$page = isset($data['page']) == true ? intval($data['page']) : 1;
 			$start = $page > 0 ? ($page - 1) * $rows : 0;
@@ -122,7 +136,7 @@ class SolrDB {
 
 			$result = $this->returnArr($solrData,"查询失败");
 			if($result['success']==1 && $format){
-				$result['data']=$result["data"]["response"]["docs"];
+				$result['data']=$result["data"]["response"];
 			}
 		}
 		return $result;
@@ -186,11 +200,11 @@ class SolrDB {
 			$data['command'] = 'status';
 			$method = 'dataimport';
 			$solrData = $this->httpGet($method, $data);
-
 			$result = $this->returnArr($solrData,"查询失败");
 		}
 		return $result;
 	}
+
 	
 	/**
 	 * 全量导入索引
@@ -277,7 +291,7 @@ class SolrDB {
 		return $result;
 	}
 	
-	/**
+	/*
 	 * 更新操作 （不建议在程序中调用，有问题，待调整）
 	 * @param array $datas 格式
 	 * 批量更新$datas=array(array('id'=>xx, 'app_name'=>array('set'=>'测试')))),id为索引主键字段，必须包含主键值
@@ -286,7 +300,8 @@ class SolrDB {
 	 * add 如果字段属性为multi-valued，添加一个值
 	 * inc 设置自增加值
 	 */
-	public function __update($datas)
+	 
+	public function update($datas)
 	{
 		$parame = '';
 		$result = array('success'=>0,'info'=>'操作失败');
@@ -347,12 +362,14 @@ class SolrDB {
 		$result = $this->returnArr($solrData,"添加失败");
 		return $result;
 	}
-	
+
 	//更新封装
 	private function httpPost($method, $data){
 		$data_string = json_encode($data);
 		$url = $this->solrserver . $this->core . $method;
 		$ch = curl_init($url);
+		curl_setopt($ch, CURLOPT_TIMEOUT,5);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT,1);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");  // 更新需要post提交
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -363,6 +380,9 @@ class SolrDB {
 		$solrData = curl_exec($ch);
 		return $solrData;
 	}
+
+
+
 	//查询封装
 	private function httpGet($method, $parame){
 		$url = $this->solrserver . $this->core."/".$method;
@@ -377,9 +397,152 @@ class SolrDB {
 			$data .= "&". $key."=".$value;
 		}
 		$url .= $data;
-		echo $url."\n";
-		$result = file_get_contents($url);
+		$this->_lastSql = $url;
+		//初始化
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_TIMEOUT,5);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT,1);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+
+		if(IVY_DEBUG){
+			\Ivy::log('begin:'.$url, CLogger::LEVEL_PROFILE, "query");
+			$result = curl_exec($ch);
+			\Ivy::log('begin:'.$url, CLogger::LEVEL_PROFILE, "query");
+		}else{
+			$result = curl_exec($ch);
+		}
+		$this->debug();
 		return $result;
 	}
+
+
+	/****查询方法封装****/
+
+	/**
+     * 列表查询  示例
+     * 兼容solr语法查询 (所有查询关键字需要大写)
+     * $where 支持 支持 gt lt egt elt eq in 语法 
+     */
+    public static function findAll($where,$field="soi_no",$order_by="soi_create_time DESC",$page=1,$page_size=20,$slave_flag = 'SOLR_ORDER'){
+        $map = self::parseWhere($where);
+        $map["fl"] = $field===true?"*":$field;
+        $map["page"] = $page;
+        $map["pageSize"] = $page_size;
+        $map["sort"] = $order_by;
+
+        $SolrDB = new SolrDb('http://127.0.0.1:8983/solr/', 'core1');
+        $res = $SolrDB->select($map);
+        if($res["success"]==1){
+            return ["list"=>$res["data"]["docs"],"c"=>$res["data"]["numFound"]];
+        }else{
+            return false;
+        }
+    }
+
+    /**
+     * 分析q和fq查询 TP where逻辑转换为solr查询语法  
+     * 兼容solr语法查询 (所有查询关键字需要大写)
+     * $data['q'] 查询关键词 "宝马"
+     * $data['fq'] 过滤条件  ["cate:动力 OR cate:外观","id:[300 TO *]"] 或者字符串 "cate:weiguan"
+     * $data['page'] 当前页
+     * $data['pageSize'] 每页数据量
+     * $data['fl'] 查询结果返回的字段,
+     * $data['sort'] 排序字段,
+     * $data['wt'] 返回结果格式,可选值json或xml,默认返回json格式
+     * $data['hl.fl'] 指定高亮字段, hl=true&hl.fl=name,features
+     * array $data['facet.field'] 分组统计
+     */
+    public static function parseWhere($where){
+        $map=array();
+        $map["q"] = $where["_q_"]?$where["_q_"]:"*:*";
+        unset($where["_q_"]);
+
+        $map["fq"]=array();
+        foreach ($where as $key => $value) {
+            $fq = self::parseWhereItem($key,$value);
+            if(!empty($fq)){
+                $map["fq"][] = $fq;
+            }
+        }
+        if(is_null($map["fq"])){
+            unset($map["fq"]);
+        }
+        return $map;
+    }
+
+    /**
+     * fq 拼装 
+     * 支持 gt lt egt elt eq in 
+     * return string
+        $map["soi_create_time"] = array(
+            array('gt', date("Y-m-d H:i:s", $t["time"][0])),
+            array('lt', date("Y-m-d H:i:s", $t["time"][1]))
+        );
+        $map["soi_create_time"] = array('gt', 12121212);
+        $map["soi_create_time"] = 123;
+        $map["soi_create_time"] = array('eq', 123); -> goodsType:123;
+        //$map["soi_create_time"] = array('like', 123); -> like 直接用q查询 不需要走fq
+        $map["soi_create_time"] = array('in', [1,2,3]); -> goodsType:(1,2,3);
+     */
+    public static function parseWhereItem($key,$value){
+        $fqstr = "";
+       
+        if(is_array($value)){
+            if( is_array($value[0]) ){
+                //范围查询
+                $arr0 = $value[0];
+                $arr1 = $value[1];
+                $k0 = strtolower($arr0[0]);
+                $k1 = strtolower($arr1[0]);
+                if($k0=="gt" || $k0=="egt"){
+                    $left  = $k0=="egt" ? "[".$arr0[1] : "{".$arr0[1];
+                    $right = $k1=="elt" ? $arr1[1]."]" : $arr1[1]."}";
+                }else{
+                    $right = $k0=="elt" ? $arr0[1]."]" : $arr0[1]."}";
+                    $left  = $k1=="egt" ? "[".$arr1[1] : "{".$arr1[1];
+                }
+                $fqstr = "{$key}:{$left} TO {$right}";
+            }else{
+                //关键字数组比如 array('in', [1,2,3]) or array('in', '1,2,3'); -> goodsType:(1,2,3);
+                switch ( strtolower($value[0]) ) {
+                    case 'eq':
+                        $fqstr = $key.":".$value[1];
+                        break;
+                    case 'neq':
+                        $fqstr = "-".$key.":".$value[1];
+                        break;
+                    case 'in':
+                        if(strpos($value[1], ",")){
+                            $value[1] = explode(",",$value[1]);
+                        }
+                        array_walk($value[1],function(&$v) use ($key){
+                            $v = $key.":".$v;
+                        });
+
+                        $fqstr = "(".implode(" OR ", $value[1]).")";
+                        break;
+                    case 'gt':
+                        $fqstr = $key.":{".$value[1]." TO *}";
+                        break;
+                    case 'egt':
+                        $fqstr = $key.":[".$value[1]." TO *]";
+                        break;
+                    case 'lt':
+                        $fqstr = $key.":{* TO ".$value[1]."}";
+                        break;
+                    case 'elt':
+                        $fqstr = $key.":[* TO ".$value[1]."]";
+                        break;
+                }
+            }
+        }else{
+            //字符串情况
+            $fqstr = $key.":".$value;
+        }
+        return $fqstr;
+    }
+
 
 }
