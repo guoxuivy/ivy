@@ -19,9 +19,8 @@ class CException extends \Exception
 	 * @param string $message error message
 	 * @param integer $code error code
 	 */
-	public function __construct($message=null,$code=0,$previous=null)
-	{
-		parent::__construct($message,$code,$previous);
+	public function __construct($message=null,$code=0,$previous=null){
+		parent::__construct($message,(int)$code,$previous);
 	}
 
 	/**
@@ -50,8 +49,7 @@ class CException extends \Exception
 	 * @param  [type] $line    [description]
 	 * @return [type]          [description]
 	 */
-	public static function error_handler($code, $message, $file, $line)
-	{
+	public static function error_handler($code, $message, $file, $line){
 		if (0 == error_reporting()) return;
 		$reporting_arr=self::pow_log(error_reporting());//当前警告级别拆分
 		if(!in_array($code, $reporting_arr)) return;//不在开启的错误级别中
