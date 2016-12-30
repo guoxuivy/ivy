@@ -207,6 +207,9 @@ final class Application extends CComponent {
 		if($ReflectedClass->hasMethod($_before)){
 			$this->_doMethod($controller_obj, $_before, $param);
 		}
+		if(!$ReflectedClass->hasMethod($action)){
+			throw new CException ( '访问地址不存在！'); 
+		}
 		$result = $this->_doMethod($controller_obj, $action, $param);
 		$_after=str_replace('Action','After',$action);
 		if($ReflectedClass->hasMethod($_after)){
