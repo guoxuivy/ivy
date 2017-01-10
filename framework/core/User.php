@@ -90,8 +90,10 @@ class User extends Model
 				$this->setState('__hash__',$tokenArr);
 				return true;
 			}
+			if(\Ivy::isAjax()){
+				return false;
+			}
 			throw new CException("表单令牌验证失败！");
-			//return false;
 		}
 		return true; //直接跳过
 	}
