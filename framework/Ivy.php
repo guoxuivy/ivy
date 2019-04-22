@@ -30,7 +30,7 @@ class Ivy
 	//框架初始化代码
 	public static function init()
 	{
-		Ivy::quotes_gpc();
+		//Ivy::quotes_gpc(); DB已经集成
 		require_once(IVY_PATH.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'LoaderClass.php');//加载自动加载
 		require_once(IVY_PATH.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'CException.php');//加载异常处理
 	}

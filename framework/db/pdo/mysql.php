@@ -50,7 +50,6 @@ class mysql extends AbsoluteDB {
 			//$pdo->exec('set names utf8');
 			return $pdo;
 		} catch ( \PDOException $e ) {
-			\Ivy::log($e->getMessage(),CLogger::LEVEL_ERROR,self::SQL_ERROR);
 			throw new DBException ( $e->getMessage(),$e->getCode(),$e);
 		}
 	}

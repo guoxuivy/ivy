@@ -34,6 +34,7 @@ class Template{
 		}
 		//表单token
 		$this->tagToken($output);
+		$this->tagsCompiler($output);
 		echo $output;
 	}
 
@@ -42,10 +43,19 @@ class Template{
 	 */
 	public function render($template='',$data=array(),$ext='.phtml'){
 		$template_path = $this->getViewFile($template,$ext);
+
+		$cacheFile = \Ivy::app()->getRuntimePath().DIRECTORY_SEPARATOR.'template'.DIRECTORY_SEPARATOR.md5($template_path).$ext;
+		if (!$this->checkCache($cacheFile)) {
+            // 缓存无效 重新模板编译
+            $content = file_get_contents($template_path);
+            $this->tagsCompiler($content);
+            $this->writeCache($cacheFile, $content);
+        }
+
 		$data=array_merge($this->data,$data);
 		extract($data,EXTR_OVERWRITE);
 		ob_start();
-		include $template_path;
+		include $cacheFile;
 		$str = ob_get_clean();
 		return $str;
 	}
@@ -206,4 +216,88 @@ class Template{
 		$token      =  '<input type="hidden" name="'.$tokenName.'" value="'.$tokenKey.'_'.$tokenValue.'" />';
 		return $token;
 	}
+
+
+
+	/**
+	 * 内置标签解析 支持 if、 elseif、 foreach 
+	 * @param  [type] &$content [description]
+	 * @return [type]           [description]
+	 $content = '
+<body>
+	<p>{$name}</p>
+	<p>{$age}</p>
+	{if $age > 18}
+		<p>已成年</p>
+	{else if $age < 10}
+		<p>小毛孩</p>
+	{/if}
+	{foreach $friends as $v} 
+		<p>{$v}</p>
+	{/foreach}
+</body>';
+	*/
+	private function tagsCompiler(&$content) {
+		$_patten = [
+			'#\{\\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\}#',
+			'#\{\\$this->(.*?)\}#',
+			'#\{if (.*?)\}#',
+			'#\{(else if|elseif) (.*?)\}#',
+			'#\{else\}#',
+			'#\{foreach \\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)}#',
+			'#\{foreach (.*?)\}#',
+			'#\{\/(foreach|if)}#',
+		
+		];
+		$_translation = [
+			'<?php echo \$\\1; ?>',
+			'<?php echo \$this->\\1; ?>',
+			'<?php if (\\1) {?>',
+			'<?php } else if (\\2) {?>',
+			'<?php }else {?>',
+			'<?php foreach (\\1 as \$k => \$v) {?>',
+			'<?php foreach (\\1) {?>',
+			'<?php }?>',
+		];
+		$content =  preg_replace($_patten, $_translation, $content);
+	}
+
+	/**
+     * 写入编译缓存
+     * @param string $cacheFile 缓存的文件名
+     * @param string $content 缓存的内容
+     * @return void|array
+     */
+    public function writeCache($cacheFile, $content)
+    {
+        // 检测模板目录
+        $dir = dirname($cacheFile);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        // 生成模板缓存文件
+        if (false === file_put_contents($cacheFile, $content)) {
+            throw new CException('cache write error:' . $cacheFile, 11602);
+        }
+    }
+
+    /**
+     * 检查编译缓存是否有效
+     * @param string  $cacheFile 缓存的文件名
+     * @param int     $cacheTime 缓存时间
+     * @return boolean
+     */
+    public function checkCache($cacheFile)
+    {
+        // 缓存文件不存在, 直接返回false
+        if (!file_exists($cacheFile)) {
+            return false;
+        }
+        $cacheTime = \Ivy::app()->C('template_cache_time');
+        if (!empty($cacheTime) && $_SERVER['REQUEST_TIME'] > filemtime($cacheFile) + $cacheTime) {
+            // 缓存是否在有效期
+            return false;
+        }
+        return true;
+    }
 }
