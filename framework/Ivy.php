@@ -18,6 +18,8 @@ defined('IVY_BEGIN_TIME') or define('IVY_BEGIN_TIME',microtime(true));							//�
 defined('IVY_DEBUG') or define('IVY_DEBUG',false);
 
 defined('SITE_URL') or define('SITE_URL',Ivy::getBaseUrl());									//定义网站根url 相对路径
+// 环境常量
+define('IS_CLI', PHP_SAPI == 'cli' ? true : false);
 
 use Ivy\core\Application;
 use Ivy\logging\CLogger;

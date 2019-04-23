@@ -23,6 +23,8 @@ class Route {
 	//其它需要传递的参数
 	public $param = array();
 
+	public $pathinfo = '';
+
 	public function __construct(){
 	}
 
@@ -34,10 +36,25 @@ class Route {
 	 */
 	public function start($routerStr='',$param=array()){
 		if(empty($routerStr)){
-			$routerStr=isset($_GET['r'])?$_GET['r']:"";
+            $routerStr=isset($_GET['r'])?$_GET['r']:"";
+            if(!empty($routerStr)){
+                $_SERVER['PATH_INFO'] = $routerStr;
+            }
+            // 分析PATHINFO信息
+            if (!isset($_SERVER['PATH_INFO'])) {
+                foreach (['ORIG_PATH_INFO', 'REDIRECT_PATH_INFO', 'REDIRECT_URL'] as $type) {
+                    if (!empty($_SERVER[$type])) {
+                        $_SERVER['PATH_INFO'] = (0 === strpos($_SERVER[$type], $_SERVER['SCRIPT_NAME'])) ?
+                            substr($_SERVER[$type], strlen($_SERVER['SCRIPT_NAME'])) : $_SERVER[$type];
+                        break;
+                    }
+                }
+            }
+            $routerStr = empty($_SERVER['PATH_INFO']) ? '/' : ltrim($_SERVER['PATH_INFO'], '/');
 			$param=$_GET;
 			unset($param['r']);
 		}
+        $this->pathinfo = $routerStr;
 		$this->analyzeRoute($routerStr);
 		$this->param=$param;
 	}
@@ -145,4 +162,24 @@ class Route {
 			throw new CException('路由错误');
 		}
 	}
+
+
+    /**
+     * 当前请求 HTTP_CONTENT_TYPE
+     * @access public
+     * @return string
+     */
+    public function contentType()
+    {
+        $contentType = $this->server('CONTENT_TYPE');
+        if ($contentType) {
+            if (strpos($contentType, ';')) {
+                list($type) = explode(';', $contentType);
+            } else {
+                $type = $contentType;
+            }
+            return trim($type);
+        }
+        return '';
+    }
 }

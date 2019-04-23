@@ -34,7 +34,6 @@ class Template{
 		}
 		//表单token
 		$this->tagToken($output);
-		$this->tagsCompiler($output);
 		echo $output;
 	}
 
@@ -45,11 +44,11 @@ class Template{
 		$template_path = $this->getViewFile($template,$ext);
 
 		$cacheFile = \Ivy::app()->getRuntimePath().DIRECTORY_SEPARATOR.'template'.DIRECTORY_SEPARATOR.md5($template_path).$ext;
-		if (!$this->checkCache($cacheFile)) {
+		if (!self::checkCache($cacheFile)) {
             // 缓存无效 重新模板编译
             $content = file_get_contents($template_path);
-            $this->tagsCompiler($content);
-            $this->writeCache($cacheFile, $content);
+            self::tagsCompiler($content);
+            self::writeCache($cacheFile, $content);
         }
 
 		$data=array_merge($this->data,$data);
@@ -237,7 +236,7 @@ class Template{
 	{/foreach}
 </body>';
 	*/
-	private function tagsCompiler(&$content) {
+    public static function tagsCompiler(&$content) {
 		$_patten = [
 			'#\{\\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\}#',
 			'#\{\\$this->(.*?)\}#',
@@ -268,7 +267,7 @@ class Template{
      * @param string $content 缓存的内容
      * @return void|array
      */
-    public function writeCache($cacheFile, $content)
+    public static function writeCache($cacheFile, $content)
     {
         // 检测模板目录
         $dir = dirname($cacheFile);
@@ -287,7 +286,7 @@ class Template{
      * @param int     $cacheTime 缓存时间
      * @return boolean
      */
-    public function checkCache($cacheFile)
+    public static function checkCache($cacheFile)
     {
         // 缓存文件不存在, 直接返回false
         if (!file_exists($cacheFile)) {

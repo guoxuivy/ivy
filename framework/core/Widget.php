@@ -40,10 +40,19 @@ abstract class Widget extends Controller {
 		if(!file_exists($template_path)){
 			throw new CException('widget模版-'.$template_path.'-不存在!');
 		}
+
+        $cacheFile = \Ivy::app()->getRuntimePath().DIRECTORY_SEPARATOR.'template'.DIRECTORY_SEPARATOR.md5($template_path).$ext;
+        if (!Template::checkCache($cacheFile)) {
+            // 缓存无效 重新模板编译
+            $content = file_get_contents($template_path);
+            Template::tagsCompiler($content);
+            Template::writeCache($cacheFile, $content);
+        }
+
 		$data=array_merge($this->data,$data);
 		extract($data,EXTR_OVERWRITE);
 		ob_start();
-		include $template_path;
+		include $cacheFile;
 		$str = ob_get_clean();
 		return $str;
 	}
