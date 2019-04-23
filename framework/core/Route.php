@@ -67,21 +67,32 @@ class Route {
 	 * @return string
 	 */
 	public function url($uri="",$param=array()){
-		if($uri==='/') return SITE_URL.'/index.php';
+        $pathinfo_type = 0; //url友好模式
+        if(0 === strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME'])){
+            // 有index.php
+            $pathinfo_type = 1;
+        };
+
+		if($uri==='/') return SITE_URL;
 		if(strpos($uri,'/')===false){
 			// 如 'list' 不包含分隔符 只指定方法名称
 			$r=$this->getRouter();
 			if(!empty($uri)) $r['action']=$uri;
 			$uri=implode('/', array_filter($r));
 		}
-		$uri = SITE_URL.'/index.php?r='.rtrim($uri);
+        if($pathinfo_type){
+            $param['r'] = rtrim($uri);
+            $uri = SITE_URL.$_SERVER['SCRIPT_NAME'];
+        }else{
+            $uri = SITE_URL.'/'.rtrim($uri);
+        }
 		$param_arr = array_filter($param);
 		if(!empty($param_arr)){
+            $uri .= '?';
 			foreach($param_arr as $k=>$v){
-				$k=$k;
-				$v=$v;
-				$uri.="&{$k}={$v}";
+				$uri .= "{$k}={$v}&";
 			}
+            $uri = substr($uri,0,-1);
 		}
 		return $uri;
 	}
