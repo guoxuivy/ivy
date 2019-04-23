@@ -294,7 +294,14 @@ class Template{
             return false;
         }
         $cacheTime = \Ivy::app()->C('template_cache_time');
-        if (!empty($cacheTime) && $_SERVER['REQUEST_TIME'] > filemtime($cacheFile) + $cacheTime) {
+        if(!empty($cacheTime)){
+            return false;
+        }
+        // 永久有效
+        if($cacheTime == -1){
+            return true;
+        }
+        if ($_SERVER['REQUEST_TIME'] > filemtime($cacheFile) + $cacheTime) {
             // 缓存是否在有效期
             return false;
         }
