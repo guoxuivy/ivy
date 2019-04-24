@@ -42,8 +42,7 @@ class Template{
 	 */
 	public function render($template='',$data=array(),$ext='.phtml'){
 		$template_path = $this->getViewFile($template,$ext);
-
-		$cacheFile = \Ivy::app()->getRuntimePath().DIRECTORY_SEPARATOR.'template'.DIRECTORY_SEPARATOR.md5($template_path).$ext;
+		$cacheFile = __RUNTIME__.DIRECTORY_SEPARATOR.'template'.DIRECTORY_SEPARATOR.md5($template_path).$ext;
 		if (!self::checkCache($cacheFile)) {
             // 缓存无效 重新模板编译
             $content = file_get_contents($template_path);

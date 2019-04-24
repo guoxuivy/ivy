@@ -40,21 +40,31 @@ final class Application extends CComponent {
 	 */
 	protected $noProfile = false;
 
-
-	/**
-	 * 加载全局配置文件
-	 */
+    /**
+     * 加载全局配置文件
+     * Application constructor.
+     * @param  string $config
+     * @throws CException
+     */
+    /**
+     * Application constructor.
+     * @param $config
+     * @throws CException
+     */
 	public function __construct($config){
 		\Ivy::setApplication($this);//保存句柄
 		$config = require_once($config);
 		$this->C($config);
 	}
 
-	/**
-	 * 数据库句柄对象
-	 * 支持多数据库连接
-	 * $config 为配置数组
-	 */
+    /**
+     * 数据库句柄对象
+     * 支持多数据库连接
+     * $config 为配置数组
+     * @param null $config
+     * @return mixed
+     * @throws CException
+     */
 	public function getDb($config=null) {
 		$config=is_null($config)?$this->C('db_pdo'):$config;
 		if(empty($config))
@@ -76,13 +86,12 @@ final class Application extends CComponent {
 		}
 	}
 
-
-	/**
-	 * 当前实例的配置信息修改、读取
-	 * 支持全部、局部更新，全部、局部查询
-	 * @param [type] $key [description]
-	 * @param [type] $v   [description]
-	 */
+    /**
+     * 当前实例的配置信息修改、读取 支持全部、局部更新，全部、局部查询
+     * @param null $key
+     * @param null $config
+     * @return array|null
+     */
 	public function C($key=null,$config=null) {
 		if(is_array($key))
 			return $this->config=$key;
@@ -109,9 +118,11 @@ final class Application extends CComponent {
 		}
 	}
 
-	/**
-	 * 登录用户句柄对象
-	 */
+
+    /**
+     * 登录用户句柄对象
+     * @return User|null
+     */
 	public function getUser() {
 		if($this->user instanceof User){
 			return $this->user;
@@ -121,41 +132,46 @@ final class Application extends CComponent {
 		}
 	}
 
-	/**
-	 * widget 小部件 按命名空间
-	 * @param $name  小部件名称（支持命名空间）  
-	 * @param $param array 自定义参数
-	 */
+    /**
+     * widget 小部件 按命名空间
+     * @param string $name 小部件名称
+     * @param array $param 自定义参数
+     * @return mixed
+     * @throws CException
+     */
 	public function widget($name,$param=array()) {
 		try{
 			\Ivy::importWidget($name);
 			$class = str_replace('/', '\\', $name);
 			$ReflectedClass = new \ReflectionClass($class."Widget"); // 2级控制器检测 非分组模式
-		}catch(CException $e){
-			throw new CException ( $class . '-不存在此widget！'); 
+		}catch(\ReflectionException $e){
+			throw new CException ( $name . '-不存在此widget！');
 		}
 		$widget_obj = $ReflectedClass->newInstanceArgs();
 		return $widget_obj->run($param);
 	}
 
-	/**
-	 * hook 与 run 类似用户控制器之间的调用（系统钩子）
-	 * @comment 自动适配分组模式 优先适配普通模式的控制器
-	 * @param $routerStr  路由参数  
-	 * @param $param array 自定义参数
-	 */
+    /**
+     * hook 与 run 类似用户控制器之间的调用（系统钩子）
+     * 自动适配分组模式 优先适配普通模式的控制器
+     * @param string/array $routerStr 路由参数
+     * @param array $param 自定义参数
+     * @return mixed
+     * @throws CException
+     */
 	public function hook($routerStr,$param=array()) {
 		$route = new Route();
-		if(is_array($routerStr)) $routerStr=implode("/",$routerStr);
+		if(is_array($routerStr)) {
+            $routerStr=implode("/",$routerStr);
+        }
 		$route->start($routerStr,$param);
 		return $this->dispatch($route);
 	}
 
-	/**
-	 * 执行路由
-	 * 直接输出结果 无返回值
-	 * @return null
-	 */
+    /**
+     * 执行路由 直接输出结果 无返回值
+     * @throws CException
+     */
 	public function run() {
 		$route = new Route();
 		$route->start();
@@ -164,17 +180,17 @@ final class Application extends CComponent {
 		$this->finished();
 	}
 
-	/**
-	 * 分发 
-	 * @param $routerObj obj 路由对象
-	 * @param $param array 附带参数数组 
-	 * @comment 自动适配分组模式 优先适配普通模式的控制器
-	 * 
-	 * 'module' => 'admin'          //分组（非必须）
-	 * 'controller' => 'roder'      //控制器（必须）
-	 * 'action' => 'index'          //方法（必须）
-	 */
-	public function dispatch($routerObj) {
+    /**
+     * 分发 自动适配分组模式 优先适配普通模式的控制器
+     * @param  Route $routerObj 路由对象
+     * @return mixed 附带参数数组
+     * @throws CException
+     *
+     * 'module' => 'admin'          //分组（非必须）
+     * 'controller' => 'roder'      //控制器（必须）
+     * 'action' => 'index'          //方法（必须）
+     */
+	public function dispatch(Route $routerObj) {
 		$param=$routerObj->param;
 		$router=$routerObj->getRouter();
 		$module=$router['module'];
@@ -184,7 +200,7 @@ final class Application extends CComponent {
 			try{
 				//优先适配2级，不存在则适配3级
 				$ReflectedClass = new \ReflectionClass($class); // 2级控制器检测 非分组模式
-			}catch(CException $e){
+			}catch(\Exception $e){
 				//试图适配分组模式
 				$routerObj->setRouter(array('module'=>$router['controller'],'controller'=>$router['action']));
 				return $this->dispatch($routerObj);
@@ -194,7 +210,7 @@ final class Application extends CComponent {
 				//检测3层分组模式下是否存在控制器，只在3级下抛出异常
 				$class=$module."\\".$class; 
 				$ReflectedClass = new \ReflectionClass($class);
-			}catch(CException $e){
+			}catch(\Exception $e){
 				throw new CException ( $router['module'].'/'.$router['controller'] . '-不存在！'); 
 			}
 		}
@@ -220,42 +236,36 @@ final class Application extends CComponent {
 		}
 		return $result;
 	}
-    
-    
-	/**
-	* 自动适配参数 并且执行
-	* @param string $method
-	* @param array $args
-	* @return mixed
-	*/
+
+    /**
+     * 自动适配参数 并且执行
+     * @param $obj
+     * @param $method
+     * @param array $args
+     * @return mixed
+     * @throws CException
+     */
 	private function _doMethod($obj, $method, array $args = array()) {
-		$reflection = new \ReflectionMethod($obj, $method);
-		$pass = array();
-		foreach($reflection->getParameters() as $param){
-			if(isset($args[$param->getName()])){
-				$pass[] = $args[$param->getName()];
-			}else{
-				try{
-					$pass[] = $param->getDefaultValue();
-				}catch(\ReflectionException $e){
-					$pass[] = null;
-				}
-			}
-		}
-		return $reflection->invokeArgs($obj, $pass);
+        try{
+            $reflection = new \ReflectionMethod($obj, $method);
+            $pass = array();
+            foreach($reflection->getParameters() as $param){
+                if(isset($args[$param->getName()])){
+                    $pass[] = $args[$param->getName()];
+                }else{
+                    $pass[] = $param->getDefaultValue()?:null;
+                }
+            }
+            return $reflection->invokeArgs($obj, $pass);
+        }catch(\ReflectionException $e){
+            throw new CException ( $e->getMessage() );
+        }
+
 	}
 
-	/**
-	 * 获去runtime路径
-	 * @return string
-	 */
-	public function getRuntimePath() {
-		return __PROTECTED__.DIRECTORY_SEPARATOR.'runtime';
-	}
 
 	/**
 	 * 正常结束处理
-	 * @return [type] [description]
 	 */
 	public function finished() {
 	}

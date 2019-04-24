@@ -150,9 +150,9 @@ class CException extends \Exception
 	public static function shutdown_handler()
 	{
 		//日志写入
-		\Ivy::logger()->flush();
+        \Ivy::logger() && \Ivy::logger()->flush();
 		//关闭数据库连接句柄
-		\Ivy::app()->dbClose();
+        \Ivy::app() && \Ivy::app()->dbClose();
 		// 资源操作 数据库连接 缓存 等处理
 		if(session_id()!=='')
 			@session_write_close();

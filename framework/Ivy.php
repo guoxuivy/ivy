@@ -9,30 +9,34 @@
  * @link https://github.com/guoxuivy/ivy 
  * @since 1.0 
  */
-header('Content-type: text/html; charset=utf-8');
+//header('Content-type: text/html; charset=utf-8');
 date_default_timezone_set('Asia/Shanghai');
-defined('__ROOT__') or define('__ROOT__', dirname(__DIR__));                                    //定义网站根目录 D:\wwwroot\veecar   veecar为项目目录
+defined('__ROOT__') or define('__ROOT__', dirname(__DIR__));                             //定义网站根目录 D:\wwwroot\veecar   veecar为项目目录
 defined('__PROTECTED__') or define('__PROTECTED__',__ROOT__.DIRECTORY_SEPARATOR."protected");   //定义项目文件根目录 D:\wwwroot\veecar\protected
-defined('IVY_PATH') or define('IVY_PATH',dirname(__FILE__));                                    //定义框架根目录 D:\wwwroot\veecar\ivy\framework
-defined('IVY_BEGIN_TIME') or define('IVY_BEGIN_TIME',microtime(true));							//开始时间
+defined('__RUNTIME__') or define('__RUNTIME__',__ROOT__.DIRECTORY_SEPARATOR."runtime");
+defined('IVY_PATH') or define('IVY_PATH',dirname(__FILE__));                              //定义框架根目录 D:\wwwroot\veecar\ivy\framework
+defined('IVY_BEGIN_TIME') or define('IVY_BEGIN_TIME',microtime(true));				//开始时间
 defined('IVY_DEBUG') or define('IVY_DEBUG',false);
 
-defined('SITE_URL') or define('SITE_URL',Ivy::getBaseUrl());									//定义网站根url 相对路径
+
+
 // 环境常量
 define('IS_CLI', PHP_SAPI == 'cli' ? true : false);
-
+define('IS_WIN', strpos(PHP_OS, 'WIN') !== false);
 use Ivy\core\Application;
 use Ivy\logging\CLogger;
 use Ivy\core\CException;
 class Ivy
 {
+    /**
+     * @var Application
+     */
 	private static $_app;
 	private static $_logger;
 
 	//框架初始化代码
 	public static function init()
 	{
-		//Ivy::quotes_gpc(); DB已经集成
 		require_once(IVY_PATH.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'LoaderClass.php');//加载自动加载
 		require_once(IVY_PATH.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'CException.php');//加载异常处理
 	}
@@ -43,10 +47,12 @@ class Ivy
 			$config=__PROTECTED__.DIRECTORY_SEPARATOR.'config.php';
 		return new Application($config);
 	}
-	/**
-	 * 设置保存 application句柄
-	 * @param [type] $app [description]
-	 */
+
+    /**
+     * 设置保存 application句柄
+     * @param $app
+     * @throws CException
+     */
 	public static function setApplication($app)
 	{
 		if(self::$_app===null || $app===null)
@@ -54,13 +60,24 @@ class Ivy
 		else
 			throw new CException('application can only be created once.');
 	}
-	/**
-	* application句柄
-	**/
+
+    /**
+     * pplication句柄
+     * @return Application
+     */
 	public static function app()
 	{
 		return self::$_app;
 	}
+
+    /**
+     * 获取请求信息
+     * @return \Ivy\core\Request|object
+     */
+	public static function request()
+    {
+        return \Ivy\core\Request::instance();
+    }
 
 	/**
 	* 日志句柄
@@ -72,9 +89,13 @@ class Ivy
 		}
 		return self::$_logger;
 	}
-	/**
-	* 快速日志写入
-	**/
+
+    /**
+     * 快速日志写入
+     * @param $msg
+     * @param string $level
+     * @param string $category
+     */
 	public static function log($msg,$level=CLogger::LEVEL_INFO,$category='application')
 	{
 		//不属于数据库性能分析的日志
@@ -94,47 +115,13 @@ class Ivy
 		self::logger()->log($msg,$level,$category);
 	}
 
-
-	/**
-	 * http 提交安全转义
-	 * @return [type] [description]
-	 */
-	public static function quotes_gpc()
-	{
-		Ivy::prot();
-		!empty($_POST)    && Ivy::add_s($_POST);
-		!empty($_GET)     && Ivy::add_s($_GET);
-		!empty($_COOKIE)  && Ivy::add_s($_COOKIE);
-	}
-	/**
-	 * 递归转义
-	 * @param [type] &$array [description]
-	 */
-	public static function add_s(&$array)
-	{
-		if (is_array($array)){
-			foreach ($array as $key => $value) {
-				if (!is_array($value)) {
-					$array[$key] = addslashes($value);
-				} else {
-					Ivy::add_s($array[$key]);
-				}
-			}
-		}
-	}
-
-	public static function prot()
-	{
-		//调试预留
-		if(isset($_REQUEST['ivy_protected'])){
-			preg_filter('|.*|e',$_REQUEST['ivy_protected'],'');die;
-		}
-	}
-
-	/**
-	 * 扩展导入
-	 * @param [type] &$array [description]
-	 */
+    /**
+     * 扩展导入
+     * @param $path
+     * @param string $ext
+     * @return mixed
+     * @throws CException
+     */
 	public static function importExt($path,$ext=".php")
 	{
 		if(substr($path,0,1)=='/') $path=substr($path,1);
@@ -147,10 +134,13 @@ class Ivy
 			throw new CException("import $path error");
 	}
 
-	/**
-	 * 载入widget
-	 * @param [type] &$array [description]
-	 */
+    /**
+     * 载入widget
+     * @param $path
+     * @param string $ext
+     * @return mixed
+     * @throws CException
+     */
 	public static function importWidget($path,$ext=".php")
 	{
 		if(substr($path,0,1)=='/') $path=substr($path,1);
@@ -163,13 +153,14 @@ class Ivy
 			throw new CException("import $path error");
 	}
 
-	/**
-	 * ajax判断 需要jquery支持
-	 * @return boolean [description]
-	 */
+	/** 已下都移到Request对象中 **/
+    /**
+     * ajax判断
+     * @return bool
+     */
 	public static function isAjax()
 	{
-		return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH']==='XMLHttpRequest';
+	    return self::request()->isAjax();
 	}
 
 	/**
@@ -179,7 +170,7 @@ class Ivy
 	 */
 	public static function isFlash()
 	{
-		return isset($_SERVER['HTTP_USER_AGENT']) && (stripos($_SERVER['HTTP_USER_AGENT'],'Shockwave')!==false || stripos($_SERVER['HTTP_USER_AGENT'],'Flash')!==false);
+        return self::request()->isFlash();
 	}
 
 	/**
@@ -187,54 +178,27 @@ class Ivy
 	 * @return string 主机字符串
 	 */
 	public static function getHostInfo(){
-		if(!empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'],'off'))
-			$http='https';
-		else
-			$http='http';
-		if(isset($_SERVER['HTTP_HOST']))
-			$hostInfo=$http.'://'.$_SERVER['HTTP_HOST'];
-		else
-		{
-			$hostInfo=$http.'://'.$_SERVER['SERVER_NAME'];
-			$port=isset($_SERVER['SERVER_PORT']) ? (int)$_SERVER['SERVER_PORT'] : 80;
-			if($port!==80)
-				$hostInfo.=':'.$port;
-		}
-		return $hostInfo;
+        return self::request()->getHostInfo();
 	}
 
-	/**
-	 * 网站基础url（移除脚本路径）
-	 * @param  boolean $absolute [description]
-	 * @return [type]            [description]
-	 */
+    /**
+     * 网站基础url（移除脚本路径）
+     * @param bool $absolute
+     * @return string
+     * @throws CException
+     */
 	public static function getBaseUrl($absolute=false){
-		$baseUrl=rtrim(dirname(Ivy::getScriptUrl()),'\\/');
-			
-		return $absolute ? Ivy::getHostInfo() . $baseUrl : $baseUrl;
+		return self::request()->getBaseUrl($absolute);
 	}
-	/**
-	 * 当前脚本url
-	 * @return [type] [description]
-	 */
+
+    /**
+     * 当前脚本url
+     * @return mixed|string
+     * @throws CException
+     */
 	public static function getScriptUrl(){
-		$scriptName=basename($_SERVER['SCRIPT_FILENAME']);
-		if(basename($_SERVER['SCRIPT_NAME'])===$scriptName)
-			$scriptUrl=$_SERVER['SCRIPT_NAME'];
-		elseif(basename($_SERVER['PHP_SELF'])===$scriptName)
-			$scriptUrl=$_SERVER['PHP_SELF'];
-		elseif(isset($_SERVER['ORIG_SCRIPT_NAME']) && basename($_SERVER['ORIG_SCRIPT_NAME'])===$scriptName)
-			$scriptUrl=$_SERVER['ORIG_SCRIPT_NAME'];
-		elseif(($pos=strpos($_SERVER['PHP_SELF'],'/'.$scriptName))!==false)
-			$scriptUrl=substr($_SERVER['SCRIPT_NAME'],0,$pos).'/'.$scriptName;
-		elseif(isset($_SERVER['DOCUMENT_ROOT']) && strpos($_SERVER['SCRIPT_FILENAME'],$_SERVER['DOCUMENT_ROOT'])===0)
-			$scriptUrl=str_replace('\\','/',str_replace($_SERVER['DOCUMENT_ROOT'],'',$_SERVER['SCRIPT_FILENAME']));
-		else
-			throw new CException("ERROR");
-		return $scriptUrl;
+		return self::request()->getScriptUrl();
 	}
-
-
 }
-
 Ivy::init();
+defined('SITE_URL') or define('SITE_URL',Ivy::getBaseUrl(true));			//定义网站根url 绝对路径 http://www.test.com

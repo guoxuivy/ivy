@@ -24,10 +24,11 @@ class Controller extends CComponent {
 	public function getDb() {
 		return \Ivy::app()->getDb();
 	}
-	/**
-	 * 获取模版对象
-	 * @return [type] [description]
-	 */
+
+    /**
+     * 获取模版对象
+     * @return Template
+     */
 	public function getView() {
 		return new Template($this);
 	}
@@ -64,12 +65,6 @@ class Controller extends CComponent {
 	 * 所有action 后自动执行
 	 */
 	public function actionAfter() {}
-
-	/**
-	 * 标准路由地址 
-	 * 由route对象注入
-	 */
-	//public function url(){}
 
 	/**
 	 * ajax 返回
@@ -117,18 +112,14 @@ class Controller extends CComponent {
 	 * 判断是否为ajax请求
 	 */
 	public function getIsAjax(){
-		return \Ivy::isAjax();
+		return \Ivy::request()->isAjax();
 	}
-	
+
 	/**
 	 * 判断是否为post请求
 	 */
 	public function getIsPost(){
-		if(isset($_POST) && $_SERVER['REQUEST_METHOD']=="POST"){
-			return true;
-		}else{
-			return false;
-		}
+        return \Ivy::request()->isPost();
 	}
 	
 }

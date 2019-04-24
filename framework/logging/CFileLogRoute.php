@@ -63,7 +63,7 @@ class CFileLogRoute extends CLogRoute
 	{
 		parent::init();
 		if($this->getLogPath()===null)
-			$this->setLogPath(\Ivy::app()->getRuntimePath());
+			$this->setLogPath(__RUNTIME__);
 		$this->levels=CLogger::LEVEL_TRACE.",".CLogger::LEVEL_WARNING.",".CLogger::LEVEL_NOTICE.",".CLogger::LEVEL_ERROR.",".CLogger::LEVEL_INFO; //默认所有级别
 	}
 
