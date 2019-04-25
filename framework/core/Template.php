@@ -9,6 +9,11 @@
  */
 namespace Ivy\core;
 class Template{
+    // 引擎配置
+    protected $config = [
+        'layout_item'        => '{__CONTENT__}', // 布局模板的内容替换标识
+    ];
+
 	/**
 	 * 模版处理类
 	 * @var string
@@ -24,47 +29,72 @@ class Template{
 
 	public function init(){}
 
-	/**
-	 * 显示输出 加载布局文件
-	 */
+    /**
+     * 显示输出 加载布局文件
+     * @param string $template
+     * @param string $ext
+     * @throws CException
+     */
 	public function display($template='',$ext = '.phtml'){
+        $this->checkAndBuildTemplateCache($template,true,$ext);
 		$output=$this->render($template);
-		if($this->controller->layout!=null){
-			$output=$this->render($this->controller->layout,array('content'=>$output));
-		}
 		//表单token
 		$this->tagToken($output);
 		echo $output;
 	}
 
-	/**
-	 * 返回渲染好的html
-	 */
+    /**
+     * 返回渲染好的html
+     * @param string $template
+     * @param array $data
+     * @param string $ext
+     * @return string
+     * @throws CException
+     */
 	public function render($template='',$data=array(),$ext='.phtml'){
-		$template_path = $this->getViewFile($template,$ext);
-		$cacheFile = __RUNTIME__.DIRECTORY_SEPARATOR.'template'.DIRECTORY_SEPARATOR.md5($template_path).$ext;
-		if (!self::checkCache($cacheFile)) {
-            // 缓存无效 重新模板编译
-            $content = file_get_contents($template_path);
-            self::tagsCompiler($content);
-            self::writeCache($cacheFile, $content);
-        }
-
+        $cacheFile = $this->checkAndBuildTemplateCache($template,false,$ext);
 		$data=array_merge($this->data,$data);
 		extract($data,EXTR_OVERWRITE);
 		ob_start();
-		include $cacheFile;
+        include $cacheFile;
 		$str = ob_get_clean();
 		return $str;
 	}
 
+    /**
+     * 检查并生成模板缓存文件
+     * @param $template
+     * @param bool $layout  是否检查布局文件
+     * @param string $ext
+     * @throws CException
+     * @return string
+     */
+    public function checkAndBuildTemplateCache($template,$layout=true,$ext='.phtml'){
+        $template_path = $this->getViewFile($template,$ext);
+        $cacheFile = __RUNTIME__.DIRECTORY_SEPARATOR.'template'.DIRECTORY_SEPARATOR.md5($template_path.$this->controller->layout).$ext;
+        if (!self::checkCache($cacheFile)) {
+            // 缓存无效 重新模板编译
+            $content = file_get_contents($template_path);
+            if($layout && $this->controller->layout!=null){
+                $layout_path = $this->getViewFile($this->controller->layout,$ext);
+                $layout_content = file_get_contents($layout_path);
+                $content = str_replace($this->config['layout_item'],$content,$layout_content);
+            }
+            self::tagsCompiler($content);
+            self::writeCache($cacheFile, $content);
+        }
+        return $cacheFile;
+    }
 
 
-	/**
-	 * 模板文件寻址
-	 * /开头为绝对路径寻址
-	 * 其它为相对路径寻址
-	 */
+    /**
+     * 模板文件寻址
+     * /开头为绝对路径寻址 其它为相对路径寻址
+     * @param $template
+     * @param string $ext
+     * @return string
+     * @throws CException
+     */
 	public function getViewFile($template,$ext = '.phtml'){
 		$template=rtrim($template);
 		$r = $this->controller->getRouter();
@@ -121,13 +151,12 @@ class Template{
 		}
 	}
 
-
-	/**
-	 * 引入其他模版文件
-	 * @param  [type] $template [description]
-	 * @param  string $ext      [description]
-	 * @return [type]           [description]
-	 */
+    /**
+     * 引入其他模版文件
+     * @param $template
+     * @param string $ext
+     * @throws CException
+     */
 	public function import($template,$ext = '.phtml'){
 		$template_path = $this->getViewFile($template,$ext);
 		include $template_path;
@@ -143,10 +172,12 @@ class Template{
 		return $this->controller->url($uri,$param);
 	}
 
-	/**
-	 * assign 
-	 * 模版变量传递
-	 */
+    /**
+     * 模版变量传递
+     * @param string $key
+     * @param string $value
+     * @return $this
+     */
 	public function assign($key='',$value=''){
 		if($key&&$value&&is_string($key)){
 			$this->data[$key] = $value;
@@ -160,28 +191,29 @@ class Template{
 	}
 
 
-	/**
-	 * css+js+img 路径
-	 * $name 文件路径+文件名称 （public之后的部分）
-	 * $type 文件类型 image,js,css,data
-	 */
+    /**
+     * css+js+img 路径
+     * @param $name
+     * @return string
+     */
 	public function basePath($name){
-		return SITE_URL.'/'.$name;
+		return '/'.$name;
 	}
 
-	/**
-	 * 设置属性，供模版使用
-	 */
+    /**
+     * 设置属性，供模版使用
+     * @param $k
+     * @param $v
+     */
 	public function __set($k,$v){
 		$this->$k = $v;
 	}
 
 
-	/**
-	 * token注入
-	 * @param  [type] &$content [description]
-	 * @return [type]           [description]
-	 */
+    /**
+     * token注入
+     * @param $content
+     */
 	public function tagToken(&$content){
 		if(\Ivy::app()->C('token')) {
 			if(strpos($content,'{__TOKEN__}')) {
@@ -196,7 +228,10 @@ class Template{
 		}
 	}
 
-	// 创建表单令牌
+    /**
+     * 创建表单令牌
+     * @return string
+     */
 	private function buildToken() {
 		$tokenName  = '__hash__';
 		$tokenType  = 'md5';
@@ -214,8 +249,6 @@ class Template{
 		$token      =  '<input type="hidden" name="'.$tokenName.'" value="'.$tokenKey.'_'.$tokenValue.'" />';
 		return $token;
 	}
-
-
 
 	/**
 	 * 内置标签解析 支持 if、 elseif、 foreach 
@@ -265,6 +298,7 @@ class Template{
      * @param string $cacheFile 缓存的文件名
      * @param string $content 缓存的内容
      * @return void|array
+     * @throws CException
      */
     public static function writeCache($cacheFile, $content)
     {
@@ -279,10 +313,11 @@ class Template{
         }
     }
 
+
+
     /**
      * 检查编译缓存是否有效
      * @param string  $cacheFile 缓存的文件名
-     * @param int     $cacheTime 缓存时间
      * @return boolean
      */
     public static function checkCache($cacheFile)

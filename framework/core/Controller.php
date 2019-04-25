@@ -66,22 +66,23 @@ class Controller extends CComponent {
 	 */
 	public function actionAfter() {}
 
-	/**
-	 * ajax 返回
-	 * @param  srting $statusCode [状态]
-	 * @param  string $message    [消息]
-	 * @param  array  $data       [数据]
-	 * @return json             [json返回值]
-	 */
-	protected function ajaxReturn($statusCode, $message = '', $data = array()) {
+
+    /**
+     * ajax 返回
+     * @param $code
+     * @param string $message
+     * @param array $data
+     */
+	protected function ajaxReturn($code, $message = '', $data = array()) {
+        header('Content-type: application/json');
 		if (empty( $data )) {
 			die ( json_encode ( array (
-					'code' => $statusCode,
+					'code' => $code,
 					'msg' => $message 
 			) ) );
 		} else {
 			die ( json_encode ( array (
-					'code' => $statusCode,
+					'code' => $code,
 					'msg' => $message,
 					'data' => $data 
 			) ) );
@@ -96,7 +97,7 @@ class Controller extends CComponent {
 	public function redirect($uri="",$param=array()){
 		if(strpos($uri,'://')===false){
 			$uri = $this->url($uri,$param);
-			$uri=$this->getHostInfo().$uri;
+			$uri=$this->domain().$uri;
 		}
 		header('Location: '.$uri, true, 302);exit;
 	}
@@ -104,8 +105,8 @@ class Controller extends CComponent {
 	 * 获取当前主机域名
 	 * @return string 主机字符串
 	 */
-	public function getHostInfo(){
-		return \Ivy::getHostInfo();
+	public function domain(){
+		return \Ivy::request()->domain();
 	}
 
 	/**

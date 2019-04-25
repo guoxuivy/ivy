@@ -9,7 +9,7 @@
  * @link https://github.com/guoxuivy/ivy 
  * @since 1.0 
  */
-//header('Content-type: text/html; charset=utf-8');
+header('Content-type: text/html; charset=utf-8');
 date_default_timezone_set('Asia/Shanghai');
 defined('__ROOT__') or define('__ROOT__', dirname(__DIR__));                             //定义网站根目录 D:\wwwroot\veecar   veecar为项目目录
 defined('__PROTECTED__') or define('__PROTECTED__',__ROOT__.DIRECTORY_SEPARATOR."protected");   //定义项目文件根目录 D:\wwwroot\veecar\protected
@@ -202,3 +202,7 @@ class Ivy
 }
 Ivy::init();
 defined('SITE_URL') or define('SITE_URL',Ivy::getBaseUrl(true));			//定义网站根url 绝对路径 http://www.test.com
+
+function halt($var){
+    var_dump($var);die;
+}

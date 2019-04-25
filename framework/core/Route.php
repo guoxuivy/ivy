@@ -50,7 +50,7 @@ class Route {
                     }
                 }
             }
-            $routerStr = empty($_SERVER['PATH_INFO']) ? '/' : ltrim($_SERVER['PATH_INFO'], '/');
+            $routerStr = empty($_SERVER['PATH_INFO']) ? '' : trim($_SERVER['PATH_INFO'], '/');
 			$param=$_GET;
 			unset($param['r']);
 		}
@@ -61,30 +61,28 @@ class Route {
 
 	/**
 	 * 格式化为url
-	 * 可扩展 url seo
-	 * $uri     admin/order/index 
-	 * $param   array("id"=>1)
-	 * @return string
-	 */
+     * @param string $uri admin/order/index
+     * @param array $param rray("id"=>1)
+     * @return bool|string
+     */
 	public function url($uri="",$param=array()){
-        $pathinfo_type = 0; //url友好模式
+        $type = 0; //url友好模式
         if(0 === strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME'])){
             // 有index.php
-            $pathinfo_type = 1;
+            $type = 1;
         };
-
-		if($uri==='/') return SITE_URL;
+		if($uri==='/') return '/';
 		if(strpos($uri,'/')===false){
 			// 如 'list' 不包含分隔符 只指定方法名称
 			$r=$this->getRouter();
 			if(!empty($uri)) $r['action']=$uri;
 			$uri=implode('/', array_filter($r));
 		}
-        if($pathinfo_type){
+        if($type){
             $param['r'] = rtrim($uri);
-            $uri = SITE_URL.$_SERVER['SCRIPT_NAME'];
+            $uri = $_SERVER['SCRIPT_NAME'];
         }else{
-            $uri = SITE_URL.'/'.rtrim($uri);
+            $uri = '/'.rtrim($uri);
         }
 		$param_arr = array_filter($param);
 		if(!empty($param_arr)){

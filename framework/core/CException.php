@@ -95,7 +95,7 @@ class CException extends \Exception
 		}
 		$str = $str_log = '';
 		try {
-			$str.= '<style>.exception-trace p{padding-top:0px;margin-top:0px} .exception-trace pre{background-color: #E0EBD3;padding-top:0px;margin-top:0px} .exception-trace-index{background-color: #BBDBF4; border-bottom: 1px #1188FF solid}</style>';
+			$str.= '<style>.exception-trace{position:fiexd;bottom:0} .exception-trace p{padding-top:0px;margin-top:0px} .exception-trace pre{background-color: #E0EBD3;padding-top:0px;margin-top:0px} .exception-trace-index{background-color: #BBDBF4; border-bottom: 1px #1188FF solid}</style>';
 			$str.= '<div class="exception-trace">';
 			$str.= '<b>Fatal error</b>:  未捕获的异常\'' . get_class($exception) . '\'  ';
 			$str_log.= "\n<!--Fatal error-->\n未捕获的异常" . get_class($exception) . "  \n";
