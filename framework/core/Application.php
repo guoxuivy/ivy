@@ -19,7 +19,8 @@ final class Application extends CComponent {
 	protected $dbs = array();
 	/**
 	 * 登录用户
-	 */
+     * @var User
+     */
 	protected $user = NULL;
 	/**
 	 * cache

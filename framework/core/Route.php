@@ -54,6 +54,9 @@ class Route {
 			$param=$_GET;
 			unset($param['r']);
 		}
+        if(false!=strrpos($routerStr,'&')){
+            $routerStr = substr($routerStr,0,strrpos($routerStr,'&'));
+        }
         $this->pathinfo = $routerStr;
 		$this->analyzeRoute($routerStr);
 		$this->param=$param;
@@ -172,23 +175,4 @@ class Route {
 		}
 	}
 
-
-    /**
-     * 当前请求 HTTP_CONTENT_TYPE
-     * @access public
-     * @return string
-     */
-    public function contentType()
-    {
-        $contentType = $this->server('CONTENT_TYPE');
-        if ($contentType) {
-            if (strpos($contentType, ';')) {
-                list($type) = explode(';', $contentType);
-            } else {
-                $type = $contentType;
-            }
-            return trim($type);
-        }
-        return '';
-    }
 }

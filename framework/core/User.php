@@ -169,25 +169,37 @@ class User extends Model
 	}
 
 
-	/**
-	 * 权限检测快捷方式
-	 * @return boolen
-	 */
+    /**
+     * 权限检测快捷方式
+     * @param $route
+     * @return bool|\rbac\boolen
+     * @throws CException
+     */
 	public function checkAccess($route){
 		if($this->isGuest) return false;
 		$auth_list = $this->getAuthList();
 		return $this->getAuth()->checkAccess($route,$auth_list);
 	}
 
+    /**
+     * 权限
+     * @return null|\rbac\AuthController
+     * @throws CException
+     */
 	public function getAuth() {
 		if($this->_auth instanceof \rbac\AuthController){
 			return $this->_auth;
 		}else{
-			$this->_auth = new \rbac\AuthController ();
+			$this->_auth = new \rbac\AuthController();
 			return $this->_auth;
 		}
 	}
 
+    /**
+     * 权限列表
+     * @return array
+     * @throws CException
+     */
 	public function getAuthList(){
 		$prefix=$this->getStateKeyPrefix();
 		$list=\Ivy::app()->cache->get('auth_list_'.$prefix);
@@ -199,12 +211,11 @@ class User extends Model
 	}
 	/**
 	 * 权限缓存 销毁
-	 * @return [type] [description]
 	 */
 	public function clearAuthCache()
 	{
 		$prefix=$this->getStateKeyPrefix();
-		$list=\Ivy::app()->cache->delete('auth_list_'.$prefix);
+		\Ivy::app()->cache->delete('auth_list_'.$prefix);
 	}
 
 }
