@@ -36,12 +36,26 @@ class Template{
      * @throws CException
      */
 	public function display($template='',$ext = '.phtml'){
-        $this->checkAndBuildTemplateCache($template,true,$ext);
-		$output=$this->render($template);
+        $cacheFile = $this->checkAndBuildTemplateCache($template,true,$ext);
+        $output = $this->ob($this->data,$cacheFile);
 		//表单token
 		$this->tagToken($output);
 		echo $output;
 	}
+
+    /**
+     * 模板文件加载到ob
+     * @param $data
+     * @param $cacheFile
+     * @return string
+     */
+	protected function ob($data,$cacheFile){
+        extract($data,EXTR_OVERWRITE);
+        ob_start();
+        include $cacheFile;
+        $output = ob_get_clean();
+        return $output;
+    }
 
     /**
      * 返回渲染好的html
@@ -54,11 +68,8 @@ class Template{
 	public function render($template='',$data=array(),$ext='.phtml'){
         $cacheFile = $this->checkAndBuildTemplateCache($template,false,$ext);
 		$data=array_merge($this->data,$data);
-		extract($data,EXTR_OVERWRITE);
-		ob_start();
-        include $cacheFile;
-		$str = ob_get_clean();
-		return $str;
+        $output = $this->ob($data,$cacheFile);
+		return $output;
 	}
 
     /**
