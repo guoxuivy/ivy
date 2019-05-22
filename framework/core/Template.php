@@ -37,7 +37,7 @@ class Template{
      */
 	public function display($template='',$ext = '.phtml'){
         $cacheFile = $this->checkAndBuildTemplateCache($template,true,$ext);
-        $output = $this->ob($this->data,$cacheFile);
+        $output = $this->ob($cacheFile);
 		//表单token
 		$this->tagToken($output);
 		echo $output;
@@ -45,12 +45,11 @@ class Template{
 
     /**
      * 模板文件加载到ob
-     * @param $data
      * @param $cacheFile
      * @return string
      */
-	protected function ob($data,$cacheFile){
-        extract($data,EXTR_OVERWRITE);
+	protected function ob($cacheFile){
+        extract($this->data,EXTR_OVERWRITE);
         ob_start();
         include $cacheFile;
         $output = ob_get_clean();
@@ -67,8 +66,8 @@ class Template{
      */
 	public function render($template='',$data=array(),$ext='.phtml'){
         $cacheFile = $this->checkAndBuildTemplateCache($template,false,$ext);
-		$data=array_merge($this->data,$data);
-        $output = $this->ob($data,$cacheFile);
+        $this->data = array_merge($this->data,$data);
+        $output = $this->ob($cacheFile);
 		return $output;
 	}
 
@@ -96,7 +95,6 @@ class Template{
         }
         return $cacheFile;
     }
-
 
     /**
      * 模板文件寻址
@@ -211,6 +209,7 @@ class Template{
 		return '/'.$name;
 	}
 
+
     /**
      * 设置属性，供模版使用
      * @param $k
@@ -267,6 +266,8 @@ class Template{
 	 * @return [type]           [description]
 	 $content = '
 <body>
+    <p>{$name->abc}</p>
+    <p>{$name['abc']}</p>
 	<p>{$name}</p>
 	<p>{$age}</p>
 	{if $age > 18}
@@ -281,6 +282,8 @@ class Template{
 	*/
     public static function tagsCompiler(&$content) {
 		$_patten = [
+            '#\{\\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)->([\w]+)\}#',
+            '#\{\\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)(\[.*?\])\}#',
 			'#\{\\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\}#',
 			'#\{\\$this->(.*?)\}#',
 			'#\{if (.*?)\}#',
@@ -289,9 +292,10 @@ class Template{
 			'#\{foreach \\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)}#',
 			'#\{foreach (.*?)\}#',
 			'#\{\/(foreach|if)}#',
-		
 		];
 		$_translation = [
+            '<?php echo \$\\1->\\2; ?>',
+            '<?php echo \$\\1\\2; ?>',
 			'<?php echo \$\\1; ?>',
 			'<?php echo \$this->\\1; ?>',
 			'<?php if (\\1) {?>',
