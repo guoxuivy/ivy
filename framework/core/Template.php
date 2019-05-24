@@ -8,6 +8,7 @@
  * @since 1.0 
  */
 namespace Ivy\core;
+use \Ivy\core\lib\IvyString;
 class Template{
     // 引擎配置
     protected $config = [
@@ -70,6 +71,18 @@ class Template{
         $output = $this->ob($cacheFile);
 		return $output;
 	}
+
+    /**
+     * 引入其他模版文件
+     * @param $template
+     * @param string $ext
+     * @throws CException
+     */
+    public function import($template,$ext = '.phtml'){
+        $cacheFile = $this->checkAndBuildTemplateCache($template,false,$ext);
+        // $template_path = $this->getViewFile($template,$ext);
+        include $cacheFile;
+    }
 
     /**
      * 检查并生成模板缓存文件
@@ -160,16 +173,7 @@ class Template{
 		}
 	}
 
-    /**
-     * 引入其他模版文件
-     * @param $template
-     * @param string $ext
-     * @throws CException
-     */
-	public function import($template,$ext = '.phtml'){
-		$template_path = $this->getViewFile($template,$ext);
-		include $template_path;
-	}
+
 
 
 	/**
@@ -292,6 +296,7 @@ class Template{
 			'#\{foreach \\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)}#',
 			'#\{foreach (.*?)\}#',
 			'#\{\/(foreach|if)}#',
+            '#\{:(.*?)}#',
 		];
 		$_translation = [
             '<?php echo \$\\1->\\2; ?>',
@@ -301,9 +306,10 @@ class Template{
 			'<?php if (\\1) {?>',
 			'<?php } else if (\\2) {?>',
 			'<?php }else {?>',
-			'<?php foreach (\\1 as \$k => \$v) {?>',
+			'<?php foreach (\$\\1 as \$k => \$v) {?>',
 			'<?php foreach (\\1) {?>',
 			'<?php }?>',
+            '<?php echo \\1; ?>',
 		];
 		$content =  preg_replace($_patten, $_translation, $content);
 	}

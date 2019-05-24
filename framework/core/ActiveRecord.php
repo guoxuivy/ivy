@@ -281,6 +281,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 				}
 			}
 		}
+		return $this;
 	}
 
 	//前置操作会影响save的执行

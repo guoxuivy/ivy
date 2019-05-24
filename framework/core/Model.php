@@ -286,7 +286,6 @@ class Model extends CComponent{
 	 * @return array
 	 */
 	public function count(){
-		$data = array();
 		if(empty($this->options['table']))
 			$this->table();
 		if(!isset($this->options['page'])) $this->page();
@@ -353,7 +352,8 @@ class Model extends CComponent{
 		$data['pagener']=$this->db->generatePagener($pagener);
 		$data['list'] = $this->findAllBySql($this->buildSelectSql());
 		$data['page_code']=\Ivy::app()->widget('page/page',array('data'=>$data));//核心无此widget 自行扩展分页
-		return $data;
+
+        return $data;
 	}
 
 

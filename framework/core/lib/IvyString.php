@@ -80,7 +80,7 @@ class IvyString {
      * @param string $suffix 截断显示字符
      * @return string
      */
-    static public function msubstr($str, $start=0, $length, $charset="utf-8", $suffix=true) {
+    static public function msubstr($str, $length=20, $start=0, $charset="utf-8", $suffix=true) {
         if(function_exists("mb_substr"))
             $slice = mb_substr($str, $start, $length, $charset);
         elseif(function_exists('iconv_substr')) {
