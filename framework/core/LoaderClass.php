@@ -24,8 +24,8 @@ class LoaderClass{
 		if("Ivy\\"===substr($className,0,4)){
 			$className=substr($className,4);
 			//加载框架文件
-			$file_path=IVY_PATH.DIRECTORY_SEPARATOR.$className.'.php';
-			$file_path = str_replace('\\', DIRECTORY_SEPARATOR, $file_path);
+			$file_path=IVY_PATH.DS.$className.'.php';
+			$file_path = str_replace('\\', DS, $file_path);
 			if(is_file($file_path)){
 				return include_once $file_path;
 			}else{
@@ -34,16 +34,16 @@ class LoaderClass{
 		}
 		
 		//自动加载 应用下的 components 文件
-		$file_path=__PROTECTED__.DIRECTORY_SEPARATOR."components".DIRECTORY_SEPARATOR.$className.'.php';
-		$file_path = str_replace('\\', DIRECTORY_SEPARATOR, $file_path);
+		$file_path=__PROTECTED__.DS."components".DS.$className.'.php';
+		$file_path = str_replace('\\', DS, $file_path);
 		if(is_file($file_path))
 			return include_once $file_path;
 		//自动加载 分组下的 components 文件
 		$className_tmp=array_filter(explode("\\",$className));
 		if(count($className_tmp)>1){
 			$groupName=array_shift($className_tmp);
-			$cName=implode(DIRECTORY_SEPARATOR,$className_tmp);
-			$file_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.$groupName.DIRECTORY_SEPARATOR."components".DIRECTORY_SEPARATOR.$cName.'.php';
+			$cName=implode(DS,$className_tmp);
+			$file_path=__PROTECTED__.DS."modules".DS.$groupName.DS."components".DS.$cName.'.php';
 			if(is_file($file_path))
 				return include_once $file_path;
 		}
@@ -59,15 +59,15 @@ class LoaderClass{
 		$className=array_filter(explode("\\",$className));
 		if(count($className)==1){
 			//根命名空间
-			$file_path=__PROTECTED__.DIRECTORY_SEPARATOR.$dispatch.DIRECTORY_SEPARATOR.$className[0].'.php';
+			$file_path=__PROTECTED__.DS.$dispatch.DS.$className[0].'.php';
 			if(is_file($file_path)){
 				return include_once $file_path;
 			}
 		}else{
 			//分组命名空间
 			$module=array_shift($className);
-			$dir = implode(DIRECTORY_SEPARATOR ,$className);
-			$file_path=__PROTECTED__.DIRECTORY_SEPARATOR."modules".DIRECTORY_SEPARATOR.$module.DIRECTORY_SEPARATOR.$dispatch.DIRECTORY_SEPARATOR.$dir.'.php';
+			$dir = implode(DS ,$className);
+			$file_path=__PROTECTED__.DS."modules".DS.$module.DS.$dispatch.DS.$dir.'.php';
 			if(is_file($file_path)){
 				return include_once $file_path;
 			}
@@ -85,7 +85,7 @@ class LoaderClass{
 		if(!empty($file_path)){
 			foreach(scandir($file_path) as $dir){
 				if($dir!="."&&$dir!=".."){
-					$f_name=$file_path.DIRECTORY_SEPARATOR.$dir;
+					$f_name=$file_path.DS.$dir;
 					if(is_dir($f_name)){
 					   self::allScandir($f_name,$arr);
 					}else{

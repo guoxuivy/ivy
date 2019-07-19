@@ -11,19 +11,20 @@
  */
 header('Content-type: text/html; charset=utf-8');
 date_default_timezone_set('Asia/Shanghai');
+defined('DS') or define('DS',DIRECTORY_SEPARATOR);
 defined('__ROOT__') or define('__ROOT__', dirname(__DIR__));                             //定义网站根目录 D:\wwwroot\veecar   veecar为项目目录
-defined('__PROTECTED__') or define('__PROTECTED__',__ROOT__.DIRECTORY_SEPARATOR."protected");   //定义项目文件根目录 D:\wwwroot\veecar\protected
-defined('__RUNTIME__') or define('__RUNTIME__',__ROOT__.DIRECTORY_SEPARATOR."runtime");
+defined('__PROTECTED__') or define('__PROTECTED__',__ROOT__.DS."protected");                    //定义项目文件根目录 D:\wwwroot\veecar\protected
+defined('__RUNTIME__') or define('__RUNTIME__',__ROOT__.DS."runtime");
 defined('IVY_PATH') or define('IVY_PATH',dirname(__FILE__));                              //定义框架根目录 D:\wwwroot\veecar\ivy\framework
+
+
 defined('IVY_BEGIN_TIME') or define('IVY_BEGIN_TIME',microtime(true));				//开始时间
 defined('IVY_DEBUG') or define('IVY_DEBUG',false);
-
-
 
 // 环境常量
 define('IS_CLI', PHP_SAPI == 'cli' ? true : false);
 define('IS_WIN', strpos(PHP_OS, 'WIN') !== false);
-use Ivy\core\Application;
+
 use Ivy\logging\CLogger;
 use Ivy\core\CException;
 class Ivy
@@ -37,16 +38,25 @@ class Ivy
 	//框架初始化代码
 	public static function init()
 	{
-		require_once(IVY_PATH.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'LoaderClass.php');//加载自动加载
-		require_once(IVY_PATH.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'CException.php');//加载异常处理
+		require_once(IVY_PATH.DS.'core'.DS.'LoaderClass.php');//加载自动加载
+		require_once(IVY_PATH.DS.'core'.DS.'CException.php');//加载异常处理
 	}
 	//创建应用实例
 	public static function createApplication($config=null)
 	{
 		if($config===null)
-			$config=__PROTECTED__.DIRECTORY_SEPARATOR.'config.php';
-		return new Application($config);
+			$config=__PROTECTED__.DS.'config.php';
+		return new \Ivy\core\Application($config);
 	}
+
+
+    //创建应用实例
+    public static function createConsole($config=null)
+    {
+        if($config===null)
+            $config=__PROTECTED__.DS.'config.php';
+        return new \Ivy\core\Console($config);
+    }
 
     /**
      * 设置保存 application句柄
@@ -126,7 +136,7 @@ class Ivy
 	{
 		if(substr($path,0,1)=='/') $path=substr($path,1);
 		
-		$file_path=__PROTECTED__.DIRECTORY_SEPARATOR.'extensions'.DIRECTORY_SEPARATOR.$path.$ext;
+		$file_path=__PROTECTED__.DS.'extensions'.DS.$path.$ext;
 		
 		if(is_file($file_path))
 			return include_once $file_path;
@@ -145,7 +155,7 @@ class Ivy
 	{
 		if(substr($path,0,1)=='/') $path=substr($path,1);
 		
-		$file_path=__PROTECTED__.DIRECTORY_SEPARATOR.'widgets'.DIRECTORY_SEPARATOR.$path."Widget".$ext;
+		$file_path=__PROTECTED__.DS.'widgets'.DS.$path."Widget".$ext;
 		
 		if(is_file($file_path))
 			return include_once $file_path;

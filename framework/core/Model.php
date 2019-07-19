@@ -195,14 +195,14 @@ class Model extends CComponent{
 	/**
 	 * 构建查询sql
 	 **/
-	public function buildSelectSql($last=true) {
+	public function buildSelectSql($last=true,$clean=true) {
 		if(empty($this->options['table']))
 			$this->table();
 		$sql = $this->db->buildSelectSql($this->options);
-		$this->options=array();
-		if ($last) {
+		if($clean)
+			$this->options=array();
+		if($last)
 			$this->lastSql=$sql;
-		}
 		return $sql;
 	}
 	/**
@@ -307,13 +307,10 @@ class Model extends CComponent{
 
 	/**
 	 * 获取翻页信息  配合 page(),方法使用
-	 * @param string $tableName	表名
-	 * @param array $order 排序
-	 * @param int $limit 每页显示条数
-	 * @param int $page 页码
+	 * @param int $link_num 分页显示条数
 	 * @return array
 	 */
-	public function getPagener(){
+	public function getPagener($link_num = 5){
 		$data = array();
 		if(empty($this->options['table']))
 			$this->table();
@@ -349,12 +346,13 @@ class Model extends CComponent{
 		$pagener['pageSize'] = (int)$listRows;
 		$pagener['pageNums'] = (int)ceil($count['count']/$listRows);
 		$pagener['currentPage'] = (int)$page;
-		$data['pagener']=$this->db->generatePagener($pagener);
+		$data['pagener']=$this->db->generatePagener($pagener,$link_num);
 		$data['list'] = $this->findAllBySql($this->buildSelectSql());
 		$data['page_code']=\Ivy::app()->widget('page/page',array('data'=>$data));//核心无此widget 自行扩展分页
 
         return $data;
 	}
+
 
 
 }

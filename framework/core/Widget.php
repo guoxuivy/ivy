@@ -19,48 +19,44 @@ abstract class Widget extends Controller {
 		$this->init();//用于重写
 	}
 
-	/**
-	 * widget必须包含run()方法，只允许一个参数
-	 */
+
+    /**
+     * widget必须包含run()方法，只允许一个参数
+     * @param $data
+     * @return mixed
+     */
 	abstract function run($data);
-	
-	/**
-	 * render 返回渲染好的html 模版文件名只能小写
-	 * 当前目录下 view 中寻址
-	 */
-	public function render($data=array(),$ext='.phtml'){
+
+    /**
+     * render 返回渲染好的html 模版文件名只能小写
+     * 当前目录下 view 中寻址
+     * render 返回渲染好的html 模版文件名只能小写
+     * @param array $data
+     * @param string $ext
+     * @return string
+     * @throws CException
+     */
+	public function render($data=[],$ext='.phtml'){
 		$className = get_class($this);
-		$classfile = str_replace("\\",DIRECTORY_SEPARATOR,$className);//命名空间寻址 兼容linux
-		$filename= substr(strtolower($classfile),0,-6).$ext;
-		$filename_arr = explode(DIRECTORY_SEPARATOR, $filename);
+		$classFile = str_replace("\\",DS,$className);//命名空间寻址 兼容linux
+		$filename= substr(strtolower($classFile),0,-6).$ext;
+		$filename_arr = explode(DS, $filename);
 		$last = array_pop($filename_arr);
 		array_push($filename_arr,'view',$last);
-		$filename=implode(DIRECTORY_SEPARATOR,$filename_arr);
-		$template_path = __PROTECTED__.DIRECTORY_SEPARATOR."widgets".DIRECTORY_SEPARATOR.$filename;
+		$filename=implode(DS,$filename_arr);
+		$template_path = __PROTECTED__.DS."widgets".DS.$filename;
 		if(!file_exists($template_path)){
 			throw new CException('widget模版-'.$template_path.'-不存在!');
 		}
-
-        $cacheFile = __RUNTIME__.DIRECTORY_SEPARATOR.'template'.DIRECTORY_SEPARATOR.md5($template_path).$ext;
-        if (!Template::checkCache($cacheFile)) {
-            // 缓存无效 重新模板编译
-            $content = file_get_contents($template_path);
-            Template::tagsCompiler($content);
-            Template::writeCache($cacheFile, $content);
-        }
-
-		$data=array_merge($this->data,$data);
-		extract($data,EXTR_OVERWRITE);
-		ob_start();
-		include $cacheFile;
-		$str = ob_get_clean();
-		return $str;
+        $data = array_merge($this->data,$data);
+        $template = new Template($this);
+        $template->assign($data);
+        $cacheFile = $template->checkAndBuildTemplateCache($template_path,false,$ext);
+        $output = $template->ob($cacheFile);
+        return $output;
 	}
 
-	public function basePath($name){
-		return SITE_URL.'/'.$name;
-	}
-	
+
 	/**
 	 * assign 
 	 * 模版变量传递

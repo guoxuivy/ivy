@@ -145,7 +145,7 @@ class CFileLogRoute extends CLogRoute
 	 */
 	protected function processLogs($logs)
 	{
-		$logFile=$this->getLogPath().DIRECTORY_SEPARATOR.$this->getLogFile();
+		$logFile=$this->getLogPath().DS.$this->getLogFile();
 		if(@filesize($logFile)>$this->getMaxFileSize()*1024)
 			$this->rotateFiles();
 		$fp=@fopen($logFile,'a');
@@ -162,7 +162,7 @@ class CFileLogRoute extends CLogRoute
 	 */
 	protected function rotateFiles()
 	{
-		$file=$this->getLogPath().DIRECTORY_SEPARATOR.$this->getLogFile();
+		$file=$this->getLogPath().DS.$this->getLogFile();
 		$max=$this->getMaxLogFiles();
 		for($i=$max;$i>0;--$i)
 		{

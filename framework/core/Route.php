@@ -23,11 +23,11 @@ class Route {
 	//其它需要传递的参数
 	public $param = array();
 
-	public $pathinfo = '';
+	// url传递的当前的路由参数 比如 index/detail
+    public $pathinfo = '';
 
 	public function __construct(){
 	}
-
 
 	/**
 	 * 路由 处理  
@@ -51,16 +51,32 @@ class Route {
                 }
             }
             $routerStr = empty($_SERVER['PATH_INFO']) ? '' : trim($_SERVER['PATH_INFO'], '/');
-			$param=$_GET;
+            $router_arr = parse_url($routerStr);
+            $routerStr = $router_arr['path'];
+            $param = $this->convertUrlQuery($router_arr['query']);
+            $param = array_merge($_GET,$param);
 			unset($param['r']);
 		}
-        if(false!=strrpos($routerStr,'&')){
-            $routerStr = substr($routerStr,0,strrpos($routerStr,'&'));
-        }
+		//参数移除
+        // if(false!=strrpos($routerStr,'?')){
+         //    $routerStr = substr($routerStr,0,strrpos($routerStr,'?'));
+        // }
         $this->pathinfo = $routerStr;
 		$this->analyzeRoute($routerStr);
-		$this->param=$param;
+		$this->param = $_GET= $param;
 	}
+
+    public function convertUrlQuery($query)
+    {
+        $queryParts = explode('&', $query);
+        $params = array();
+        foreach ($queryParts as $param)
+        {
+            $item = explode('=', $param);
+            !is_null($item[1]) && $params[$item[0]] = $item[1];
+        }
+        return $params;
+    }
 
 	/**
 	 * 格式化为url

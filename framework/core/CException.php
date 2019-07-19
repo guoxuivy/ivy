@@ -160,6 +160,8 @@ class CException extends \Exception
 	}
 
 }
-set_error_handler(array("Ivy\core\CException", "error_handler")); //是否启用框架自定义错误处理
-set_exception_handler(array("Ivy\core\CException", "exception_handler"));
+if(!IS_CLI){
+	set_error_handler(array("Ivy\core\CException", "error_handler")); //是否启用框架自定义错误处理
+	set_exception_handler(array("Ivy\core\CException", "exception_handler"));
+}
 register_shutdown_function(array('Ivy\core\CException', 'shutdown_handler'));

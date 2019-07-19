@@ -87,6 +87,10 @@ final class Application extends CComponent {
 		}
 	}
 
+	public function closeProfile(){
+	    $this->noProfile = true;
+    }
+
     /**
      * 当前实例的配置信息修改、读取 支持全部、局部更新，全部、局部查询
      * @param null $key
@@ -224,8 +228,8 @@ final class Application extends CComponent {
 		if($ReflectedClass->hasMethod($_before)){
 			$this->_doMethod($controller_obj, $_before, $param);
 		}
-		if(!$ReflectedClass->hasMethod($action)){
-			throw new CException ( '访问地址不存在！'); 
+		if(!$ReflectedClass->hasMethod($action) && !$ReflectedClass->hasMethod("emptyAction")){
+            throw new CException ( '访问action不存在！');
 		}
 		$result = $this->_doMethod($controller_obj, $action, $param);
 		$_after=str_replace('Action','After',$action);
@@ -259,6 +263,9 @@ final class Application extends CComponent {
             }
             return $reflection->invokeArgs($obj, $pass);
         }catch(\ReflectionException $e){
+            if(method_exists($obj,"emptyAction")){
+                return $obj->emptyAction($method,$args);
+            }
             throw new CException ( $e->getMessage() );
         }
 

@@ -80,7 +80,7 @@ class CProfileLogRoute extends CLogRoute
 	{
 		if(\Ivy::isAjax() || \Ivy::isFlash())
 			return;
-		$viewFile=IVY_PATH.DIRECTORY_SEPARATOR.'views'.DIRECTORY_SEPARATOR.$view.'.php';
+		$viewFile=IVY_PATH.DS.'views'.DS.$view.'.php';
 		include($viewFile);
 	}
 }

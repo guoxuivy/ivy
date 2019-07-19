@@ -10,7 +10,7 @@
  * ORM 数据库记录对象映射 提供便捷的数据库对象映射
  */
 namespace Ivy\core;
-abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayAccess{
+abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayAccess ,\JsonSerializable{
 
 	private $_fields = array();                 // meta data 存储数据库表对应字段名  数字索引数组
 	private $_new=false;                        // whether this instance is new or not
@@ -125,6 +125,11 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	public function getIterator(){
 		return new \ArrayIterator($this->_attributes);
 	}
+
+    public function jsonSerialize()
+    {
+        return $this->_attributes;
+    }
 
 	/**
 	 * 重写table方法
@@ -307,7 +312,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 			try {
 				if(!$this->beforeSave())
 					throw new CException('前置保存失败！');
-				$res = $this->getIsNewRecord() ? $this->insert() : $this->update();
+				$res = $this->getIsNewRecord() ? $this->_insert() : $this->_update();
 				$res->afterSave();
 				return $res;
 			} catch (CException $e) {
@@ -359,7 +364,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	* 返回 lastInsertId();
 	* 隐藏此方法 统一由save提供
 	*/
-	protected function insert(){
+	private function _insert(){
 		if($this->getIsNewRecord()){
 			$lastId = $this->insertData($this->tableName(),$this->getAttributes());
 			if($lastId>0){
@@ -383,7 +388,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	* 更新 AR对象
 	* 隐藏此方法 统一由save提供
 	*/
-	protected function update(){
+    private function _update(){
 		if($this->getIsNewRecord()){
 			throw new CException('这是一个新数据，无法更新！');
 		}else{
@@ -396,6 +401,23 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 			return $obj;
 		}
 	}
+
+    /**
+     * 更新操作(无查询更新)
+     * @param null $data
+     * @return mixed
+     * @throws CException
+     */
+    public function update($data=null){
+        if(empty($data)){
+            return $this->_update();
+        }
+        $res = $this->updateData($this->tableName(),$this->options['where'],$data);
+        if($this->_cache)
+            $this->getBehavior('ARcache')->flush();
+        $this->lastSql=$this->db->lastSql;
+        return $res;
+    }
 
 	
 	/**
@@ -462,6 +484,35 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 		return $this->findAllBySql($this->buildSelectSql());
 	}
 
+	/**
+     * 分批数据返回处理 
+     * 仅支持单主键表 
+     * @access public
+     * @param integer  $count    每次处理的数据数量
+     * @param callable $callback 处理回调方法
+     * @param string   $column   分批处理的字段名
+     * @return boolean
+     */
+    public function chunk($count, $callback, $column = null)
+    {
+        $self = unserialize(serialize($this)); //拷贝对象,以免内部查询污染
+        $key  = $self->_pk[0];
+        if(empty($key)) 
+        	throw new CException('仅支持单主键表 ！');
+        	
+        $resultSet  = $self->limit($count)->order($key, 'asc')->findAllBySql($self->buildSelectSql(true,false));
+        $this->lastSql = $self->getLastSql();
+        while (!empty($resultSet)) {
+            if (false === call_user_func($callback, $resultSet)) {
+                return false;
+            }
+            $end       = end($resultSet);
+            $lastId    = $end[$key];
+            $resultSet = $self->where([$key=>['gt', $lastId]])->findAllBySql($self->buildSelectSql(true,false));
+            $this->lastSql = $self->getLastSql();
+        }
+        return true;
+    }
 
 	/**
 	 * 删除本记录

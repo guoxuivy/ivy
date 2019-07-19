@@ -74,6 +74,7 @@ class Controller extends CComponent {
      * @param array $data
      */
 	protected function ajaxReturn($code, $message = '', $data = array()) {
+        \Ivy::app()->closeProfile();
         header('Content-type: application/json');
 		if (empty( $data )) {
 			die ( json_encode ( array (
