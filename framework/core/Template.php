@@ -100,6 +100,8 @@ class Template{
         ob_start();
         include $cacheFile;
         $output = ob_get_clean();
+        //表单token
+        $this->tagToken($output);
         return $output;
     }
 
@@ -126,8 +128,6 @@ class Template{
         $cacheFile = __RUNTIME__.DS.'template'.DS.md5($template_path).$ext;
         if (!$this->checkCache($cacheFile)) {
             $content = $this->getContent($template_path,$ext);
-            //表单token
-            $this->tagToken($content);
             $this->tagsCompiler($content);
             $this->writeCache($cacheFile, $content);
         }
@@ -170,9 +170,9 @@ EOT;
         foreach ($pat_array as $block){
             $name = $block[1];
             $content = $block[0];
-            if($block_child[$name])
+            if($block_child[$name]){
                 $layout_content = str_replace($content, $block_child[$name], $layout_content);
-
+            }
         }
         return $layout_content;
     }
