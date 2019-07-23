@@ -51,7 +51,7 @@ abstract class Widget extends Controller {
         $data = array_merge($this->data,$data);
         $template = new Template($this);
         $template->assign($data);
-        $cacheFile = $template->checkAndBuildTemplateCache($template_path,false,$ext);
+        $cacheFile = $template->checkAndBuildTemplateCache($template_path,$ext);
         $output = $template->ob($cacheFile);
         return $output;
 	}

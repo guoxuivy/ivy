@@ -9,8 +9,7 @@
  */
 namespace Ivy\core;
 class Controller extends CComponent {
-	//默认布局文件
-	public $layout=NULL;
+
 	//逻辑层池
 	private $_logics=array();
 

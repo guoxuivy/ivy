@@ -32,18 +32,63 @@ class Template{
 
 	public function init(){}
 
+
     /**
-     * 显示输出 加载布局文件
+     * 返回渲染后的模板
      * @param string $template
+     * @param array $data
      * @param string $ext
+     * @return string
      * @throws CException
      */
-	public function display($template='',$ext = '.phtml'){
+    public function render($template='',$data=array(),$ext='.phtml'){
+        $this->data = array_merge($this->data,$data);
+        return $this->display($template,$ext,true);
+    }
+
+    /**
+     * 渲染输出模板
+     * @param string $template
+     * @param string $ext
+     * @param bool $render
+     * @return string
+     * @throws CException
+     */
+    public function display($template='',$ext = '.phtml',$render = false){
         $template_path = $this->getViewFile($template,$ext);
-        $cacheFile = $this->checkAndBuildTemplateCache($template_path,true,$ext);
+        $cacheFile = $this->checkAndBuildTemplateCache($template_path,$ext);
         $output = $this->ob($cacheFile);
-		echo $output;
-	}
+        if ($render){
+            return $output;
+        }
+        echo $output;
+    }
+
+    /**
+     * 获取模板内容,自动合并父模板内容
+     * @param string $template 兼容绝对路径
+     * @param string $ext
+     * @return bool|mixed|string
+     * @throws CException
+     */
+    protected function getContent($template='',$ext = '.phtml'){
+        if(false===strpos($template,__PROTECTED__)){
+            $template_path = $this->getViewFile($template,$ext);
+        }else{
+            $template_path = $template;
+        }
+        $content = file_get_contents($template_path);
+        $regex =   '/\{extend name=[\'|"](.*?)[\'|"][^\}]*}/is';
+        preg_match($regex,$content,$matches);
+        $parent_template = $matches[1];
+        if($parent_template){
+            $parent_content = $this->getContent($parent_template,$ext);
+            //block替换
+            $content = $this->blockReplace($parent_content,$content);
+        }
+        return $content;
+    }
+
 
     /**
      * 模板文件加载到ob
@@ -59,22 +104,6 @@ class Template{
     }
 
     /**
-     * 返回渲染好的html  不带布局
-     * @param string $template
-     * @param array $data
-     * @param string $ext
-     * @return string
-     * @throws CException
-     */
-	public function render($template='',$data=array(),$ext='.phtml'){
-        $this->data = array_merge($this->data,$data);
-        $template_path = $this->getViewFile($template,$ext);
-        $cacheFile = $this->checkAndBuildTemplateCache($template_path,false,$ext);
-        $output = $this->ob($cacheFile);
-		return $output;
-	}
-
-    /**
      * 引入其他模版文件
      * @param $template
      * @param string $ext
@@ -82,29 +111,21 @@ class Template{
      */
     public function import($template,$ext = '.phtml'){
         $template_path = $this->getViewFile($template,$ext);
-        $cacheFile = $this->checkAndBuildTemplateCache($template_path,false,$ext);
+        $cacheFile = $this->checkAndBuildTemplateCache($template_path,$ext);
         include $cacheFile;
     }
 
     /**
      * 检查并生成模板缓存文件
-     * @param $template_path 模板文件路径
-     * @param bool $layout  是否检查布局文件
+     * @param $template_path 模板文件绝对路径
      * @param string $ext
      * @throws CException
      * @return string
      */
-    public function checkAndBuildTemplateCache($template_path,$layout=true,$ext='.phtml'){
-        $cacheFile = __RUNTIME__.DS.'template'.DS.md5($template_path.$this->controller->layout).$ext;
+    public function checkAndBuildTemplateCache($template_path,$ext='.phtml'){
+        $cacheFile = __RUNTIME__.DS.'template'.DS.md5($template_path).$ext;
         if (!$this->checkCache($cacheFile)) {
-            // 缓存无效 重新模板编译
-            $content = file_get_contents($template_path);
-            if($layout && $this->controller->layout!=null){
-                $layout_path = $this->getViewFile($this->controller->layout,$ext);
-                $layout_content = file_get_contents($layout_path);
-                //block替换
-                $content = $this->blockReplace($layout_content,$content);
-            }
+            $content = $this->getContent($template_path,$ext);
             //表单token
             $this->tagToken($content);
             $this->tagsCompiler($content);
