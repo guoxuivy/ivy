@@ -25,7 +25,6 @@ class Model extends CComponent{
 	// 链操作方法列表 table distinct field join where group having union order limit
 	protected $methods	=   array('table','distinct','field','join','where','group','having','union','order','limit','page');
 
-
 	public function __construct($config=null){
 		if( is_null($config) && is_null($this->_config) ){
 			$config = \Ivy::app()->C('db_pdo');
@@ -192,6 +191,13 @@ class Model extends CComponent{
 		$this->options['table']= $table;
 		return $this;
 	}
+
+    public function getTableName(){
+        if(method_exists($this,'tableName')){
+            return $this->tableName();
+        }
+        return $this->options['table'];
+    }
 	/**
 	 * 构建查询sql
 	 **/
@@ -240,17 +246,21 @@ class Model extends CComponent{
 		return $this->db->_exec($sql);
 	}
 
-	/**
-	 * 数据插入
-	 * @param [string] $tableName  [description]
-	 * @param [array] $data [description]
-	 * @return  lastInsertId 
-	 */
-	public function insertData($tableName=null,$data=null){
-		if(empty($tableName)||empty($data))
-			throw new CException("插入参数不全！");
+    /**
+     * 数据插入
+     * @param null $tableName
+     * @param null $data
+     * @return mixed
+     */
+	public function insertData($data=null){
+        $tableName = $this->getTableName();
+        if(empty($tableName)||empty($data))
+            throw new CException("插入参数不全！");
 		return $this->db->insertData($tableName,$data);
 	}
+    public function lastInsertId() {
+        return $this->db->lastInsertId();
+    }
 
 	/**
 	 * 更新数据
@@ -259,8 +269,9 @@ class Model extends CComponent{
 	 * @param  [type] $data	  [description]
 	 * @return [boolen]		  是否执行成功
 	 */
-	public function updateData($tableName=null,$condition=null,$data=null){
-		if(empty($tableName)||empty($data))
+	public function updateData($condition=null,$data=null){
+        $tableName = $this->getTableName();
+		if(empty($tableName)||empty($data)||empty($condition))
 			throw new CException("更新参数不全！");
 		return $this->db->updateDataByCondition($tableName,$condition,$data);
 	}
@@ -271,7 +282,8 @@ class Model extends CComponent{
 	 * @param  [type] $condition 同连贯操作 where 参数
 	 * @return [boolen]		  是否执行成功
 	 */
-	public function deleteData($tableName=null,$condition=null){
+	public function deleteData($condition=null){
+        $tableName = $this->getTableName();
 		if(empty($tableName)||empty($condition))
 			throw new CException("删除参数不全！");
 		return $this->db->deleteDataByCondition($tableName,$condition);

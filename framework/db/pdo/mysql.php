@@ -90,7 +90,7 @@ class mysql extends AbsoluteDB {
 	 */
 	public function commitT(){
 		if ($this->_transaction_level == 1){
-			$res = $this->pdo()->commit();
+			$this->pdo()->commit();
 			//恢复自动提交
 			$this->pdo()->setAttribute(\PDO::ATTR_AUTOCOMMIT, 1);
 		}
@@ -106,13 +106,17 @@ class mysql extends AbsoluteDB {
 	 * @return int id;
 	 */
 	public function insertData($tableName, $data) {
+        if(empty($tableName)||empty($data))
+            throw new CException("插入参数不全！");
 		$sql = $this->getInsertSql($tableName, $data);
-		$this->_exec( $sql );
-		return $this->pdo()->lastInsertId();
+        return  $this->_exec( $sql );
 	}
+	public function lastInsertId() {
+        return $this->pdo()->lastInsertId();
+    }
 
 
-	/**
+    /**
 	 * 执行sql返回结果集
 	 * @param string $sql;
 	 * @return array or null

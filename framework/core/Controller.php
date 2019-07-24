@@ -24,6 +24,10 @@ class Controller extends CComponent {
 		return \Ivy::app()->getDb();
 	}
 
+    public function getRequest() {
+        return \Ivy::request();
+    }
+
     /**
      * 获取模版对象
      * @return Template

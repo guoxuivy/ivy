@@ -366,8 +366,9 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	*/
 	private function _insert(){
 		if($this->getIsNewRecord()){
-			$lastId = $this->insertData($this->tableName(),$this->getAttributes());
-			if($lastId>0){
+			$res = $this->insertData($this->getAttributes());
+            $lastId = $this->lastInsertId();
+			if($res&&$lastId>0){
 				//自曾主键
 				$key=$this->_pk[0];
 				$this->_attributes[$key]=$lastId;
@@ -392,7 +393,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 		if($this->getIsNewRecord()){
 			throw new CException('这是一个新数据，无法更新！');
 		}else{
-			$this->updateData($this->tableName(),$this->getPk(),$this->getAttributes());
+			$this->updateData($this->getPk(),$this->getAttributes());
 			if($this->_cache)
 				$this->getBehavior('ARcache')->flush();
 			$this->lastSql=$this->db->lastSql;
@@ -412,7 +413,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
         if(empty($data)){
             return $this->_update();
         }
-        $res = $this->updateData($this->tableName(),$this->options['where'],$data);
+        $res = $this->updateData($this->options['where'],$data);
         if($this->_cache)
             $this->getBehavior('ARcache')->flush();
         $this->lastSql=$this->db->lastSql;
@@ -534,7 +535,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 * @return [type]            [影响行数]
 	 */
 	public function deleteByPk($pk=null) {
-		$num = $this->deleteData($this->tableName(),$this->getPk($pk));
+		$num = $this->deleteData($this->getPk($pk));
 		if($this->_cache&&$num)
 			$this->getBehavior('ARcache')->flush();
 		return $num;
@@ -547,7 +548,7 @@ abstract class ActiveRecord extends Model implements \IteratorAggregate, \ArrayA
 	 */
 	public function deleteAll($where=null) {
 		if(empty($where)) return false;
-		$num = $this->deleteData($this->tableName(),$where);
+		$num = $this->deleteData($where);
 		if($this->_cache&&$num)
 			$this->getBehavior('ARcache')->flush();
 		return $num;

@@ -703,6 +703,14 @@ class Request
         return in_array(strtoupper($method), ['GET','POST','PUT','DELETE','OPTIONS','PATCH']);
     }
 
+    /**
+     * 获取当前访问路径
+     * @return string http:www.test.com/a/b/c?id=123
+     * @throws CException
+     */
+    public function getURL(){
+        return $this->getBaseUrl(true).$_SERVER['REQUEST_URI'];
+    }
 
     /**
      * 获取当前主机
@@ -746,7 +754,7 @@ class Request
     }
 
     /**
-     * 当前脚本url
+     * 当前脚本uri (不包含域名,参数)
      * @return mixed|string  index.php
      * @throws CException
      */
@@ -763,7 +771,7 @@ class Request
         elseif(isset($_SERVER['DOCUMENT_ROOT']) && strpos($_SERVER['SCRIPT_FILENAME'],$_SERVER['DOCUMENT_ROOT'])===0)
             $scriptUrl=str_replace('\\','/',str_replace($_SERVER['DOCUMENT_ROOT'],'',$_SERVER['SCRIPT_FILENAME']));
         else
-            throw new CException("ERROR");
+            throw new CException("URL ERROR");
         return $scriptUrl;
     }
 

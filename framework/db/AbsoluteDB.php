@@ -531,28 +531,36 @@ abstract class AbsoluteDB {
 
 	/**
 	 * 生成插入数据sql语句
+     * 可下沉到驱动
 	 */
 	protected function getInsertSql($tableName,$data){
-		if (! isset ( $tableName )) {
-			throw new CException ( '无效的表' );
+		if (! isset ( $tableName ) || empty($data)) {
+			throw new CException ( '无效数据' );
 		}
-		$sql = 'insert into '.$this->parseKey($tableName).' (';
+		$sql = 'insert into '.$this->parseKey($tableName);
 		$kStr = $vStr= array();
-		
-		if(!empty($data)){
-			//$count = 0;
-			foreach ($data as $k => $v){
-				$v = is_null($v)?'':$v;
-				$kStr[] = $this->parseKey($k);
-				$vStr[] = $this->parseValue($v);
-			}
-		}
-		$sql .= implode(',',$kStr).') values('.implode(',',$vStr).')';
+        if (0===key($data)) {
+            // 多数据插入
+            $rows = $data;
+        } else {
+            // 单条数据插入
+            $rows = [$data];
+        }
+        foreach ($rows as $index=>$row){
+            $_tmp_v = [];
+            foreach ($row as $k => $v){
+                $index==0 && $kStr[] = $this->parseKey($k);
+                $_tmp_v[] = $this->parseValue($v);
+            }
+            $vStr[] = '('.implode(',',$_tmp_v).')';
+        }
+        $sql .= ' ('.implode(',',$kStr).') values '.implode(',',$vStr);
 		return $sql;
 	}
 
 	/**
 	 * 生成更新sql语句
+     * 可下沉到驱动
 	 */
 	protected function getUpdataSql($tableName,$where='',$data){
 		if (! isset ( $tableName )) {
@@ -575,6 +583,7 @@ abstract class AbsoluteDB {
 
 	/**
 	 * 生成删除sql语句
+     * 可下沉到驱动
 	 */
 	protected function getDeltetSql($tableName,$where=''){
 		if (! isset ( $tableName )) {
