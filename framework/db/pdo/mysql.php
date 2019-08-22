@@ -41,16 +41,18 @@ class mysql extends AbsoluteDB {
 	public function connect($config) {
 		try {
 			$params = array (
-				\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\'' ,
+				\PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8'" ,
 				\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
 				//\PDO::ATTR_PERSISTENT => true //持久连接配置
 			);
 			$pdo = new \PDO ( $config ['dsn'], $config ['user'], $config ['password'], $params);
-			//$pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-			//$pdo->exec('set names utf8');
+			// $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+			// $pdo->exec('set names utf8');
 			return $pdo;
 		} catch ( \PDOException $e ) {
-			throw new DBException ( $e->getMessage(),$e->getCode(),$e);
+            $encode = mb_detect_encoding($e->getMessage(), array("ASCII",'UTF-8',"GB2312","GBK",'BIG5'));
+            $str_error = mb_convert_encoding($e->getMessage(), 'UTF-8', $encode);
+			throw new DBException ( $str_error,$e->getCode(),$e);
 		}
 	}
 

@@ -36,7 +36,7 @@ class Model extends CComponent{
 	/**
 	 * 返回模型对象实例  同样的类名称，不同的配置， 则生产不同的实例
 	 * 支持数据库配置文件自定义
-	 * @return obj 
+	 * @return \Ivy\core\Model
 	 */
 	public static function model($config=null){
 		$className = get_called_class();
@@ -289,15 +289,14 @@ class Model extends CComponent{
 		return $this->db->deleteDataByCondition($tableName,$condition);
 	}
 
-	/**
-	 * 获取翻页信息  配合 page(),方法使用
-	 * @param string $tableName	表名
-	 * @param array $order 排序
-	 * @param int $limit 每页显示条数
-	 * @param int $page 页码
-	 * @return array
-	 */
-	public function count(){
+
+    /**
+     * 获取翻页信息  配合 page(),方法使用
+     * @param bool $clean
+     * @return int
+     * @throws CException
+     */
+	public function count($clean = true){
 		if(empty($this->options['table']))
 			$this->table();
 		if(!isset($this->options['page'])) $this->page();
@@ -313,55 +312,45 @@ class Model extends CComponent{
 		}else{
 			$count_str=' SUM(ivy_count.`count`) as `count` ';
 		}
-		$count = $this->findBySql("select ".$count_str." from (".$sql_count.") AS ivy_count" );
+		$sql = "select ".$count_str." from (".$sql_count.") AS ivy_count";
+        $this->lastSql=$sql;
+		$count = $this->findBySql($sql);
+		if($clean){
+            $this->options=array();
+        }
 		return (int)$count['count'];
 	}
 
-	/**
-	 * 获取翻页信息  配合 page(),方法使用
-	 * @param int $link_num 分页显示条数
-	 * @return array
-	 */
+    /**
+     * 获取列表 加翻页信息
+     * @param int $link_num $link_num 分页链接显示条数
+     * @return array
+     * @throws CException
+     */
 	public function getPagener($link_num = 5){
-		$data = array();
-		if(empty($this->options['table']))
-			$this->table();
-		if(!isset($this->options['page'])) $this->page();
-		//统计总数
-		$opt_count=$this->options;
-		//删除影响统计的option
-		unset($opt_count['page'],$opt_count['limit'],$opt_count['order']);
-		$opt_count['field']='count(1) as `count`';
-		$sql_count = $this->db->buildSelectSql($opt_count);
-		//按分组需求来统计总记录数
-		if(isset($opt_count['group'])){
-			$count_str=' COUNT(*) AS `count` ';
-		}else{
-			$count_str=' SUM(ivy_count.`count`) as `count` ';
-		}
-		$count = $this->findBySql("select ".$count_str." from (".$sql_count.") AS ivy_count" );
-		$pagener['recordsTotal'] = (int)$count['count'];
-
-		if(!isset($this->options['page'])) $this->options['page']=1;
+		$data = $paging = array();
+        $total = $this->count(false);
+        $paging['recordsTotal'] = $total;
+		if(!isset($this->options['page'])){
+            $this->options['page']=1;
+        }
 		$options = $this->options;
-		if(isset($options['page'])) {
-			// 根据页数计算limit
-			if(strpos($options['page'],',')) {
-				list($page,$listRows) =  explode(',',$options['page']);
-			}else{
-				$page = $options['page'];
-			}
-			$page	=  $page?$page:1;//当前页
-			$listRows=  isset($listRows)?$listRows:(isset($options['limit'])&&is_numeric($options['limit'])?$options['limit']:20);//每页记录数
-			$this->options['limit'] = $listRows;
-		}
-		$pagener['pageSize'] = (int)$listRows;
-		$pagener['pageNums'] = (int)ceil($count['count']/$listRows);
-		$pagener['currentPage'] = (int)$page;
-		$data['pagener']=$this->db->generatePagener($pagener,$link_num);
+        // 根据页数计算limit
+        if(strpos($options['page'],',')) {
+            list($page,$listRows) =  explode(',',$options['page']);
+        }else{
+            $page = $options['page'];
+        }
+        $page	=  $page?$page:1;//当前页
+        $listRows=  isset($listRows)?$listRows:(isset($options['limit'])&&is_numeric($options['limit'])?$options['limit']:20);//每页记录数
+        $this->options['limit'] = $listRows;
+
+        $paging['pageSize'] = (int)$listRows;
+        $paging['pageNums'] = (int)ceil($total/$listRows);
+        $paging['currentPage'] = (int)$page;
+		$data['pagener']=$this->db->generatePagener($paging,$link_num);
 		$data['list'] = $this->findAllBySql($this->buildSelectSql());
 		$data['page_code']=\Ivy::app()->widget('page/page',array('data'=>$data));//核心无此widget 自行扩展分页
-
         return $data;
 	}
 
