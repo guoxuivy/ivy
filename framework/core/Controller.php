@@ -12,6 +12,7 @@ class Controller extends CComponent {
 
 	//逻辑层池
 	private $_logics=array();
+	private $_view=null;
 
 	public function __construct($route=NULL) {
 		$this->attachBehavior($route,'route');//路由注入
@@ -33,7 +34,10 @@ class Controller extends CComponent {
      * @return Template
      */
 	public function getView() {
-		return new Template($this);
+		if(empty($this->_view)){
+			$this->_view = new Template($this);
+		}
+		return $this->_view;
 	}
 
 	/**
