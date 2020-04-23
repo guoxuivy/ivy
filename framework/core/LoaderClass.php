@@ -120,3 +120,8 @@ class LoaderClass{
 	}
 }
 LoaderClass::autoLoad();
+
+// 引入 composer 加载器
+if(file_exists(__ROOT__.'/vendor/autoload.php')){
+	require __ROOT__.'/vendor/autoload.php';
+}

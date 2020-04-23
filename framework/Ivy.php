@@ -12,7 +12,7 @@
 header('Content-type: text/html; charset=utf-8');
 date_default_timezone_set('Asia/Shanghai');
 defined('DS') or define('DS',DIRECTORY_SEPARATOR);
-defined('__ROOT__') or define('__ROOT__', dirname(__DIR__));                             //定义网站根目录 D:\wwwroot\veecar   veecar为项目目录
+defined('__ROOT__') or define('__ROOT__', dirname(__DIR__));                                    //定义网站根目录 D:\wwwroot\veecar   veecar为项目目录
 defined('__PROTECTED__') or define('__PROTECTED__',__ROOT__.DS."protected");                    //定义项目文件根目录 D:\wwwroot\veecar\protected
 defined('__RUNTIME__') or define('__RUNTIME__',__ROOT__.DS."runtime");
 defined('IVY_PATH') or define('IVY_PATH',dirname(__FILE__));                              //定义框架根目录 D:\wwwroot\veecar\ivy\framework
