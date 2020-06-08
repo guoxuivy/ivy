@@ -210,9 +210,11 @@ class Ivy
 		return self::request()->getScriptUrl();
 	}
 }
-Ivy::init();
-defined('SITE_URL') or define('SITE_URL',Ivy::getBaseUrl(true));			//定义网站根url 绝对路径 http://www.test.com
 
-function halt($var){
-    var_dump($var);die;
+if(!function_exists('halt')){
+	function halt($var){
+    	var_dump($var);die;
+	}
 }
+
+Ivy::init();
