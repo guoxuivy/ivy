@@ -11,6 +11,11 @@ namespace Ivy\core;
 
 class Route {
 
+    // 路由规则
+    private static $rules = [
+        
+    ];
+
 	//默认路由
 	static $_route= array(
 		'module' =>'',
@@ -27,6 +32,7 @@ class Route {
     public $pathinfo = '';
 
 	public function __construct(){
+        require_once(__PROTECTED__.DS.'route.php');
 	}
 
 	/**
@@ -62,8 +68,8 @@ class Route {
          //    $routerStr = substr($routerStr,0,strrpos($routerStr,'?'));
         // }
         $this->pathinfo = $routerStr;
+        $this->param = $_GET= $param;
 		$this->analyzeRoute($routerStr);
-		$this->param = $_GET= $param;
 	}
 
     public function convertUrlQuery($query)
@@ -85,6 +91,14 @@ class Route {
      * @return bool|string
      */
 	public function url($uri="",$param=array()){
+        $p_uri = parse_url($uri);
+        $uri = $p_uri['path'];
+        // 参数标准化
+        foreach (explode('&',$p_uri['query']) as $q) {
+            list($k,$v) = explode('=',$q);
+            $param[$k] = $v;
+        }
+
         $type = 0; //url友好模式
         if(0 === strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME'])){
             // 有index.php
@@ -103,6 +117,9 @@ class Route {
         }else{
             $uri = '/'.rtrim($uri);
         }
+        list($uri,$param) = self::checkRule($uri,$param);
+
+        // 定制路由规则检测转换
 		$param_arr = array_filter($param);
 		if(!empty($param_arr)){
             $uri .= '?';
@@ -113,6 +130,38 @@ class Route {
 		}
 		return $uri;
 	}
+
+    /**
+     * 将框架路由转为自定义路由参数
+     * @param string    $rule 路由规则
+     * @param string    $route 路由地址
+     */
+    protected static function checkRule($uri,$param){
+
+        $find_route = $uri;
+        '/'==$find_route[0] && $find_route = substr($find_route,1);
+        foreach (self::$rules as $rule => $route) {
+            if($find_route == $route){
+                $params = self::parseVar($rule);
+                foreach ($params as $k => $v) {
+                    $rule = str_replace(':'.$k,$param[$k],$rule);
+                    unset($param[$k]);
+                }
+                $uri =  str_replace($find_route,$rule,$uri);
+                return array_values(compact("uri", "param"));
+            }
+        }
+        return array_values( compact('uri','param') );
+    }
+
+    /**
+     * 设置路由规则
+     * @param string    $rule 路由规则
+     * @param string    $route 路由地址
+     */
+    public static function rule($rule, $route){
+        self::$rules[$rule] = $route;
+    }
 
 	/**
 	 * 获取当前路由数组
@@ -147,10 +196,75 @@ class Route {
 		$res = self::$_route;
 		$_global_route=\Ivy::app()->C('route');
 		if($_global_route){
-			$res = array_merge($res,$_global_route);
+			self::$_route = array_merge($res,$_global_route);
 		}
-		return $res;
+		return self::$_route;
 	}
+
+    
+    // 返回目标路由和变量参数
+    private function doRules($route_arr){ 
+        // $res = self::parseVar("back/[:abc]/:id/[:is]");
+        $param = [];
+        $find_routeStr = '';
+        // var_dump($route_arr);
+        // var_dump(self::$rules);
+        $find_routeStr = '';
+        foreach (self::$rules as $rule => $routeStr) {
+            $items = explode('/',$rule);
+            if(count($items)===count($route_arr)){
+                $find = true;
+                foreach ($items as $k => $item) {
+                    if (0 === strpos($item, ':')) {
+                        $name       = substr($item, 1);
+                        $param[$name] = $route_arr[$k];
+                        continue;
+                    }
+                    if($item != $route_arr[$k]){
+                        $find = false; //不匹配
+                        break;
+                    }
+                }
+
+            }else{
+                $find = false;
+            }
+            
+            if($find){
+                $find_routeStr = $routeStr;
+                break;
+            }
+        }
+
+        if(!empty($find_routeStr)){
+            $this->param = array_merge($this->param,$param);
+            return explode('/',$find_routeStr);
+            // halt($find_routeStr);
+        }
+        return $route_arr;
+        // halt($find_routeStr);
+    }
+
+    private static function parseVar($rule)
+    {
+        // 提取路由规则中的变量
+        $var = [];
+        foreach (explode('/', $rule) as $val) {
+            $optional = false;
+            if (0 === strpos($val, '[:')) {
+                // 可选参数
+                $optional = true;
+                $val      = substr($val, 1, -1);
+            }
+            if (0 === strpos($val, ':')) {
+                // URL变量
+                $name       = substr($val, 1);
+                $var[$name] = $optional ? 2 : 1; //2表示可选参数
+            }
+        }
+        return $var;
+    }
+    
 
 	/**
 	 * 解析路由信息
@@ -164,6 +278,8 @@ class Route {
 			$route_tmp = explode('/', $route_str);
 		}
 		$route_tmp=array_filter($route_tmp);
+        //自定义路由规则检测并替换
+        $route_tmp = $this->doRules($route_tmp);
 		$route_info = array();
 		if(count($route_tmp) == 3){ //分组模式
 			$route_info['module'] = array_shift($route_tmp);
