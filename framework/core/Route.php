@@ -101,7 +101,6 @@ class Route
             list($k, $v) = explode('=', $q);
             $param[$k] = $v;
         }
-
         $type = 0; //url友好模式
         if (0 === strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME'])) {
             // 有index.php
@@ -118,7 +117,7 @@ class Route
             $param['r'] = rtrim($uri);
             $uri = $_SERVER['SCRIPT_NAME'];
         } else {
-            $uri = '/' . rtrim($uri);
+            $uri = '/' . ltrim(rtrim($uri), "/");
         }
         list($uri, $param) = self::checkRule($uri, $param);
 
@@ -141,6 +140,19 @@ class Route
      */
     protected static function checkRule($uri, $param)
     {
+        // 二级域名路由规则命中
+        $subDomain = \Ivy::request()->getSubDomain();
+        if ($subDomain && 'www' != $subDomain) {
+            foreach (self::$rules['__domain__'] as $_subDomain => $v) {
+                if ($_subDomain == $subDomain) {
+                    $v = '/' . ltrim($v, "/");
+                    if (strpos($uri, $v) !== false) {
+                        $uri = str_replace($v, '', $uri);
+                    }
+                }
+            }
+        }
+
         $find_route = $uri;
         '/' == $find_route[0] && $find_route = substr($find_route, 1);
         foreach (self::$rules as $rule => $route) {
@@ -213,11 +225,11 @@ class Route
     private function doRules($routerStr)
     {
         //检测二级域名路由
-        $_hosts = explode('.', \Ivy::request()->host());
-        if (3 == count($_hosts) && 'www' != $_hosts[0]) {
+        $subDomain = \Ivy::request()->getSubDomain();
+        if ($subDomain && 'www' != $subDomain) {
             // 有二级域名
             foreach (self::$rules['__domain__'] as $rule => $routeStr) {
-                if ($rule == $_hosts[0]) {
+                if ($rule == $subDomain) {
                     $routerStr = $routeStr . '/' . $routerStr;
                 }
             }

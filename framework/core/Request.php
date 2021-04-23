@@ -754,6 +754,15 @@ class Request
     }
 
     /**
+     * 返回二级域名 test.xx.com => test
+     * @return mixed
+     */
+    public function getSubDomain(){
+        $_hosts = explode('.', $this->host());
+        return $_hosts[0];
+    }
+
+    /**
      * 当前脚本uri (不包含域名,参数)
      * @return mixed|string  index.php
      * @throws CException
