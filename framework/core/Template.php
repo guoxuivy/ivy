@@ -362,6 +362,7 @@ EOT;
 			'#\{\/(foreach|if)}#',
             '#\{block name=[\'|\"](.*?)[\'|\"]\}#','#\{\/block}#',
             '#\{:(.*?)}#',
+            '#\{php (.*?)}#',
 		];
 		$_translation = [
             '<?php echo \$\\1->\\2; ?>',
@@ -376,6 +377,7 @@ EOT;
 			'<?php }?>',
             '<!--block \\1 -->','<!--block end-->',
             '<?php echo \\1; ?>',
+            '<?php \\1; ?>',
 		];
 		$content =  preg_replace($_patten, $_translation, $content);
 	}

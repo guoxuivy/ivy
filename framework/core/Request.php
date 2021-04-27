@@ -125,7 +125,8 @@ class Request
     public function get($name = '', $default = null, $filter = '')
     {
         if (empty($this->get)) {
-            $this->get = $_GET;
+            // 将当前路由参数合并到GET中
+            $this->get = array_merge($_GET,\Ivy::app()->getRoute()->param);
         }
         if (is_array($name)) {
             $this->param      = [];

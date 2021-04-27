@@ -123,6 +123,14 @@ final class Application extends CComponent {
 		}
 	}
 
+    /**
+     * 获取当前路由对象
+     * @return Route|null
+     */
+    public function getRoute() {
+        return $this->_route;
+    }
+
 
     /**
      * 登录用户句柄对象
