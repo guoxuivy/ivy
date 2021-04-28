@@ -114,7 +114,7 @@ class Template{
     public function import($template,$ext = '.phtml'){
         $template_path = $this->getViewFile($template,$ext);
         $cacheFile = $this->checkAndBuildTemplateCache($template_path,$ext);
-        include $cacheFile;
+        return $this->ob($cacheFile);
     }
 
     /**
